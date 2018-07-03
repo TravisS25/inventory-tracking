@@ -1,0 +1,39 @@
+{{ if .toContact }}
+    <h2>Added to account</h2>
+    <p>
+        {{ if .user.ContractorID }}
+            {{ .user.Contractor.ContractorName }} has invited you to join their account on Pick A Contractor Inc.
+        {{ else }}
+            You have been invited to join an account on Pick A Contractor Inc. by {{ .user.FullName }}
+        {{ end }}
+        <p>
+            Your temp password is: {{ .tempPassword }}
+        </p>
+        <p>
+            Please click the following link to verify email and to activate account.
+        </p>
+        <div>
+            <a href="{{ .url }}">
+            {{ .url }}
+            </a>
+        </div>
+    </p>
+{{ else }}
+    <p>
+        Thank you for signing up with Pick A Contractor Inc. <br /> 
+        Your temp password is: {{ .tempPassword }}  Please login from the below link to continue the process.
+    </p>
+    <p>
+        Please click the link below to verify your email and to activate account: <br/>
+        <a href="{{ .url }}">
+            {{ .url }}
+        </a>
+    </p>
+    <p>
+        This link is only active for the next 7 days.
+    </p>
+{{ end }}
+
+<p>
+    If links are not enabled in this email, you may also copy and paste the link into a web browser.
+</p>

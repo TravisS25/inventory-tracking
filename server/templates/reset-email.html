@@ -1,0 +1,8 @@
+<p>
+    You have requested for your password to be reset.  Please click the following link to continue the process <br />
+    <a href="http://{{ .clientDomain }}/account/confirm-password-reset/{{ .hash }}/">Reset Password</a>
+    <!-- <a href="http://` + config.Conf.ClientDomain + `/account/confirm-password-reset/` + hash + `/">Reset Password</a> -->
+</p>
+<p>
+    This will expire in {{ .hours }} hours
+</p>

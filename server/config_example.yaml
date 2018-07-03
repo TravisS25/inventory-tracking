@@ -1,0 +1,62 @@
+domain: localhost:8004
+client_domain: localhost:4200
+csrf: fF832S1flhmd6fdl5BgmbkskghmawQP3
+https: false
+templates_dir: /Users/travis/Programming/Go/src/bitbucket.org/TravisS25/contractor-tracking/contractor-tracking/contractor-server/templates/*.html
+stripe:
+  test_mode: true
+  stripe_test_secret_key: sk_test_CfO1WMuoF9s8Dav1VZw69IXS
+  stripe_live_secret_key: 123456
+email_config:
+  test_mode: true
+  test_email:
+    host: localhost
+    port: 1025
+    user: "test@email.com"
+    password: 123456
+    use_tls: false
+  live_email:
+    host: smpt.google.com
+    port: 537
+    user: user@example.com
+    password: "123456"
+    use_tls: true
+cache:
+  redis:
+    address: 192.168.56.101:6379
+    password: ""
+    db: 0
+store:
+  redis:
+    size: 10
+    network: tcp
+    password: ""
+    auth_key: fF832S1flhmd6fdl5BgmbkskghmawQP3
+    encrypt_key: fF832S1flhmd6fdl5BgmbkskghmawQP3
+    address: 192.168.56.101:6379
+  file_system_store:
+    dir: 192.168.56.101:6379
+    auth_key: fF832S1flhmd6fdl5BgmbkskghmawQP3
+    encrypt_key: fF832S1flhmd6fdl5BgmbkskghmawQP3
+  cookie_store:
+    auth_key: fF832S1flhmd6fdl5BgmbkskghmawQP3
+    encrypt_key: fF832S1flhmd6fdl5BgmbkskghmawQP3
+database_config:
+  test_mode: true
+  prod:
+    db_name: contractor_tracking
+    user: postgres
+    password: root
+    host: 192.168.56.101
+    port: 5432
+    ssl_mode: disable
+  test:
+    db_name: contractor_tracking_test
+    user: postgres
+    password: root
+    host: 192.168.56.101
+    port: 5432
+    ssl_mode: disable
+allowed_origins:
+  - http://localhost:4200
+  - http://192.168.1.3:4200
