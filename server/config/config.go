@@ -18,9 +18,13 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/gorilla/csrf"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	redistore "gopkg.in/boj/redistore.v1"
+)
+
+const (
+	// LOGFILE is the global file where logs will be written to
+	LOGFILE = "/var/log/inventory-tracking.log"
 )
 
 var (
@@ -31,8 +35,8 @@ var (
 	// Template is used as global template parser to parse html pages generally for sending emails
 	Template *template.Template
 
-	// Store is the global store interface that handles sessions in our app
-	Store sessions.Store
+	// SessionStore is the global store interface that handles sessions in our app
+	SessionStore sessions.Store
 
 	// Cache is the global interface that handles all caching besides sessions
 	Cache cacheutil.CacheStore
@@ -47,7 +51,7 @@ var (
 	DB *dbutil.DB
 
 	// Router is global router
-	Router = mux.NewRouter()
+	RouterPaths = make(map[string]string)
 
 	Routing = make(map[string][]string)
 )
@@ -104,7 +108,7 @@ func initTemplate() {
 }
 
 func initConfigSettings() {
-	Conf = confutil.ConfigSettings("CONTRACTOR_TRACKING_CONFIG")
+	Conf = confutil.ConfigSettings("INVENTORY_TRACKING_CONFIG")
 }
 
 func initCacheSettings() {
@@ -122,7 +126,7 @@ func initStoreSettings() {
 	var err error
 
 	if Conf.Store.Redis != nil {
-		Store, err = redistore.NewRediStore(
+		SessionStore, err = redistore.NewRediStore(
 			Conf.Store.Redis.Size,
 			Conf.Store.Redis.Network,
 			Conf.Store.Redis.Address,
@@ -131,13 +135,13 @@ func initStoreSettings() {
 			[]byte(Conf.Store.Redis.EncryptKey),
 		)
 	} else if Conf.Store.FileSystemStore != nil {
-		Store = sessions.NewFilesystemStore(
+		SessionStore = sessions.NewFilesystemStore(
 			"/tmp",
 			[]byte(Conf.Store.FileSystemStore.AuthKey),
 			[]byte(Conf.Store.FileSystemStore.EncryptKey),
 		)
 	} else {
-		Store = sessions.NewCookieStore(
+		SessionStore = sessions.NewCookieStore(
 			[]byte(Conf.Store.CookieStore.AuthKey),
 			[]byte(Conf.Store.CookieStore.EncryptKey),
 		)
@@ -184,6 +188,13 @@ func initRouting() {
 	Routing["Manager"] = managerUrls
 	Routing["Admin"] = adminUrls
 	Routing["Master"] = adminUrls
+}
+
+func initRouterPaths() {
+	RouterPaths["login"] = "/api/account/login/"
+	RouterPaths["logout"] = "/api/account/logout/"
+	RouterPaths["userDetails"] = "/api/account/user/details/"
+	RouterPaths["changePassword"] = "/api/account/change-password/"
 }
 
 func initCacheReset() {

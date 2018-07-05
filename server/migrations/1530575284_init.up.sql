@@ -1,64 +1,65 @@
 
 CREATE TABLE IF NOT EXISTS building(
     id SERIAL PRIMARY KEY,
-    building_name VARCHAR(50)
+    name VARCHAR(50) not null
 );
 
 CREATE TABLE IF NOT EXISTS building_floor(
     id SERIAL PRIMARY KEY,
-    building_id INT,
-    floor_name VARCHAR(20),
+    building_id INT not null,
+    name VARCHAR(20) not null,
     FOREIGN KEY(building_id) REFERENCES building(id)
 );
 
 CREATE TABLE IF NOT EXISTS department(
     id SERIAL PRIMARY KEY,
-    building_floor_id INT,
-    department_name VARCHAR(50),
+    building_floor_id INT not null,
+    name VARCHAR(50) not null,
     FOREIGN KEY(building_floor_id) REFERENCES building_floor(id)
 );
 
 CREATE TABLE IF NOT EXISTS room(
     id SERIAL PRIMARY KEY,
-    department_id INT,
-    room_name VARCHAR(50),
+    department_id INT not null,
+    name VARCHAR(50) not null,
     FOREIGN KEY(department_id) REFERENCES department(id)
 );
 
 CREATE TABLE IF NOT EXISTS machine_status(
     id SERIAL PRIMARY KEY,
-    status_name VARCHAR(20) UNIQUE
+    status VARCHAR(20) not null UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS machine(
     id SERIAL PRIMARY KEY,
-    room_id INT,
-    machine_status_id INT,
-    machine_name VARCHAR(30) UNIQUE,
-    scanned_time timestamp DEFAULT now(),
+    room_id INT not null,
+    machine_status_id INT not null,
+    machine_name VARCHAR(30) not null UNIQUE,
+    scanned_time timestamp not null DEFAULT now(),
     FOREIGN KEY(room_id) REFERENCES room(id),
     FOREIGN KEY(machine_status_id) REFERENCES machine_status(id)
 );
 
 CREATE TABLE IF NOT EXISTS user_group(
     id SERIAL PRIMARY KEY,
-    group_name VARCHAR(30) UNIQUE
+    name VARCHAR(30) not null UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS title(
     id SERIAL PRIMARY KEY,
-    title VARCHAR(20) UNIQUE,
-    date_created TIMESTAMP DEFAULT now()
+    title VARCHAR(20) not null UNIQUE,
+    date_created TIMESTAMP not null DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS user_profile(
     id SERIAL PRIMARY KEY,
-    title_id int,
-    email VARCHAR(200) UNIQUE,
-    password VARCHAR(1024),
-    first_name VARCHAR(50),
-    last_name VARCHAR(50),
-    date_joined TIMESTAMP DEFAULT now(),
+    title_id int not null,
+    email VARCHAR(200) not null UNIQUE,
+    password VARCHAR(1024) not null,
+    first_name VARCHAR(50) not null,
+    last_name VARCHAR(50) not null,
+    is_active boolean not null,
+    date_joined TIMESTAMP not null DEFAULT now(),
     FOREIGN KEY(title_id) REFERENCES title(id)
 );
 
@@ -72,16 +73,16 @@ CREATE TABLE IF NOT EXISTS user_profile(
 
 CREATE TABLE IF NOT EXISTS user_group_join(
     id SERIAL PRIMARY KEY,
-    user_profile_id INT,
-    user_group_id INT,
+    user_profile_id INT not null,
+    user_group_id INT not null,
     FOREIGN KEY(user_profile_id) REFERENCES user_profile(id),
     FOREIGN KEY(user_group_id) REFERENCES user_group(id)
 );
 
 INSERT INTO building VALUES
-(1, 'Mercy Boardman'),
-(2, 'Mercy Downtown'),
-(3, 'Mercy Warren');
+(1, 'Building One'),
+(2, 'Building Two'),
+(3, 'Building Three');
 
 INSERT INTO building_floor VALUES
 (1, 1, '1 B1'),
@@ -97,13 +98,13 @@ INSERT INTO building_floor VALUES
 INSERT INTO department VALUES
 (1, 1, 'Accounting1'),
 (2, 1, 'Human Resources1'),
-(3, 1, 'Surgery1'),
+(3, 1, 'Engineering1'),
 (4, 2, 'Accounting2'),
 (5, 2, 'Human Resources2'),
-(6, 2, 'Surgery2'),
+(6, 2, 'Engineering'),
 (7, 3, 'Accounting3'),
 (8, 3, 'Human Resources3'),
-(9, 3, 'Surgery3');
+(9, 3, 'Engineering3');
 
 INSERT INTO room VALUES
 (1, 1, 'room1'),

@@ -8,15 +8,17 @@ import (
 	"net/http"
 	"sort"
 
-	"bitbucket.org/TravisS25/contractor-tracking/contractor-tracking/contractor-server/models"
+	"github.com/TravisS25/httputil/confutil"
+
+	"github.com/TravisS25/inventory-tracking/src/server/models"
 
 	"github.com/TravisS25/httputil"
 	"github.com/TravisS25/httputil/apiutil"
 	"github.com/TravisS25/httputil/cacheutil"
 	"github.com/TravisS25/httputil/mailutil"
-	"github.com/TravisS25/inventory-tracking/server/config"
-	"github.com/TravisS25/inventory-tracking/server/forms"
-	"github.com/TravisS25/inventory-tracking/server/helpers"
+	"github.com/TravisS25/inventory-tracking/src/server/config"
+	"github.com/TravisS25/inventory-tracking/src/server/forms"
+	"github.com/TravisS25/inventory-tracking/src/server/helpers"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -84,22 +86,12 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 			`
 			select 
 				user_profile.*,
-				area.id as "area.id",
-				area.area_name as "area.area_name",
-				time_zone.id as "area.time_zone.id",
-				time_zone.time_zone as "area.time_zone.time_zone"
-			from 
-				user_profile 
-			join
-				area on user_profile.area_id = area.id
-			join
-				time_zone on area.time_zone_id = time_zone.id
 			where 
 				email = $1;`,
 			form.Email,
 		)
 
-		if HasQueryError(w, err, "User Not Found", "query user error") {
+		if apiutil.HasQueryError(w, err, "User Not Found") {
 			return
 		}
 
@@ -127,21 +119,21 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 		)
 
 		if err != nil {
-			ServerError(w, err, "query user group join err")
+			apiutil.ServerError(w, err, "query user group join err")
 			return
 		}
 
 		session, err := a.store.Get(r, "user")
 
 		if err != nil {
-			ServerError(w, err, "user session err; login api")
+			apiutil.ServerError(w, err, "user session err; login api")
 			return
 		}
 
 		session.Values["user"], err = json.Marshal(user)
 
 		if err != nil {
-			ServerError(w, err, "user marshal err; login api")
+			apiutil.ServerError(w, err, "user marshal err; login api")
 			return
 		}
 
@@ -159,25 +151,25 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 		urlBytes, err := json.Marshal(urlArray)
 
 		if err != nil {
-			ServerError(w, err, "url array marshal err; login api")
+			apiutil.ServerError(w, err, "url array marshal err; login api")
 			return
 		}
 
 		groupBytes, err := json.Marshal(groupArray)
 
 		if err != nil {
-			ServerError(w, err, "group array marshal err; login api")
+			apiutil.ServerError(w, err, "group array marshal err; login api")
 			return
 		}
 
 		err = session.Save(r, w)
 
 		if err != nil {
-			CheckError(err, "session save err; login api")
+			apiutil.CheckError(err, "session save err; login api")
 		}
 
-		urlStringKey := fmt.Sprintf(URLKey, user.Email)
-		groupStringKey := fmt.Sprintf(GroupKey, user.Email)
+		urlStringKey := fmt.Sprintf(confutil.URLKey, user.Email)
+		groupStringKey := fmt.Sprintf(confutil.GroupKey, user.Email)
 		a.cache.Set(urlStringKey, urlBytes, 0)
 		a.cache.Set(groupStringKey, groupBytes, 0)
 		w.WriteHeader(http.StatusOK)
@@ -190,7 +182,7 @@ func (a *AccountAPI) Logout(w http.ResponseWriter, r *http.Request) {
 	err = session.Save(r, w)
 
 	if err != nil {
-		ServerError(w, err, "")
+		apiutil.ServerError(w, err, "")
 		return
 	}
 }
@@ -201,30 +193,30 @@ func (a *AccountAPI) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	} else {
 		var form forms.ChangePasswordForm
 
-		if HasBodyError(w, r) {
+		if apiutil.HasBodyError(w, r) {
 			return
 		}
 
 		dec := json.NewDecoder(r.Body)
 		err := dec.Decode(&form)
 
-		if HasDecodeError(w, err) {
+		if apiutil.HasDecodeError(w, err) {
 			return
 		}
 
-		user := GetUser(r)
+		user := apiutil.GetUser(r).(models.UserProfile)
 		form.Email = user.Email
 		form.SetQuerier(a.db)
 		err = form.Validate()
 
-		if HasFormErrors(w, r, err) {
+		if apiutil.HasFormErrors(w, r, err) {
 			return
 		}
 
 		hash, err := bcrypt.GenerateFromPassword([]byte(form.NewPassword), bcrypt.DefaultCost)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
@@ -232,7 +224,7 @@ func (a *AccountAPI) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		err = user.Update(a.db)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 	}
@@ -257,21 +249,21 @@ func (a *AccountAPI) ResendVerification(w http.ResponseWriter, r *http.Request) 
 	} else {
 		var form forms.EmailForm
 
-		if HasBodyError(w, r) {
+		if apiutil.HasBodyError(w, r) {
 			return
 		}
 
 		dec := json.NewDecoder(r.Body)
 		err := dec.Decode(&form)
 
-		if HasDecodeError(w, err) {
+		if apiutil.HasDecodeError(w, err) {
 			return
 		}
 
 		form.SetQuerier(a.db)
 		err = form.Validate()
 
-		if HasFormErrors(w, r, err) {
+		if apiutil.HasFormErrors(w, r, err) {
 			return
 		}
 
@@ -291,7 +283,7 @@ func (a *AccountAPI) ResendVerification(w http.ResponseWriter, r *http.Request) 
 			user_profile.id = $1;
 		`
 		user, err := models.QueryUserProfile(a.db, query, form.Email)
-		CheckError(err, "")
+		apiutil.CheckError(err, "")
 
 		uuid4, _ := uuid.NewV4()
 		token := uuid4.String()
@@ -328,7 +320,7 @@ func (a *AccountAPI) ResendVerification(w http.ResponseWriter, r *http.Request) 
 		)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
@@ -342,7 +334,7 @@ func (a *AccountAPI) ResendVerification(w http.ResponseWriter, r *http.Request) 
 		)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 	}
@@ -354,28 +346,28 @@ func (a *AccountAPI) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == "POST" {
 		var form forms.EmailForm
 
-		if HasBodyError(w, r) {
+		if apiutil.HasBodyError(w, r) {
 			return
 		}
 
 		dec := json.NewDecoder(r.Body)
 		err := dec.Decode(&form)
 
-		if HasDecodeError(w, err) {
+		if apiutil.HasDecodeError(w, err) {
 			return
 		}
 
 		form.SetQuerier(a.db)
 		err = form.Validate()
 
-		if HasFormErrors(w, r, err) {
+		if apiutil.HasFormErrors(w, r, err) {
 			return
 		}
 
 		v4, err := uuid.NewV4()
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
@@ -401,7 +393,7 @@ func (a *AccountAPI) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
@@ -415,7 +407,7 @@ func (a *AccountAPI) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		)
 
 		if err != nil {
-			ServerError(w, err, "mailError")
+			apiutil.ServerError(w, err, "mailError")
 			return
 		}
 
@@ -454,13 +446,13 @@ func (a *AccountAPI) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request
 		err = dec.Decode(&form)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
 		err = form.Validate()
 
-		if HasFormErrors(w, r, err) {
+		if apiutil.HasFormErrors(w, r, err) {
 			return
 		}
 
@@ -472,18 +464,18 @@ func (a *AccountAPI) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request
 
 		fmt.Println("heeeere")
 		if err == sql.ErrNoRows {
-			CheckError(err, "")
+			apiutil.CheckError(err, "")
 			w.WriteHeader(http.StatusNotFound)
 			return
 		} else if err != nil && err != sql.ErrNoRows {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
 		passwordBytes, err := bcrypt.GenerateFromPassword([]byte(form.ConfirmPassword), bcrypt.DefaultCost)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
@@ -491,7 +483,7 @@ func (a *AccountAPI) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request
 		err = user.Update(a.db)
 
 		if err != nil {
-			ServerError(w, err, "")
+			apiutil.ServerError(w, err, "")
 			return
 		}
 
@@ -507,16 +499,16 @@ func (a *AccountAPI) EmailExists(w http.ResponseWriter, r *http.Request) {
 		"select id from user_profile where email = $1;",
 		email,
 	)
-	CheckError(err, "")
+	apiutil.CheckError(err, "")
 
 	if err == sql.ErrNoRows {
 		fmt.Println("unique")
-		SendPayload(w, r, map[string]interface{}{
+		apiutil.SendPayload(w, r, false, map[string]interface{}{
 			"uniqueEmail": true,
 		})
 	} else {
 		fmt.Println("not unique")
-		SendPayload(w, r, map[string]interface{}{
+		apiutil.SendPayload(w, r, false, map[string]interface{}{
 			"uniqueEmail": false,
 		})
 	}
@@ -525,7 +517,7 @@ func (a *AccountAPI) EmailExists(w http.ResponseWriter, r *http.Request) {
 // ------------------------------ QUERY APIS -------------------------------------
 
 func (a *AccountAPI) LoggedIn(w http.ResponseWriter, r *http.Request) {
-	user := GetUser(r)
+	user := apiutil.GetUser(r)
 	fmt.Println(user)
 	if user != nil {
 		w.WriteHeader(http.StatusOK)
