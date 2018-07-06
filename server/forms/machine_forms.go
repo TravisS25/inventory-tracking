@@ -1,6 +1,8 @@
 package forms
 
 import (
+	"fmt"
+
 	"github.com/TravisS25/httputil/formutil"
 	"github.com/TravisS25/inventory-tracking/src/server/models"
 	"github.com/go-ozzo/ozzo-validation"
@@ -57,6 +59,7 @@ type MachineValidator struct {
 
 func (m MachineValidator) Validate(item interface{}) error {
 	form := item.(MachineForm)
+	fmt.Printf("machine name %s\n", form.MachineName)
 	validRoomID := true
 	validMachineStatusID := true
 	validMachineName := true

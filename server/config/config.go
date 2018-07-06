@@ -49,6 +49,7 @@ var (
 	// CSRF is the global func used to implement csrf middleware
 	CSRF func(http.Handler) http.Handler
 
+	// FormValidation is global form validator settings for app
 	FormValidation formutil.FormValidation
 
 	// DB is global database variable for app
@@ -69,7 +70,7 @@ func init() {
 	initTemplate()
 	initCSRF()
 	initRouting()
-	initCacheReset()
+	//initCacheReset()
 	initFormValidation()
 	initRouterPaths()
 }

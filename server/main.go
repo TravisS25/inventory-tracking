@@ -20,7 +20,7 @@ import (
 func main() {
 	fmt.Println("Starting Server...")
 	r := mux.NewRouter()
-	//filterParams := []string{"skip", "{skip:[0-9]+}", "take", "{take:[0-9]+}"}
+	filterParams := []string{"skip", "{skip:[0-9]+}", "take", "{take:[0-9]+}"}
 
 	// ------------------------------ APIs -------------------------------------
 
@@ -40,7 +40,7 @@ func main() {
 	r.HandleFunc(config.RouterPaths["emailExists"], accountAPI.EmailExists).Methods("GET")
 
 	// Machine API
-	r.HandleFunc(config.RouterPaths["machineSearch"], machineAPI.MachineSearch).Methods("GET")
+	r.HandleFunc(config.RouterPaths["machineSearch"], machineAPI.MachineSearch).Queries(filterParams...).Methods("GET")
 	r.HandleFunc(config.RouterPaths["machineUpload"], machineAPI.MachineUpload).Methods("GET", "POST")
 	r.HandleFunc(config.RouterPaths["machineDetails"], machineAPI.MachineDetails).Methods("GET")
 	r.HandleFunc(config.RouterPaths["machineSwap"], machineAPI.MachineSwap).Methods("GET", "PUT")
@@ -64,7 +64,7 @@ func main() {
 		c,
 	)
 
-	n.UseHandler(r)
+	n.UseHandler(config.CSRF(r))
 
 	// Set server settings
 	server := &http.Server{

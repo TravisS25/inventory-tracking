@@ -2,7 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/TravisS25/httputil/confutil"
 
 	"github.com/TravisS25/httputil/cacheutil"
 
@@ -11,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/TravisS25/httputil/queryutil"
+	"github.com/go-ozzo/ozzo-validation"
 
 	"github.com/TravisS25/httputil/apiutil"
 	"github.com/TravisS25/httputil/dbutil"
@@ -51,9 +56,17 @@ func (m *MachineAPI) MachineUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if len(forms) == 0 {
+			w.WriteHeader(http.StatusNotAcceptable)
+			w.Write([]byte("Can't have empty list"))
+			return
+		}
+
 		tx, _ := m.db.Begin()
 
+		formErrors := make([]validation.Errors, 0)
 		for _, form := range forms {
+			fmt.Println(form.MachineName)
 			err = m.formMap["form"].Validate(form)
 
 			if err == nil {
@@ -61,6 +74,7 @@ func (m *MachineAPI) MachineUpload(w http.ResponseWriter, r *http.Request) {
 					RoomID:          form.RoomID,
 					MachineStatusID: form.MachineStatusID,
 					MachineName:     form.MachineName,
+					ScannedTime:     time.Now().UTC().Format(confutil.DateTimeLayout),
 				}
 
 				err = machine.Insert(tx)
@@ -70,14 +84,28 @@ func (m *MachineAPI) MachineUpload(w http.ResponseWriter, r *http.Request) {
 					tx.Rollback()
 					return
 				}
+			} else {
+				formErrors = append(formErrors, err.(validation.Errors))
 			}
 		}
 
-		err = tx.Commit()
+		if len(formErrors) == 0 {
+			err = tx.Commit()
 
-		if err != nil {
-			apiutil.ServerError(w, err, "")
-			return
+			if err != nil {
+				apiutil.ServerError(w, err, "")
+				return
+			}
+		} else {
+			tx.Rollback()
+			stringify, err := json.Marshal(formErrors)
+			w.WriteHeader(http.StatusNotAcceptable)
+			w.Write(stringify)
+
+			if err != nil {
+				apiutil.ServerError(w, err, "")
+				return
+			}
 		}
 	}
 }
@@ -240,11 +268,17 @@ func (m *MachineAPI) MachineSwap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var form forms.MachineForm
+	var form forms.MachineSwapForm
 	dec := json.NewDecoder(r.Body)
 	err = dec.Decode(&form)
 
 	if apiutil.HasDecodeError(w, err) {
+		return
+	}
+
+	err = m.formMap["formSwap"].Validate(form)
+
+	if apiutil.HasFormErrors(w, r, err) {
 		return
 	}
 
@@ -293,6 +327,7 @@ func (m *MachineAPI) MachineEdit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		machine.MachineName = form.MachineName
 		machine.RoomID = form.RoomID
 		machine.MachineStatusID = form.MachineStatusID
 
