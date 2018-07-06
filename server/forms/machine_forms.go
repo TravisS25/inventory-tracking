@@ -20,8 +20,22 @@ type MachineSwapValidator struct {
 	formutil.FormValidation
 }
 
-func (m MachineSwapValidator) Validate(item interface{}) {
+func (m MachineSwapValidator) Validate(item interface{}) error {
+	form := item.(MachineSwapForm)
+	validMachineStatus := true
 
+	if !m.Exists("select id from machine_status where id = $1;", form.MachineStatusID) {
+		validMachineStatus = false
+	}
+
+	return validation.ValidateStruct(
+		&form,
+		validation.Field(
+			&form.MachineStatusID,
+			validation.Required.Error(m.RequiredError("machineStatusID")),
+			m.IsValid(validMachineStatus).Error("Invalid machineStatusID"),
+		),
+	)
 }
 
 type MachineForm struct {

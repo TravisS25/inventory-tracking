@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/TravisS25/httputil/formutil"
+
 	"bitbucket.org/TravisS25/contractor-tracking/contractor-tracking/contractor-server/models"
 	_ "github.com/lib/pq"
 
@@ -47,6 +49,8 @@ var (
 	// CSRF is the global func used to implement csrf middleware
 	CSRF func(http.Handler) http.Handler
 
+	FormValidation formutil.FormValidation
+
 	// DB is global database variable for app
 	DB *dbutil.DB
 
@@ -66,6 +70,14 @@ func init() {
 	initCSRF()
 	initRouting()
 	initCacheReset()
+	initFormValidation()
+	initRouterPaths()
+}
+
+func initFormValidation() {
+	FormValidation = formutil.FormValidation{}
+	FormValidation.SetQuerier(DB)
+	FormValidation.SetCache(Cache)
 }
 
 func initMessenger() {
@@ -191,10 +203,21 @@ func initRouting() {
 }
 
 func initRouterPaths() {
+	// Account Urls
 	RouterPaths["login"] = "/api/account/login/"
 	RouterPaths["logout"] = "/api/account/logout/"
 	RouterPaths["userDetails"] = "/api/account/user/details/"
 	RouterPaths["changePassword"] = "/api/account/change-password/"
+	RouterPaths["resetPassword"] = "/api/account/reset-password/"
+	RouterPaths["confirmPasswordReset"] = "/api/account/confirm-password-reset/{token}/"
+	RouterPaths["emailExists"] = "/api/account/email-exists/{email}/"
+
+	// Machine Urls
+	RouterPaths["machineUpload"] = "/api/machine/upload/"
+	RouterPaths["machineSearch"] = "/api/machine/search/"
+	RouterPaths["machineDetails"] = "/api/machine/details/{id:[0-9]+}/"
+	RouterPaths["machineSwap"] = "/api/machine/swap/{oldID:[0-9]+}/{newID:[0-9]+}/"
+	RouterPaths["machineEdit"] = "/api/machine/edit/{id:[0-9]+}/"
 }
 
 func initCacheReset() {

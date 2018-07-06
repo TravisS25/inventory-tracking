@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/TravisS25/httputil/cacheutil"
+
 	"github.com/gorilla/mux"
 
 	"github.com/jmoiron/sqlx"
@@ -21,12 +23,14 @@ import (
 
 type MachineAPI struct {
 	db      httputil.DBInterface
+	cache   cacheutil.CacheStore
 	formMap map[string]formutil.Form
 }
 
-func NewMachine(db httputil.DBInterface, formMap map[string]formutil.Form) *MachineAPI {
+func NewMachineAPI(db httputil.DBInterface, cache cacheutil.CacheStore, formMap map[string]formutil.Form) *MachineAPI {
 	return &MachineAPI{
 		db:      db,
+		cache:   cache,
 		formMap: formMap,
 	}
 }

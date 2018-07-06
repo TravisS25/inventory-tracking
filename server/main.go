@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/TravisS25/httputil/formutil"
+
 	"github.com/gorilla/mux"
 
 	"github.com/TravisS25/httputil/apiutil"
 	"github.com/TravisS25/inventory-tracking/src/server/api"
+	"github.com/TravisS25/inventory-tracking/src/server/forms"
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
 
@@ -22,22 +25,26 @@ func main() {
 	// ------------------------------ APIs -------------------------------------
 
 	accountAPI := api.NewAccountAPI(config.DB, config.Cache, config.SessionStore, config.Mailer)
-	// areaAPI := api.NewAreaAPI(config.DB)
-	// contractorAPI := api.NewContractorAPI(config.DB)
-	// userAPI := api.NewUserProfileAPI(config.DB, config.Mailer)
-	// noteAPI := api.NewNoteAPI(config.DB)
-	// foundFromAPI := api.NewFoundFromAPI(config.DB)
-	// callStatusAPI := api.NewCallStatusAPI(config.DB)
-	// rejectionReasonAPI := api.NewRejectionReasonAPI(config.DB)
+	machineAPI := api.NewMachineAPI(config.DB, config.Cache, map[string]formutil.Form{
+		"form":     forms.NewMachineValidator(config.FormValidation),
+		"formSwap": forms.NewMachineSwapValidator(config.FormValidation),
+	})
 
 	// Account API
-	r.HandleFunc("/api/account/login/", accountAPI.Login).Methods("GET", "POST")
-	r.HandleFunc("/api/account/logout/", accountAPI.Logout).Methods("GET")
-	r.HandleFunc("/api/account/user/details/", accountAPI.AccountDetails).Methods("GET")
-	r.HandleFunc("/api/account/change-password/", accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
-	r.HandleFunc("/api/account/reset-password/", accountAPI.ResetPassword).Methods("GET", "POST")
-	r.HandleFunc("/api/account/confirm-password-reset/{token}/", accountAPI.ConfirmPasswordReset).Methods("GET", "POST", "OPTIONS")
-	r.HandleFunc("/api/account/email-exists/{email}/", accountAPI.EmailExists).Methods("GET")
+	r.HandleFunc(config.RouterPaths["login"], accountAPI.Login).Methods("GET", "POST")
+	r.HandleFunc(config.RouterPaths["logout"], accountAPI.Logout).Methods("GET")
+	r.HandleFunc(config.RouterPaths["userDetails"], accountAPI.AccountDetails).Methods("GET")
+	r.HandleFunc(config.RouterPaths["chagePassword"], accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
+	r.HandleFunc(config.RouterPaths["resetPassword"], accountAPI.ResetPassword).Methods("GET", "POST")
+	r.HandleFunc(config.RouterPaths["confirmPasswordReset"], accountAPI.ConfirmPasswordReset).Methods("GET", "POST", "OPTIONS")
+	r.HandleFunc(config.RouterPaths["emailExists"], accountAPI.EmailExists).Methods("GET")
+
+	// Machine API
+	r.HandleFunc(config.RouterPaths["machineSearch"], machineAPI.MachineSearch).Methods("GET")
+	r.HandleFunc(config.RouterPaths["machineUpload"], machineAPI.MachineUpload).Methods("GET", "POST")
+	r.HandleFunc(config.RouterPaths["machineDetails"], machineAPI.MachineDetails).Methods("GET")
+	r.HandleFunc(config.RouterPaths["machineSwap"], machineAPI.MachineSwap).Methods("GET", "PUT")
+	r.HandleFunc(config.RouterPaths["machineEdit"], machineAPI.MachineEdit).Methods("GET", "PUT")
 
 	middleware := apiutil.NewMiddleware(config.SessionStore, config.Cache, []string{})
 
