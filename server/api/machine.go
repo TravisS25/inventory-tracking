@@ -29,10 +29,10 @@ import (
 type MachineAPI struct {
 	db      httputil.DBInterface
 	cache   cacheutil.CacheStore
-	formMap map[string]formutil.Form
+	formMap map[string]formutil.Validator
 }
 
-func NewMachineAPI(db httputil.DBInterface, cache cacheutil.CacheStore, formMap map[string]formutil.Form) *MachineAPI {
+func NewMachineAPI(db httputil.DBInterface, cache cacheutil.CacheStore, formMap map[string]formutil.Validator) *MachineAPI {
 	return &MachineAPI{
 		db:      db,
 		cache:   cache,
@@ -252,45 +252,62 @@ func (m *MachineAPI) MachineDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *MachineAPI) MachineSwap(w http.ResponseWriter, r *http.Request) {
-	oldID := mux.Vars(r)["oldID"]
-	newID := mux.Vars(r)["newID"]
-	query := "select * from machine where id = $1;"
+	if r.Method == "GET" {
 
-	oldMachine, err := models.QueryMachine(m.db, query, oldID)
+	} else if r.Method == "PUT" {
+		oldID := mux.Vars(r)["oldID"]
+		newID := mux.Vars(r)["newID"]
+		query := "select * from machine where id = $1;"
 
-	if apiutil.HasQueryError(w, err, "Old machine not found") {
-		return
+		oldMachine, err := models.QueryMachine(m.db, query, oldID)
+
+		if apiutil.HasQueryError(w, err, "Old machine not found") {
+			return
+		}
+
+		newMachine, err := models.QueryMachine(m.db, query, newID)
+
+		if apiutil.HasQueryError(w, err, "New machine not found") {
+			return
+		}
+
+		// In Service
+		if oldMachine.MachineStatusID != 1 {
+			w.WriteHeader(http.StatusNotAcceptable)
+			w.Write([]byte("Machine you are going to swap for has to be in service"))
+			return
+		}
+
+		var form forms.MachineSwapForm
+		dec := json.NewDecoder(r.Body)
+		err = dec.Decode(&form)
+
+		if apiutil.HasDecodeError(w, err) {
+			return
+		}
+
+		err = m.formMap["formSwap"].Validate(form)
+
+		if apiutil.HasFormErrors(w, r, err) {
+			return
+		}
+
+		newMachine.RoomID = oldMachine.RoomID
+		err = newMachine.Update(m.db)
+
+		if err != nil {
+			apiutil.ServerError(w, err, "")
+			return
+		}
+
+		oldMachine.MachineStatusID = form.MachineStatusID
+		err = oldMachine.Update(m.db)
+
+		if err != nil {
+			apiutil.ServerError(w, err, "")
+			return
+		}
 	}
-
-	newMachine, err := models.QueryMachine(m.db, query, newID)
-
-	if apiutil.HasQueryError(w, err, "New machine not found") {
-		return
-	}
-
-	var form forms.MachineSwapForm
-	dec := json.NewDecoder(r.Body)
-	err = dec.Decode(&form)
-
-	if apiutil.HasDecodeError(w, err) {
-		return
-	}
-
-	err = m.formMap["formSwap"].Validate(form)
-
-	if apiutil.HasFormErrors(w, r, err) {
-		return
-	}
-
-	newMachine.RoomID = oldMachine.RoomID
-	newMachine.MachineStatusID = form.MachineStatusID
-	err = newMachine.Update(m.db)
-
-	if err != nil {
-		apiutil.ServerError(w, err, "")
-		return
-	}
-
 }
 
 func (m *MachineAPI) MachineEdit(w http.ResponseWriter, r *http.Request) {

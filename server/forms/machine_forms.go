@@ -2,6 +2,7 @@ package forms
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/TravisS25/httputil/formutil"
 	"github.com/TravisS25/inventory-tracking/src/server/models"
@@ -34,8 +35,8 @@ func (m MachineSwapValidator) Validate(item interface{}) error {
 		&form,
 		validation.Field(
 			&form.MachineStatusID,
-			validation.Required.Error(m.RequiredError("machineStatusID")),
-			m.IsValid(validMachineStatus).Error("Invalid machineStatusID"),
+			validation.Required.Error("Required"),
+			m.IsValid(validMachineStatus).Error(m.ExistError(strconv.Itoa(form.MachineStatusID))),
 		),
 	)
 }
@@ -96,18 +97,18 @@ func (m MachineValidator) Validate(item interface{}) error {
 		&form,
 		validation.Field(
 			&form.RoomID,
-			validation.Required.Error(m.RequiredError("roomID")),
-			m.IsValid(validRoomID).Error(m.ExistError("roomID")),
+			validation.Required.Error("Required"),
+			m.IsValid(validRoomID).Error(m.ExistError(strconv.Itoa(form.RoomID))),
 		),
 		validation.Field(
 			&form.MachineStatusID,
-			validation.Required.Error(m.RequiredError("machineStatusID")),
-			m.IsValid(validMachineStatusID).Error(m.ExistError("machineStatusID")),
+			validation.Required.Error("Required"),
+			m.IsValid(validMachineStatusID).Error(m.ExistError(strconv.Itoa(form.MachineStatusID))),
 		),
 		validation.Field(
 			&form.MachineName,
-			validation.Required.Error(m.RequiredError("machineName")),
-			m.IsValid(validMachineName).Error(m.UniqueError("machineName")),
+			validation.Required.Error("Required"),
+			m.IsValid(validMachineName).Error(m.UniqueError(form.MachineName)),
 		),
 	)
 }

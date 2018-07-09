@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/TravisS25/httputil/formutil"
+
 	"github.com/TravisS25/httputil/confutil"
 
 	"github.com/TravisS25/inventory-tracking/src/server/models"
@@ -34,6 +36,7 @@ type AccountAPI struct {
 	cache   cacheutil.CacheStore
 	store   sessions.Store
 	message mailutil.SendMessage
+	formMap map[string]formutil.Validator
 }
 
 func NewAccountAPI(
@@ -41,12 +44,14 @@ func NewAccountAPI(
 	cache cacheutil.CacheStore,
 	store sessions.Store,
 	message mailutil.SendMessage,
+	formMap map[string]formutil.Validator,
 ) *AccountAPI {
 	return &AccountAPI{
 		db:      db,
 		cache:   cache,
 		store:   store,
 		message: message,
+		formMap: formMap,
 	}
 }
 
@@ -58,7 +63,9 @@ func (u *AccountAPI) AccountDetails(w http.ResponseWriter, r *http.Request) {
 
 func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		w.WriteHeader(http.StatusOK)
+		panic("problem")
+		// apiutil.SetToken(w, r)
+		// w.WriteHeader(http.StatusOK)
 	} else {
 		var form forms.LoginForm
 
@@ -73,9 +80,7 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		form.SetQuerier(a.db)
-		form.SetCache(a.cache)
-		err = form.Validate()
+		err = a.formMap["loginForm"].Validate(form)
 
 		if apiutil.HasFormErrors(w, r, err) {
 			return
@@ -85,7 +90,9 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 			a.db,
 			`
 			select 
-				user_profile.*,
+				user_profile.*
+			from
+				user_profile
 			where 
 				email = $1;`,
 			form.Email,
@@ -97,6 +104,7 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 
 		if !user.IsActive {
 			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte("Account is not active"))
 			return
 		}
 

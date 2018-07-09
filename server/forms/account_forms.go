@@ -30,26 +30,27 @@ func (e EmailForm) Validate() error {
 	)
 }
 
-type LoginForm struct {
-	Email        string `json:"email"`
-	Password     string `json:"password"`
-	ErrorMessage string `json:"errorMessage"`
-
+type LoginValidator struct {
 	formutil.FormValidation
 }
 
-func (l LoginForm) Validate() error {
+func (l LoginValidator) Validate(item interface{}) error {
+	form := item.(LoginForm)
+
 	var email string
 	var password string
 	correctInfo := true
 	query := "select email, password from user_profile where email = $1;"
-	err := l.GetQuerier().QueryRow(query, l.Email).Scan(&email, &password)
+	err := l.GetQuerier().QueryRow(query, form.Email).Scan(&email, &password)
 
 	if err == sql.ErrNoRows {
 		correctInfo = false
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(l.Password))
+	fmt.Printf("email form: %s\n", form.Email)
+	fmt.Printf("email: %s\n", email)
+	fmt.Printf("password: %s\n", password)
+	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(form.Password))
 
 	if err != nil {
 		fmt.Printf("compare error: %s", err)
@@ -57,21 +58,27 @@ func (l LoginForm) Validate() error {
 	}
 
 	return validation.ValidateStruct(
-		&l,
+		&form,
 		validation.Field(
-			&l.Email,
+			&form.Email,
 			validation.Required.Error(l.RequiredError("Email")),
 			is.Email.Error("Enter valid email"),
 		),
 		validation.Field(
-			&l.Password,
+			&form.Password,
 			validation.Required.Error(l.RequiredError("Password")),
 		),
 		validation.Field(
-			&l.ErrorMessage,
+			&form.ErrorMessage,
 			l.IsValid(correctInfo).Error("Wrong email or password"),
 		),
 	)
+}
+
+type LoginForm struct {
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	ErrorMessage string `json:"errorMessage"`
 }
 
 type ChangePasswordForm struct {

@@ -1,16 +1,70 @@
 package api
 
 import (
-	"github.com/TravisS25/httputil"
+	"net/http"
+	"testing"
+	"time"
+
+	"github.com/TravisS25/httputil/apiutil"
+	"github.com/TravisS25/httputil/confutil"
+	"github.com/TravisS25/inventory-tracking/src/server/config"
+	"github.com/TravisS25/inventory-tracking/src/server/forms"
+	"github.com/TravisS25/inventory-tracking/src/server/models"
 )
 
-type MockAccountDB struct {
-	httputil.DBInterface
+func TestLogin(t *testing.T) {
+	user := models.UserProfile{
+		TitleID:    2,
+		Email:      "testuser@email.com",
+		Password:   TestPasswordHash,
+		FirstName:  "First",
+		LastName:   "Last",
+		IsActive:   true,
+		DateJoined: time.Now().UTC().Format(confutil.DateTimeLayout),
+	}
+
+	err := user.Insert(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not insert test user")
+	}
+
+	testCase1 := apiutil.TestCase{
+		TestName:       "login1",
+		Method:         "GET",
+		RequestURL:     config.RouterPaths["login"],
+		ExpectedStatus: http.StatusOK,
+		Handler:        IntegrationTestRouter,
+	}
+
+	testCase2 := testCase1
+	testCase2.TestName = "login2"
+	testCase2.Method = "POST"
+	testCase2.Form = forms.LoginForm{
+		//Email:    user.Email,
+		Email:    "testuser@email.com",
+		Password: TestPassword,
+	}
+
+	apiutil.RunTestCases(t, []apiutil.TestCase{
+		testCase1,
+		testCase2,
+	})
+
+	err = user.Delete(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not delete user")
+	}
 }
 
-var (
-	mockAccountDB = &MockAccountDB{}
-)
+// type MockAccountDB struct {
+// 	httputil.DBInterface
+// }
+
+// var (
+// 	mockAccountDB = &MockAccountDB{}
+// )
 
 // ------------------------ TEST FUNCTIONS ----------------------------------
 

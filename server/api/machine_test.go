@@ -1,28 +1,31 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/TravisS25/httputil/confutil"
 
 	"github.com/TravisS25/httputil/apiutil"
+	"github.com/TravisS25/inventory-tracking/src/server/config"
 	"github.com/TravisS25/inventory-tracking/src/server/forms"
 	"github.com/TravisS25/inventory-tracking/src/server/models"
-	"github.com/go-ozzo/ozzo-validation"
 )
+
+// ------------------- INTEGRATION TESTING ---------------------
 
 func TestMachineUploadIntegrationTest(t *testing.T) {
 	testCase1 := apiutil.TestCase{
-		TestName:       "machineUpload1",
-		Method:         "GET",
-		RequestURL:     "/api/machine/upload/",
+		TestName:   "machineUpload1",
+		Method:     "GET",
+		RequestURL: config.RouterPaths["machineUpload"],
+		//RequestURL:     "/api/machine/upload/",
 		ExpectedStatus: http.StatusOK,
 		ExpectedBody:   "",
-		Handler:        integrationTestRouter,
+		Handler:        IntegrationTestRouter,
 	}
 
 	machines := []forms.MachineForm{
@@ -43,42 +46,18 @@ func TestMachineUploadIntegrationTest(t *testing.T) {
 	testCase2.Method = "POST"
 	testCase2.Form = machines
 
-	emptyMachines := []forms.MachineForm{}
 	testCase3 := testCase2
 	testCase3.TestName = "machineUpload3"
 	testCase3.ExpectedStatus = http.StatusNotAcceptable
 	testCase3.ExpectedBody = "Can't have empty list"
-	testCase3.Form = emptyMachines
-
-	formValidator := forms.NewMachineValidator(TestFormValidation)
-	requiredMachineErrors := make([]validation.Errors, 0)
-	requiredMachines := []forms.MachineForm{
-		forms.MachineForm{},
-	}
-
-	for _, v := range requiredMachines {
-		err := formValidator.Validate(v)
-		requiredMachineErrors = append(requiredMachineErrors, err.(validation.Errors))
-	}
-
-	for _, v := range requiredMachineErrors {
-		if v["machineName"].Error() != "machineName is required" {
-			t.Errorf("Should have machineName required error; got %s", v["machineName"])
-		}
-		if v["machineStatusID"].Error() != "machineStatusID is required" {
-			t.Errorf("Should have machineStatusID required error; got %s", v["machineName"])
-		}
-		if v["roomID"].Error() != "roomID is required" {
-			t.Errorf("Should have roomID required error; got %s", v["machineName"])
-		}
-	}
-
-	requiredJSON, _ := json.Marshal(requiredMachineErrors)
+	testCase3.Form = []forms.MachineForm{}
 
 	testCase4 := testCase3
 	testCase4.TestName = "machineUpload4"
-	testCase4.ExpectedBody = string(requiredJSON)
-	testCase4.Form = requiredMachines
+	testCase4.ExpectedBody = ""
+	testCase4.Form = []forms.MachineForm{
+		forms.MachineForm{},
+	}
 
 	apiutil.RunTestCases(t, []apiutil.TestCase{
 		testCase1,
@@ -107,15 +86,6 @@ func TestMachineUploadIntegrationTest(t *testing.T) {
 }
 
 func TestMachineDetailsIntegrationTest(t *testing.T) {
-	testCase1 := apiutil.TestCase{
-		TestName:       "machineDetails1",
-		Method:         "GET",
-		RequestURL:     "/api/machine/details/",
-		ExpectedStatus: http.StatusOK,
-		ExpectedBody:   "",
-		Handler:        integrationTestRouter,
-	}
-
 	insertMachine := models.Machine{
 		MachineName:     "MachineDetails",
 		MachineStatusID: 1,
@@ -128,7 +98,18 @@ func TestMachineDetailsIntegrationTest(t *testing.T) {
 		t.Fatal("Unable to insert machine")
 	}
 
-	testCase1.RequestURL += strconv.Itoa(insertMachine.ID) + "/"
+	machineID := strconv.Itoa(insertMachine.ID)
+	url := strings.Replace(config.RouterPaths["machineDetails"], "{id:[0-9]+}", machineID, 1)
+	testCase1 := apiutil.TestCase{
+		TestName: "machineDetails1",
+		Method:   "GET",
+		//RequestURL: "/api/machine/details/",
+		RequestURL:     url,
+		ExpectedStatus: http.StatusOK,
+		ExpectedBody:   "",
+		Handler:        IntegrationTestRouter,
+	}
+
 	apiutil.RunTestCases(t, []apiutil.TestCase{
 		testCase1,
 	})
@@ -169,13 +150,16 @@ func TestMachineEditIntegrationTest(t *testing.T) {
 		t.Fatal("Could not insert machine")
 	}
 
+	url := strings.Replace(config.RouterPaths["machineEdit"], "{id:[0-9]+}", strconv.Itoa(insertMachine.ID), 1)
+
 	testCase1 := apiutil.TestCase{
-		TestName:       "machineEdit1",
-		Method:         "GET",
-		RequestURL:     "/api/machine/edit/" + strconv.Itoa(insertMachine.ID) + "/",
+		TestName:   "machineEdit1",
+		Method:     "GET",
+		RequestURL: url,
+		//RequestURL:     "/api/machine/edit/" + strconv.Itoa(insertMachine.ID) + "/",
 		ExpectedStatus: http.StatusOK,
 		ExpectedBody:   "",
-		Handler:        integrationTestRouter,
+		Handler:        IntegrationTestRouter,
 	}
 
 	testCase2 := testCase1
@@ -225,17 +209,147 @@ func TestMachineEditIntegrationTest(t *testing.T) {
 }
 
 func TestMachineSearchIntegrationTest(t *testing.T) {
+	url := config.RouterPaths["machineSearch"] + "?take=20&skip=0"
+
 	testCase1 := apiutil.TestCase{
 		TestName:       "machineSearch1",
 		Method:         "GET",
-		RequestURL:     "/api/machine/search/?take=20&skip=0",
+		RequestURL:     url,
 		ExpectedStatus: http.StatusOK,
 		ExpectedBody:   "",
-		Handler:        integrationTestRouter,
+		Handler:        IntegrationTestRouter,
 	}
 
 	apiutil.RunTestCases(t, []apiutil.TestCase{
 		testCase1,
 	})
+}
 
+func TestMachineSwapIntegrationTest(t *testing.T) {
+	oldMachine := models.Machine{
+		RoomID:          1,
+		MachineStatusID: 1,
+		MachineName:     "Old Machine",
+		ScannedTime:     time.Now().UTC().Format(confutil.DateTimeLayout),
+	}
+	newMachine := models.Machine{
+		RoomID:          1,
+		MachineStatusID: 1,
+		MachineName:     "New Machine",
+		ScannedTime:     time.Now().UTC().Format(confutil.DateTimeLayout),
+	}
+	oldInvalidMachine := models.Machine{
+		RoomID:          1,
+		MachineStatusID: 3,
+		MachineName:     "Old Invalid Machine",
+		ScannedTime:     time.Now().UTC().Format(confutil.DateTimeLayout),
+	}
+
+	err := oldMachine.Insert(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not insert old machine")
+	}
+
+	err = newMachine.Insert(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not insert new machine")
+	}
+
+	err = oldInvalidMachine.Insert(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not insert old invalid machine")
+	}
+
+	oldMachineID := strconv.Itoa(oldMachine.ID)
+	oldInvalidMachineID := strconv.Itoa(oldInvalidMachine.ID)
+	newMachineID := strconv.Itoa(newMachine.ID)
+	tempURL := strings.Replace(config.RouterPaths["machineSwap"], "{oldID:[0-9]+}", oldMachineID, 1)
+	url1 := strings.Replace(tempURL, "{newID:[0-9]+}", newMachineID, 1)
+
+	testCase1 := apiutil.TestCase{
+		TestName:       "machineSwap1",
+		Method:         "GET",
+		RequestURL:     url1,
+		ExpectedStatus: http.StatusOK,
+		Handler:        IntegrationTestRouter,
+	}
+
+	testCase2 := testCase1
+	testCase2.TestName = "machineSwap2"
+	testCase2.Method = "PUT"
+	testCase2.ExpectedStatus = http.StatusNotAcceptable
+	testCase2.Form = forms.MachineSwapForm{}
+
+	validForm := forms.MachineSwapForm{
+		MachineStatusID: 3,
+	}
+
+	testCase3 := testCase2
+	testCase3.TestName = "machineSwap3"
+	testCase3.ExpectedStatus = http.StatusOK
+	testCase3.Form = validForm
+
+	tempURL = strings.Replace(config.RouterPaths["machineSwap"], "{oldID:[0-9]+}", oldInvalidMachineID, 1)
+	url2 := strings.Replace(tempURL, "{newID:[0-9]+}", newMachineID, 1)
+
+	testCase4 := testCase3
+	testCase4.TestName = "machineSwap4"
+	testCase4.ExpectedStatus = http.StatusNotAcceptable
+	testCase4.RequestURL = url2
+	testCase4.ExpectedBody = "Machine you are going to swap for has to be in service"
+
+	apiutil.RunTestCases(t, []apiutil.TestCase{
+		testCase1,
+		testCase2,
+		testCase3,
+	})
+
+	newMachineQuery, err := models.QueryMachine(
+		TestDB,
+		"select * from machine where id = $1;",
+		newMachineID,
+	)
+
+	oldMachineQuery, err := models.QueryMachine(
+		TestDB,
+		"select * from machine where id = $1;",
+		oldMachineID,
+	)
+
+	if newMachineQuery.RoomID != newMachine.RoomID {
+		t.Errorf("roomID should be %d; got %d", newMachine.RoomID, newMachineQuery.RoomID)
+	}
+
+	if oldMachineQuery.MachineStatusID != validForm.MachineStatusID {
+		t.Errorf("machineStatusID should be %d; got %d", validForm.MachineStatusID, oldMachineQuery.MachineStatusID)
+	}
+
+	err = oldMachine.Delete(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not delete old machine")
+	}
+
+	err = newMachine.Delete(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not delete new machine")
+	}
+
+	err = oldInvalidMachine.Delete(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not delete old invalid machine")
+	}
+}
+
+func TestAllMachineIntegrationTests(t *testing.T) {
+	TestMachineSwapIntegrationTest(t)
+	TestMachineUploadIntegrationTest(t)
+	TestMachineDetailsIntegrationTest(t)
+	TestMachineEditIntegrationTest(t)
+	TestMachineSearchIntegrationTest(t)
 }

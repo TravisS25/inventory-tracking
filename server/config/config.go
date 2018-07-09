@@ -166,7 +166,7 @@ func initStoreSettings() {
 }
 
 func initCSRF() {
-	CSRF = csrf.Protect([]byte(Conf.CSRF), csrf.Secure(Conf.HTTPS), csrf.CookieName("csrf"))
+	CSRF = csrf.Protect([]byte(Conf.CSRF), csrf.Secure(false), csrf.CookieName("csrf"))
 }
 
 func initRouting() {

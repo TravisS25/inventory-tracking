@@ -66,10 +66,9 @@ CREATE TABLE IF NOT EXISTS user_profile(
 CREATE TABLE IF NOT EXISTS logging_history (
     id             uuid primary key default uuid_generate_v4(),
     date_entered   timestamp DEFAULT now(),
-    tablename      text not null,
+    url            text not null,
     operation      text not null,
-    new_val        text,
-    old_val        text,
+    value          text,
     entered_by_id  int REFERENCES user_profile(id)
 );
 

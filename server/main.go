@@ -24,8 +24,10 @@ func main() {
 
 	// ------------------------------ APIs -------------------------------------
 
-	accountAPI := api.NewAccountAPI(config.DB, config.Cache, config.SessionStore, config.Mailer)
-	machineAPI := api.NewMachineAPI(config.DB, config.Cache, map[string]formutil.Form{
+	accountAPI := api.NewAccountAPI(config.DB, config.Cache, config.SessionStore, config.Mailer, map[string]formutil.Validator{
+		"loginForm": forms.LoginValidator{FormValidation: config.FormValidation},
+	})
+	machineAPI := api.NewMachineAPI(config.DB, config.Cache, map[string]formutil.Validator{
 		"form":     forms.NewMachineValidator(config.FormValidation),
 		"formSwap": forms.NewMachineSwapValidator(config.FormValidation),
 	})
