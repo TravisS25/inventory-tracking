@@ -143,15 +143,13 @@ func App() http.Handler {
 		},
 	}
 	recoverHandler := negroni.NewRecovery()
-	recoverHandler.PanicHandlerFunc = func(info *negroni.PanicInformation) {
-		message := &mailutil.Message{}
-		message.SetMessage(info.StackAsString())
-		err := TestMailer.Send(message)
-
-		if err != nil {
-			fmt.Printf("sending mail error: %s", err.Error())
-		}
-	}
+	recoverHandler.PanicHandlerFunc = apiutil.PanicHandlerFunc(
+		[]string{"admin@email.com"},
+		"admin@email.com",
+		"500 Panic Error",
+		[]string{"TravisS25"},
+		TestMailer,
+	)
 
 	// Init middleware
 	c := cors.New(cors.Options{
@@ -162,12 +160,12 @@ func App() http.Handler {
 		ExposedHeaders:   []string{"*"},
 	})
 	n := negroni.New(
+		recoverHandler,
 		negroni.HandlerFunc(middleware.AuthMiddleware),
 		negroni.HandlerFunc(middleware.GroupMiddleware),
 		negroni.HandlerFunc(middleware.RoutingMiddleware),
 		negroni.HandlerFunc(middleware.LogEntryMiddleware),
 		negroni.NewLogger(),
-		recoverHandler,
 		c,
 	)
 
@@ -219,7 +217,7 @@ func TestApp(t *testing.T) {
 	//t.Errorf("response error: %d", res.StatusCode)
 
 	buffer = apiutil.GetJSONBuffer(forms.LoginForm{
-		Email:    TestEmail,
+		Email:    "worker@email.com",
 		Password: TestPassword,
 	})
 	req, err = http.NewRequest("POST", loginURL, &buffer)
@@ -239,7 +237,7 @@ func TestApp(t *testing.T) {
 
 	// fmt.Println(res.Header)
 	fmt.Println(res.StatusCode)
-	t.Error("hi")
+	//t.Error("hi")
 }
 
 func TestLogin2(t *testing.T) {
@@ -268,5 +266,5 @@ func TestLogin2(t *testing.T) {
 	}
 
 	fmt.Printf("headers get: %s", res.Header)
-	t.Error("hi")
+	//t.Error("hi")
 }

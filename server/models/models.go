@@ -22,7 +22,7 @@ func (u *UserProfile) GetID() string {
 
 type LogEntry struct{}
 
-func (l LogEntry) InsertLog(r *http.Request, payload interface{}, db httputil.DBInterface) error {
+func (l LogEntry) InsertLog(r *http.Request, payload string, db httputil.DBInterface) error {
 	var userID *int
 	user := apiutil.GetUser(r)
 	currentTime := time.Now().UTC().Format(confutil.DateTimeLayout)
@@ -39,9 +39,8 @@ func (l LogEntry) InsertLog(r *http.Request, payload interface{}, db httputil.DB
 		EnteredByID: userID,
 	}
 
-	if payload != nil {
-		payloadS := payload.(string)
-		logger.Value = &payloadS
+	if payload != "" {
+		logger.Value = &payload
 	}
 
 	return logger.Insert(db)

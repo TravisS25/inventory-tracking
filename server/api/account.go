@@ -63,9 +63,8 @@ func (u *AccountAPI) AccountDetails(w http.ResponseWriter, r *http.Request) {
 
 func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		panic("problem")
-		// apiutil.SetToken(w, r)
-		// w.WriteHeader(http.StatusOK)
+		apiutil.SetToken(w, r)
+		w.WriteHeader(http.StatusOK)
 	} else {
 		var form forms.LoginForm
 

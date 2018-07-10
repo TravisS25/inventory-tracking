@@ -179,28 +179,23 @@ func initRouting() {
 		"/api/account/logged-in",
 	}
 
-	employeeUrls := append(anonUrls, []string{
+	userUrls := append(anonUrls, []string{
 		"/api/account/logout",
-		"/api/contractor",
-		"/api/note",
-		"/api/found-from",
+		"/api/machine",
 	}...)
 
-	managerUrls := append(employeeUrls, []string{
-		"/api/user",
-	}...)
+	// managerUrls := append(employeeUrls, []string{
+	// 	"/api/user",
+	// }...)
 
-	adminUrls := append(managerUrls, []string{
-		"/api/call-status",
-		"/api/rejection-reason",
-		"/api/areas/all",
-	}...)
+	// adminUrls := append(managerUrls, []string{
+	// 	"/api/call-status",
+	// 	"/api/rejection-reason",
+	// 	"/api/areas/all",
+	// }...)
 
 	Routing["Anon"] = anonUrls
-	Routing["Employee"] = employeeUrls
-	Routing["Manager"] = managerUrls
-	Routing["Admin"] = adminUrls
-	Routing["Master"] = adminUrls
+	Routing["User"] = userUrls
 }
 
 func initRouterPaths() {
