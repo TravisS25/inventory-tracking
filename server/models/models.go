@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"time"
@@ -24,12 +25,13 @@ type LogEntry struct{}
 
 func (l LogEntry) InsertLog(r *http.Request, payload string, db httputil.DBInterface) error {
 	var userID *int
-	user := apiutil.GetUser(r)
+	userBytes := apiutil.GetUser(r)
 	currentTime := time.Now().UTC().Format(confutil.DateTimeLayout)
 
-	if user != nil {
-		id, _ := strconv.Atoi(user.(apiutil.IUser).GetID())
-		userID = &id
+	if userBytes != nil {
+		var user UserProfile
+		json.Unmarshal(userBytes, &user)
+		userID = &user.ID
 	}
 
 	logger := LoggingHistory{

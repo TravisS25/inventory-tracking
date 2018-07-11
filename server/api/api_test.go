@@ -214,6 +214,7 @@ func loginUser(email, password string, ts *httptest.Server) (string, error) {
 		return "", err
 	}
 
+	fmt.Printf("login headers: %s", res.Header)
 	return res.Header.Get(SetCookieHeader), nil
 }
 
@@ -252,11 +253,11 @@ func TestApp(t *testing.T) {
 		t.Fatal("err on response")
 	}
 
-	fmt.Printf("headers get: %s", res.Header)
+	//fmt.Printf("headers get: %s", res.Header)
 	token = res.Header.Get(TokenHeader)
 	csrf = res.Header.Get(SetCookieHeader)
-	fmt.Printf("token recieved: %s\n", token)
-	fmt.Printf("csrf recieved: %s\n", csrf)
+	// fmt.Printf("token recieved: %s\n", token)
+	// fmt.Printf("csrf recieved: %s\n", csrf)
 
 	//t.Errorf("response error: %d", res.StatusCode)
 
@@ -278,16 +279,16 @@ func TestApp(t *testing.T) {
 		t.Fatal("err on response")
 	}
 
-	fmt.Printf("user cookie: %s\n", res.Header.Get(SetCookieHeader))
+	// fmt.Printf("user cookie: %s\n", res.Header.Get(SetCookieHeader))
 
-	fmt.Println(res.Header)
-	fmt.Println(res.StatusCode)
+	// fmt.Println(res.Header)
+	// fmt.Println(res.StatusCode)
 	t.Error("hi")
 }
 
 func TestLogin2(t *testing.T) {
 	var req *http.Request
-	var res *http.Response
+	//var res *http.Response
 	var err error
 
 	ts := httptest.NewServer(App())
@@ -304,12 +305,12 @@ func TestLogin2(t *testing.T) {
 		t.Fatal("err on request")
 	}
 
-	res, err = client.Do(req)
+	_, err = client.Do(req)
 
 	if err != nil {
 		t.Fatal("err on response")
 	}
 
-	fmt.Printf("headers get: %s", res.Header)
+	//fmt.Printf("headers get: %s", res.Header)
 	//t.Error("hi")
 }

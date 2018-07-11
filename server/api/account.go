@@ -211,7 +211,14 @@ func (a *AccountAPI) ChangePassword(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user := apiutil.GetUser(r).(models.UserProfile)
+		var user models.UserProfile
+		err = json.Unmarshal(apiutil.GetUser(r), &user)
+
+		if err != nil {
+			apiutil.ServerError(w, err, "")
+			return
+		}
+
 		form.Email = user.Email
 		form.SetQuerier(a.db)
 		err = form.Validate()

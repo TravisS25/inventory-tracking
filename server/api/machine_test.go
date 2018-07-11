@@ -2,6 +2,8 @@ package api
 
 import (
 	"bytes"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -374,12 +376,14 @@ func TestMachineAPIs(t *testing.T) {
 		t.Fatal("Could not login user")
 	}
 
+	fmt.Printf("user cookie: %s", userCookie)
+
 	client := &http.Client{}
 	baseURL := ts.URL
 	machineUploadURL := baseURL + config.RouterPaths["machineUpload"]
-	// machineSearchURL := baseURL + config.RouterPaths["machineSearch"] + "?take=20&skip=0"
-	// machineDetailsURL := baseURL + config.RouterPaths["machineDetails"]
-	// machineSwapURL := baseURL + config.RouterPaths["machineSwap"]
+	machineSearchURL := baseURL + config.RouterPaths["machineSearch"] + "?take=20&skip=0"
+	machineDetailsURL := baseURL + config.RouterPaths["machineDetails"]
+	machineSwapURL := baseURL + config.RouterPaths["machineSwap"]
 	// machineEditURL := baseURL + config.RouterPaths["machineEdit"]
 
 	// -----------------------------------------------------------------
@@ -399,17 +403,24 @@ func TestMachineAPIs(t *testing.T) {
 	} else {
 		if res.StatusCode != http.StatusOK {
 			t.Errorf("Got %d error, should be 200", res.StatusCode)
+			resErr, _ := ioutil.ReadAll(res.Body)
+			t.Errorf("Body response: %s", string(resErr))
 		}
 	}
 
 	token = res.Header.Get(TokenHeader)
-	csrfCookie = res.Header.Get(CookieHeader)
+	csrfCookie = res.Header.Get(SetCookieHeader)
 
 	machines := []forms.MachineForm{
 		forms.MachineForm{
 			RoomID:          1,
-			MachineStatusID: 3,
+			MachineStatusID: 1,
 			MachineName:     "Machine1",
+		},
+		forms.MachineForm{
+			RoomID:          1,
+			MachineStatusID: 1,
+			MachineName:     "Machine2",
 		},
 	}
 
@@ -420,6 +431,12 @@ func TestMachineAPIs(t *testing.T) {
 		t.Fatal("err on request")
 	}
 
+	// fmt.Printf("csrf: %s\n", csrfCookie)
+	// fmt.Printf("user: %s\n", userCookie)
+	cookieHeader := csrfCookie + "; " + userCookie
+	fmt.Printf("cookie header: %s\n", cookieHeader)
+	fmt.Printf("token header: %s\n", token)
+
 	req.Header.Set(TokenHeader, token)
 	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
 	res, err = client.Do(req)
@@ -428,45 +445,136 @@ func TestMachineAPIs(t *testing.T) {
 		t.Fatal("err on response")
 	} else {
 		if res.StatusCode != http.StatusOK {
-			t.Errorf("Got %d error, should be 200 for machine ", res.StatusCode)
+			t.Errorf("Got %d error, should be 200 for machine\n", res.StatusCode)
+			resErr, _ := ioutil.ReadAll(res.Body)
+			t.Errorf("Body response: %s", string(resErr))
+		}
+	}
+	buffer.Reset()
+
+	// -----------------------------------------------------------------
+	//
+	// Machine Search API
+	req, err = http.NewRequest("GET", machineSearchURL, nil)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	} else {
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Got %d error, should be 200\n", res.StatusCode)
+			resErr, _ := ioutil.ReadAll(res.Body)
+			t.Errorf("Body response: %s", string(resErr))
 		}
 	}
 
-	// // -----------------------------------------------------------------
-	// //
-	// // Machine Search API
-	// req, err = http.NewRequest("GET", machineSearchURL, nil)
+	// -----------------------------------------------------------------
+	//
+	// Machine Details API
 
-	// if err != nil {
-	// 	t.Fatal("err on request")
-	// }
+	machine1, _ := models.QueryMachine(
+		TestDB,
+		"select id from machine where machine_name = $1;",
+		machines[0].MachineName,
+	)
 
-	// // -----------------------------------------------------------------
-	// //
-	// // Machine Details API
+	detailsURL := strings.Replace(
+		machineDetailsURL,
+		"{id:[0-9]+}",
+		strconv.Itoa(machine1.ID),
+		1,
+	)
+	req, err = http.NewRequest("GET", detailsURL, nil)
 
-	// req, err = http.NewRequest("GET", machineDetailsURL, nil)
+	if err != nil {
+		t.Fatal("err on request")
+	}
 
-	// if err != nil {
-	// 	t.Fatal("err on request")
-	// } else {
-	// 	if res.StatusCode != http.StatusOK {
-	// 		t.Errorf("Got %d error, should be 200", res.StatusCode)
-	// 	}
-	// }
+	req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
 
-	// // -----------------------------------------------------------------
-	// //
-	// // Machine Swap API
+	if err != nil {
+		t.Fatal("err on response")
+	} else {
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Got %d error, should be 200\n", res.StatusCode)
+			resErr, _ := ioutil.ReadAll(res.Body)
+			t.Errorf("Body response: %s", string(resErr))
+		}
+	}
 
-	// req, err = http.NewRequest("GET", machineSwapURL, nil)
+	// -----------------------------------------------------------------
+	//
+	// Machine Swap API
 
-	// if err != nil {
-	// 	t.Fatal("err on request")
-	// } else {
-	// 	if res.StatusCode != http.StatusOK {
-	// 		t.Errorf("Got %d error, should be 200", res.StatusCode)
-	// 	}
-	// }
+	machine2, _ := models.QueryMachine(
+		TestDB,
+		"select id from machine where machine_name = $1",
+		machines[1].MachineName,
+	)
 
+	id1 := strconv.Itoa(machine1.ID)
+	id2 := strconv.Itoa(machine2.ID)
+
+	temp := strings.Replace(machineSwapURL, "{oldID:[0-9]+}", id1, 1)
+	swapURL := strings.Replace(temp, "{newID[0-9]+}", id2, 1)
+
+	req, err = http.NewRequest("GET", swapURL, nil)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	} else {
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Got %d error, should be 200", res.StatusCode)
+		}
+	}
+
+	swapForm := forms.MachineSwapForm{
+		MachineStatusID: 3,
+	}
+	buffer = apiutil.GetJSONBuffer(swapForm)
+	req, err = http.NewRequest("POST", swapURL, &buffer)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	token = res.Header.Get(TokenHeader)
+	csrfCookie = res.Header.Get(SetCookieHeader)
+
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
+
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	}
+
+	for _, v := range machines {
+		machine, _ := models.QueryMachine(
+			TestDB,
+			"select * from machine where machine_name = $1;",
+			v.MachineName,
+		)
+
+		err := machine.Delete(TestDB)
+
+		if err != nil {
+			t.Fatal("Could not delete machine")
+		}
+	}
 }
