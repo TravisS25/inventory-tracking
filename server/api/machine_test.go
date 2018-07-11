@@ -1,7 +1,9 @@
 package api
 
 import (
+	"bytes"
 	"net/http"
+	"net/http/httptest"
 	"strconv"
 	"strings"
 	"testing"
@@ -352,4 +354,119 @@ func TestAllMachineIntegrationTests(t *testing.T) {
 	TestMachineDetailsIntegrationTest(t)
 	TestMachineEditIntegrationTest(t)
 	TestMachineSearchIntegrationTest(t)
+}
+
+// ------------------- END TO END TESTING ---------------------
+
+func TestMachineAPIs(t *testing.T) {
+	var req *http.Request
+	var res *http.Response
+	var err error
+	var buffer bytes.Buffer
+	var token, csrfCookie, userCookie string
+
+	user := "worker@email.com"
+	ts := httptest.NewServer(App())
+	defer ts.Close()
+	userCookie, err = loginUser(user, TestPassword, ts)
+
+	if err != nil {
+		t.Fatal("Could not login user")
+	}
+
+	client := &http.Client{}
+	baseURL := ts.URL
+	machineUploadURL := baseURL + config.RouterPaths["machineUpload"]
+	// machineSearchURL := baseURL + config.RouterPaths["machineSearch"] + "?take=20&skip=0"
+	// machineDetailsURL := baseURL + config.RouterPaths["machineDetails"]
+	// machineSwapURL := baseURL + config.RouterPaths["machineSwap"]
+	// machineEditURL := baseURL + config.RouterPaths["machineEdit"]
+
+	// -----------------------------------------------------------------
+	//
+	// Machine Upload API
+	req, err = http.NewRequest("GET", machineUploadURL, nil)
+	req.Header.Set(CookieHeader, userCookie)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	} else {
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Got %d error, should be 200", res.StatusCode)
+		}
+	}
+
+	token = res.Header.Get(TokenHeader)
+	csrfCookie = res.Header.Get(CookieHeader)
+
+	machines := []forms.MachineForm{
+		forms.MachineForm{
+			RoomID:          1,
+			MachineStatusID: 3,
+			MachineName:     "Machine1",
+		},
+	}
+
+	buffer = apiutil.GetJSONBuffer(machines)
+	req, err = http.NewRequest("POST", machineUploadURL, &buffer)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	} else {
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Got %d error, should be 200 for machine ", res.StatusCode)
+		}
+	}
+
+	// // -----------------------------------------------------------------
+	// //
+	// // Machine Search API
+	// req, err = http.NewRequest("GET", machineSearchURL, nil)
+
+	// if err != nil {
+	// 	t.Fatal("err on request")
+	// }
+
+	// // -----------------------------------------------------------------
+	// //
+	// // Machine Details API
+
+	// req, err = http.NewRequest("GET", machineDetailsURL, nil)
+
+	// if err != nil {
+	// 	t.Fatal("err on request")
+	// } else {
+	// 	if res.StatusCode != http.StatusOK {
+	// 		t.Errorf("Got %d error, should be 200", res.StatusCode)
+	// 	}
+	// }
+
+	// // -----------------------------------------------------------------
+	// //
+	// // Machine Swap API
+
+	// req, err = http.NewRequest("GET", machineSwapURL, nil)
+
+	// if err != nil {
+	// 	t.Fatal("err on request")
+	// } else {
+	// 	if res.StatusCode != http.StatusOK {
+	// 		t.Errorf("Got %d error, should be 200", res.StatusCode)
+	// 	}
+	// }
+
 }

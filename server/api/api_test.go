@@ -23,6 +23,9 @@ const (
 	TestPassword     = "Password123!"
 	TestPasswordHash = "$2a$10$bi8mFKrlUfYlXgeIJj6buucEgT0scC./LaMAqOfnAAHMEcTPaXqy2"
 	TestEmail        = "testemail@email.com"
+	SetCookieHeader  = "Set-Cookie"
+	CookieHeader     = "Cookie"
+	TokenHeader      = "X-CSRF-TOKEN"
 )
 
 var (
@@ -173,6 +176,47 @@ func App() http.Handler {
 	return n
 }
 
+func loginUser(email, password string, ts *httptest.Server) (string, error) {
+	client := &http.Client{}
+
+	baseURL := ts.URL
+	loginURL := baseURL + config.RouterPaths["login"]
+
+	req, err := http.NewRequest("GET", loginURL, nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		return "", err
+	}
+
+	token := res.Header.Get(TokenHeader)
+	csrf := res.Header.Get(SetCookieHeader)
+	buffer := apiutil.GetJSONBuffer(forms.LoginForm{
+		Email:    email,
+		Password: password,
+	})
+	req, err = http.NewRequest("POST", loginURL, &buffer)
+
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrf)
+	res, err = client.Do(req)
+
+	if err != nil {
+		return "", err
+	}
+
+	return res.Header.Get(SetCookieHeader), nil
+}
+
 // ------------------- END TO END TESTING ---------------------
 
 func TestApp(t *testing.T) {
@@ -209,8 +253,8 @@ func TestApp(t *testing.T) {
 	}
 
 	fmt.Printf("headers get: %s", res.Header)
-	token = res.Header.Get("X-CSRF-TOKEN")
-	csrf = res.Header.Get("Set-Cookie")
+	token = res.Header.Get(TokenHeader)
+	csrf = res.Header.Get(SetCookieHeader)
 	fmt.Printf("token recieved: %s\n", token)
 	fmt.Printf("csrf recieved: %s\n", csrf)
 
@@ -226,18 +270,19 @@ func TestApp(t *testing.T) {
 		t.Fatal("err on request")
 	}
 
-	req.Header.Set("X-CSRF-TOKEN", token)
-	req.Header.Set("Cookie", csrf)
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrf)
 	res, err = client.Do(req)
 
 	if err != nil {
 		t.Fatal("err on response")
 	}
-	//buffer.Reset()
 
-	// fmt.Println(res.Header)
+	fmt.Printf("user cookie: %s\n", res.Header.Get(SetCookieHeader))
+
+	fmt.Println(res.Header)
 	fmt.Println(res.StatusCode)
-	//t.Error("hi")
+	t.Error("hi")
 }
 
 func TestLogin2(t *testing.T) {

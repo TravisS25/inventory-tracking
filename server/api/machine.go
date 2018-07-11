@@ -42,7 +42,7 @@ func NewMachineAPI(db httputil.DBInterface, cache cacheutil.CacheStore, formMap 
 
 func (m *MachineAPI) MachineUpload(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		//helpers.SendPayload(w, helpers.GetCSRFPayload(w, r))
+		apiutil.SetToken(w, r)
 	} else if r.Method == "POST" {
 		if apiutil.HasBodyError(w, r) {
 			return
@@ -253,7 +253,7 @@ func (m *MachineAPI) MachineDetails(w http.ResponseWriter, r *http.Request) {
 
 func (m *MachineAPI) MachineSwap(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
+		apiutil.SetToken(w, r)
 	} else if r.Method == "PUT" {
 		oldID := mux.Vars(r)["oldID"]
 		newID := mux.Vars(r)["newID"]
@@ -312,7 +312,7 @@ func (m *MachineAPI) MachineSwap(w http.ResponseWriter, r *http.Request) {
 
 func (m *MachineAPI) MachineEdit(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
+		apiutil.SetToken(w, r)
 	} else if r.Method == "PUT" {
 		id := mux.Vars(r)["id"]
 		machine, err := models.QueryMachine(
