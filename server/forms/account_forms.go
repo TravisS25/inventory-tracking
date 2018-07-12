@@ -78,14 +78,14 @@ func (l LoginValidator) Validate(item interface{}) error {
 type LoginForm struct {
 	Email        string `json:"email"`
 	Password     string `json:"password"`
-	ErrorMessage string `json:"errorMessage"`
+	ErrorMessage string `json:"errorMessage,omitempty"`
 }
 
 type ChangePasswordForm struct {
 	CurrentPassword string `json:"currentPassword"`
 	NewPassword     string `json:"newPassword"`
 	ConfirmPassword string `json:"confirmPassword"`
-	Email           string
+	Email           string `json:"email"`
 
 	formutil.FormValidation
 }

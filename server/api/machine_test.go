@@ -532,7 +532,7 @@ func TestMachineAPIs(t *testing.T) {
 	form := forms.MachineForm{
 		RoomID:          2,
 		MachineStatusID: 2,
-		MachineName:     "MachineStatus",
+		MachineName:     "MachineEdit",
 	}
 
 	buffer = apiutil.GetJSONBuffer(form)
@@ -564,5 +564,21 @@ func TestMachineAPIs(t *testing.T) {
 		if err != nil {
 			t.Fatal("Could not delete machine")
 		}
+	}
+
+	machineEdit, err := models.QueryMachine(
+		TestDB,
+		"select * from machine where machine_name = $1",
+		form.MachineName,
+	)
+
+	if err != nil {
+		t.Fatal("Could not query machine")
+	}
+
+	err = machineEdit.Delete(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not delete machine")
 	}
 }

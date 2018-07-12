@@ -42,10 +42,10 @@ func (m MachineSwapValidator) Validate(item interface{}) error {
 }
 
 type MachineForm struct {
-	RoomID          int    `json:"roomID,omitempty" db:"room_id"`                    // room_id
-	MachineStatusID int    `json:"machineStatusID,omitempty" db:"machine_status_id"` // machine_status_id
-	MachineName     string `json:"machineName,omitempty" db:"machine_name"`          // machine_name
-	Instance        *models.Machine
+	RoomID          int             `json:"roomID,omitempty" db:"room_id"`                    // room_id
+	MachineStatusID int             `json:"machineStatusID,omitempty" db:"machine_status_id"` // machine_status_id
+	MachineName     string          `json:"machineName,omitempty" db:"machine_name"`          // machine_name
+	Instance        *models.Machine `json:"instance,omitempty"`
 }
 
 func NewMachineValidator(v formutil.FormValidation) *MachineValidator {

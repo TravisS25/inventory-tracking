@@ -7,11 +7,13 @@ import (
 	"sort"
 	"time"
 
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/TravisS25/httputil"
 	"github.com/TravisS25/httputil/apiutil"
 	"github.com/TravisS25/httputil/formutil"
 
-	"bitbucket.org/TravisS25/contractor-tracking/contractor-tracking/contractor-server/models"
+	"github.com/TravisS25/inventory-tracking/src/server/models"
 	_ "github.com/lib/pq"
 
 	"html/template"
@@ -265,20 +267,28 @@ func LogInserter(r *http.Request, payload []byte, db httputil.DBInterface) error
 	currentTime := time.Now().UTC().Format(confutil.DateTimeLayout)
 
 	if userBytes != nil {
-		var user UserProfile
+		var user models.UserProfile
 		json.Unmarshal(userBytes, &user)
 		userID = &user.ID
 	}
 
-	logger := LoggingHistory{
+	id, err := uuid.NewV4()
+
+	if err != nil {
+		return err
+	}
+
+	logger := models.LoggingHistory{
+		ID:          id,
 		DateEntered: &currentTime,
 		URL:         r.URL.Path,
 		Operation:   r.Method,
 		EnteredByID: userID,
 	}
 
-	if payload != "" {
-		logger.Value = &payload
+	if payload != nil {
+		value := string(payload)
+		logger.Value = &value
 	}
 
 	return logger.Insert(db)
