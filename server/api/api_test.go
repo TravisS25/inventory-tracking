@@ -13,7 +13,6 @@ import (
 	"github.com/TravisS25/httputil/mailutil"
 	"github.com/TravisS25/inventory-tracking/src/server/config"
 	"github.com/TravisS25/inventory-tracking/src/server/forms"
-	"github.com/TravisS25/inventory-tracking/src/server/models"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
@@ -137,7 +136,7 @@ func App() http.Handler {
 		CacheStore:      config.Cache,
 		SessionStore:    config.SessionStore,
 		DB:              TestDB,
-		Inserter:        models.LogEntry{},
+		LogInserter:     config.LogInserter,
 		UserSessionName: "user",
 		AnonRouting: []string{
 			config.RouterPaths["login"],

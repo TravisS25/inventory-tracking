@@ -48,7 +48,26 @@ func main() {
 	r.HandleFunc(config.RouterPaths["machineSwap"], machineAPI.MachineSwap).Methods("GET", "PUT")
 	r.HandleFunc(config.RouterPaths["machineEdit"], machineAPI.MachineEdit).Methods("GET", "PUT")
 
-	middleware := apiutil.NewMiddleware(config.SessionStore, config.Cache, []string{})
+	middleware := apiutil.Middleware{
+		CacheStore:      config.Cache,
+		SessionStore:    config.SessionStore,
+		DB:              config.DB,
+		Inserter:        config.LogInserter,
+		UserSessionName: "user",
+		AnonRouting: []string{
+			config.RouterPaths["login"],
+			config.RouterPaths["resetPassword"],
+			config.RouterPaths["confirmPasswordReset"],
+		},
+	}
+	recoverHandler := negroni.NewRecovery()
+	recoverHandler.PanicHandlerFunc = apiutil.PanicHandlerFunc(
+		[]string{"admin@email.com"},
+		"admin@email.com",
+		"500 Panic Error",
+		[]string{"TravisS25"},
+		config.Mailer,
+	)
 
 	// Init middleware
 	c := cors.New(cors.Options{

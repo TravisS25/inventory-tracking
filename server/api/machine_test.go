@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -18,6 +17,8 @@ import (
 	"github.com/TravisS25/inventory-tracking/src/server/forms"
 	"github.com/TravisS25/inventory-tracking/src/server/models"
 )
+
+// ------------------- UNIT TESTING ----------------------------
 
 // ------------------- INTEGRATION TESTING ---------------------
 
@@ -384,7 +385,7 @@ func TestMachineAPIs(t *testing.T) {
 	machineSearchURL := baseURL + config.RouterPaths["machineSearch"] + "?take=20&skip=0"
 	machineDetailsURL := baseURL + config.RouterPaths["machineDetails"]
 	machineSwapURL := baseURL + config.RouterPaths["machineSwap"]
-	// machineEditURL := baseURL + config.RouterPaths["machineEdit"]
+	machineEditURL := baseURL + config.RouterPaths["machineEdit"]
 
 	// -----------------------------------------------------------------
 	//
@@ -397,16 +398,6 @@ func TestMachineAPIs(t *testing.T) {
 	}
 
 	res, err = client.Do(req)
-
-	if err != nil {
-		t.Fatal("err on response")
-	} else {
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("Got %d error, should be 200", res.StatusCode)
-			resErr, _ := ioutil.ReadAll(res.Body)
-			t.Errorf("Body response: %s", string(resErr))
-		}
-	}
 
 	token = res.Header.Get(TokenHeader)
 	csrfCookie = res.Header.Get(SetCookieHeader)
@@ -431,25 +422,10 @@ func TestMachineAPIs(t *testing.T) {
 		t.Fatal("err on request")
 	}
 
-	// fmt.Printf("csrf: %s\n", csrfCookie)
-	// fmt.Printf("user: %s\n", userCookie)
-	cookieHeader := csrfCookie + "; " + userCookie
-	fmt.Printf("cookie header: %s\n", cookieHeader)
-	fmt.Printf("token header: %s\n", token)
-
 	req.Header.Set(TokenHeader, token)
 	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
 	res, err = client.Do(req)
-
-	if err != nil {
-		t.Fatal("err on response")
-	} else {
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("Got %d error, should be 200 for machine\n", res.StatusCode)
-			resErr, _ := ioutil.ReadAll(res.Body)
-			t.Errorf("Body response: %s", string(resErr))
-		}
-	}
+	apiutil.ResponseError(t, res, http.StatusOK, err)
 	buffer.Reset()
 
 	// -----------------------------------------------------------------
@@ -463,16 +439,7 @@ func TestMachineAPIs(t *testing.T) {
 
 	req.Header.Set(CookieHeader, userCookie)
 	res, err = client.Do(req)
-
-	if err != nil {
-		t.Fatal("err on response")
-	} else {
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("Got %d error, should be 200\n", res.StatusCode)
-			resErr, _ := ioutil.ReadAll(res.Body)
-			t.Errorf("Body response: %s", string(resErr))
-		}
-	}
+	apiutil.ResponseError(t, res, http.StatusOK, err)
 
 	// -----------------------------------------------------------------
 	//
@@ -480,7 +447,7 @@ func TestMachineAPIs(t *testing.T) {
 
 	machine1, _ := models.QueryMachine(
 		TestDB,
-		"select id from machine where machine_name = $1;",
+		"select * from machine where machine_name = $1;",
 		machines[0].MachineName,
 	)
 
@@ -498,16 +465,7 @@ func TestMachineAPIs(t *testing.T) {
 
 	req.Header.Set(CookieHeader, userCookie)
 	res, err = client.Do(req)
-
-	if err != nil {
-		t.Fatal("err on response")
-	} else {
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("Got %d error, should be 200\n", res.StatusCode)
-			resErr, _ := ioutil.ReadAll(res.Body)
-			t.Errorf("Body response: %s", string(resErr))
-		}
-	}
+	apiutil.ResponseError(t, res, http.StatusOK, err)
 
 	// -----------------------------------------------------------------
 	//
@@ -515,7 +473,7 @@ func TestMachineAPIs(t *testing.T) {
 
 	machine2, _ := models.QueryMachine(
 		TestDB,
-		"select id from machine where machine_name = $1",
+		"select * from machine where machine_name = $1",
 		machines[1].MachineName,
 	)
 
@@ -523,7 +481,7 @@ func TestMachineAPIs(t *testing.T) {
 	id2 := strconv.Itoa(machine2.ID)
 
 	temp := strings.Replace(machineSwapURL, "{oldID:[0-9]+}", id1, 1)
-	swapURL := strings.Replace(temp, "{newID[0-9]+}", id2, 1)
+	swapURL := strings.Replace(temp, "{newID:[0-9]+}", id2, 1)
 
 	req, err = http.NewRequest("GET", swapURL, nil)
 
@@ -533,20 +491,13 @@ func TestMachineAPIs(t *testing.T) {
 
 	req.Header.Set(CookieHeader, userCookie)
 	res, err = client.Do(req)
-
-	if err != nil {
-		t.Fatal("err on response")
-	} else {
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("Got %d error, should be 200", res.StatusCode)
-		}
-	}
+	apiutil.ResponseError(t, res, http.StatusOK, err)
 
 	swapForm := forms.MachineSwapForm{
 		MachineStatusID: 3,
 	}
 	buffer = apiutil.GetJSONBuffer(swapForm)
-	req, err = http.NewRequest("POST", swapURL, &buffer)
+	req, err = http.NewRequest("PUT", swapURL, &buffer)
 
 	if err != nil {
 		t.Fatal("err on request")
@@ -559,10 +510,47 @@ func TestMachineAPIs(t *testing.T) {
 	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
 
 	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+
+	// -----------------------------------------------------------------
+	//
+	// Machine Edit API
+
+	editURL := strings.Replace(machineEditURL, "{id:[0-9]+}", strconv.Itoa(machine1.ID), 1)
+	req, err = http.NewRequest("GET", editURL, nil)
 
 	if err != nil {
-		t.Fatal("err on response")
+		t.Fatal("err on request")
 	}
+
+	req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+	token = res.Header.Get(TokenHeader)
+	csrfCookie = res.Header.Get(SetCookieHeader)
+
+	form := forms.MachineForm{
+		RoomID:          2,
+		MachineStatusID: 2,
+		MachineName:     "MachineStatus",
+	}
+
+	buffer = apiutil.GetJSONBuffer(form)
+	req, err = http.NewRequest("PUT", editURL, &buffer)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
+
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+
+	// -----------------------------------------------------------------
+	//
+	// Clean up
 
 	for _, v := range machines {
 		machine, _ := models.QueryMachine(

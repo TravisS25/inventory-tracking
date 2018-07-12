@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"time"
 
+	"github.com/TravisS25/httputil"
+	"github.com/TravisS25/httputil/apiutil"
 	"github.com/TravisS25/httputil/formutil"
 
 	"bitbucket.org/TravisS25/contractor-tracking/contractor-tracking/contractor-server/models"
@@ -254,4 +257,29 @@ func initCacheReset() {
 		key := fmt.Sprintf(confutil.URLKey, user.Email)
 		Cache.Set(key, urlBytes, 0)
 	}
+}
+
+func LogInserter(r *http.Request, payload []byte, db httputil.DBInterface) error {
+	var userID *int
+	userBytes := apiutil.GetUser(r)
+	currentTime := time.Now().UTC().Format(confutil.DateTimeLayout)
+
+	if userBytes != nil {
+		var user UserProfile
+		json.Unmarshal(userBytes, &user)
+		userID = &user.ID
+	}
+
+	logger := LoggingHistory{
+		DateEntered: &currentTime,
+		URL:         r.URL.Path,
+		Operation:   r.Method,
+		EnteredByID: userID,
+	}
+
+	if payload != "" {
+		logger.Value = &payload
+	}
+
+	return logger.Insert(db)
 }
