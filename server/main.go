@@ -52,7 +52,7 @@ func main() {
 		CacheStore:      config.Cache,
 		SessionStore:    config.SessionStore,
 		DB:              config.DB,
-		Inserter:        config.LogInserter,
+		LogInserter:     config.LogInserter,
 		UserSessionName: "user",
 		AnonRouting: []string{
 			config.RouterPaths["login"],
@@ -78,9 +78,11 @@ func main() {
 		ExposedHeaders:   []string{"*"},
 	})
 	n := negroni.New(
+		recoverHandler,
 		negroni.HandlerFunc(middleware.AuthMiddleware),
 		negroni.HandlerFunc(middleware.GroupMiddleware),
 		negroni.HandlerFunc(middleware.RoutingMiddleware),
+		negroni.HandlerFunc(middleware.LogEntryMiddleware),
 		negroni.NewLogger(),
 		c,
 	)

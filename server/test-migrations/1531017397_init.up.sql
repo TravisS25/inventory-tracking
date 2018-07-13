@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS logging_history (
     date_entered   timestamp DEFAULT now(),
     url            text not null,
     operation      text not null,
-    value          json,
+    value          jsonb,
     entered_by_id  int REFERENCES user_profile(id)
 );
 
