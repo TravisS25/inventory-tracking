@@ -368,10 +368,9 @@ func TestMachineAPIs(t *testing.T) {
 	var buffer bytes.Buffer
 	var token, csrfCookie, userCookie string
 
-	user := "worker@email.com"
 	ts := httptest.NewServer(App())
 	defer ts.Close()
-	userCookie, err = loginUser(user, TestPassword, ts)
+	userCookie, err = loginUser(WorkerEmail, TestPassword, ts)
 
 	if err != nil {
 		t.Fatal("Could not login user")

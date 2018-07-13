@@ -24,9 +24,18 @@ func main() {
 
 	// ------------------------------ APIs -------------------------------------
 
-	accountAPI := api.NewAccountAPI(config.DB, config.Cache, config.SessionStore, config.Mailer, map[string]formutil.Validator{
-		"loginForm": forms.LoginValidator{FormValidation: config.FormValidation},
-	})
+	accountAPI := api.NewAccountAPI(
+		config.DB,
+		config.Cache,
+		config.SessionStore,
+		config.Mailer,
+		config.Conf.Prod,
+		map[string]formutil.Validator{
+			"loginForm":           forms.NewLoginValidator(config.FormValidation),
+			"changePasswordForm":  forms.NewChangePasswordValidator(config.FormValidation),
+			"confirmPasswordForm": forms.NewConfirmPasswordValidator(config.FormValidation),
+			"emailForm":           forms.NewEmailValidator(config.FormValidation),
+		})
 	machineAPI := api.NewMachineAPI(config.DB, config.Cache, map[string]formutil.Validator{
 		"form":     forms.NewMachineValidator(config.FormValidation),
 		"formSwap": forms.NewMachineSwapValidator(config.FormValidation),
@@ -36,7 +45,7 @@ func main() {
 	r.HandleFunc(config.RouterPaths["login"], accountAPI.Login).Methods("GET", "POST")
 	r.HandleFunc(config.RouterPaths["logout"], accountAPI.Logout).Methods("GET")
 	r.HandleFunc(config.RouterPaths["userDetails"], accountAPI.AccountDetails).Methods("GET")
-	r.HandleFunc(config.RouterPaths["chagePassword"], accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
+	r.HandleFunc(config.RouterPaths["changePassword"], accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
 	r.HandleFunc(config.RouterPaths["resetPassword"], accountAPI.ResetPassword).Methods("GET", "POST")
 	r.HandleFunc(config.RouterPaths["confirmPasswordReset"], accountAPI.ConfirmPasswordReset).Methods("GET", "POST", "OPTIONS")
 	r.HandleFunc(config.RouterPaths["emailExists"], accountAPI.EmailExists).Methods("GET")

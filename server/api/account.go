@@ -37,6 +37,7 @@ type AccountAPI struct {
 	store   sessions.Store
 	message mailutil.SendMessage
 	formMap map[string]formutil.Validator
+	isProd  bool
 }
 
 func NewAccountAPI(
@@ -44,6 +45,7 @@ func NewAccountAPI(
 	cache cacheutil.CacheStore,
 	store sessions.Store,
 	message mailutil.SendMessage,
+	isProd bool,
 	formMap map[string]formutil.Validator,
 ) *AccountAPI {
 	return &AccountAPI{
@@ -52,6 +54,7 @@ func NewAccountAPI(
 		store:   store,
 		message: message,
 		formMap: formMap,
+		isProd:  isProd,
 	}
 }
 
@@ -65,7 +68,7 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		apiutil.SetToken(w, r)
 		w.WriteHeader(http.StatusOK)
-	} else {
+	} else if r.Method == "POST" {
 		var form forms.LoginForm
 
 		if apiutil.HasBodyError(w, r) {
@@ -196,8 +199,8 @@ func (a *AccountAPI) Logout(w http.ResponseWriter, r *http.Request) {
 
 func (a *AccountAPI) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		w.WriteHeader(http.StatusOK)
-	} else {
+		apiutil.SetToken(w, r)
+	} else if r.Method == "POST" {
 		var form forms.ChangePasswordForm
 
 		if apiutil.HasBodyError(w, r) {
@@ -220,8 +223,7 @@ func (a *AccountAPI) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		}
 
 		form.Email = user.Email
-		form.SetQuerier(a.db)
-		err = form.Validate()
+		err = a.formMap["changePasswordForm"].Validate(form)
 
 		if apiutil.HasFormErrors(w, r, err) {
 			return
@@ -259,8 +261,8 @@ func (a *AccountAPI) Verification(w http.ResponseWriter, r *http.Request) {
 
 func (a *AccountAPI) ResendVerification(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		w.WriteHeader(http.StatusOK)
-	} else {
+		apiutil.SetToken(w, r)
+	} else if r.Method == "POST" {
 		var form forms.EmailForm
 
 		if apiutil.HasBodyError(w, r) {
@@ -274,8 +276,7 @@ func (a *AccountAPI) ResendVerification(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		form.SetQuerier(a.db)
-		err = form.Validate()
+		err = a.formMap["emailForm"].Validate(form)
 
 		if apiutil.HasFormErrors(w, r, err) {
 			return
@@ -356,7 +357,7 @@ func (a *AccountAPI) ResendVerification(w http.ResponseWriter, r *http.Request) 
 
 func (a *AccountAPI) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		w.WriteHeader(http.StatusOK)
+		apiutil.SetToken(w, r)
 	} else if r.Method == "POST" {
 		var form forms.EmailForm
 
@@ -371,8 +372,7 @@ func (a *AccountAPI) ResetPassword(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		form.SetQuerier(a.db)
-		err = form.Validate()
+		err = a.formMap["emailForm"].Validate(form)
 
 		if apiutil.HasFormErrors(w, r, err) {
 			return
@@ -426,7 +426,15 @@ func (a *AccountAPI) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		}
 
 		a.cache.Set(hash, form.Email, (time.Hour * time.Duration(cachedHours)))
-		w.WriteHeader(http.StatusOK)
+
+		// This is simply used for testing in non prod
+		// Here we send the verification token so our tests
+		// can grab the token and test the confirm reset api
+		if !config.Conf.Prod {
+			apiutil.SendPayload(w, r, false, map[string]interface{}{
+				"token": hash,
+			})
+		}
 	}
 }
 
@@ -440,15 +448,12 @@ func (a *AccountAPI) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-
+		apiutil.SetToken(w, r)
 	} else if r.Method == "POST" {
 		param := mux.Vars(r)["token"]
 		emailBytes, err := a.cache.Get(param)
 
 		if err != nil {
-			fmt.Println("reseeeeeet")
-			fmt.Println(param)
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
@@ -464,7 +469,7 @@ func (a *AccountAPI) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		err = form.Validate()
+		err = a.formMap["confirmPasswordForm"].Validate(form)
 
 		if apiutil.HasFormErrors(w, r, err) {
 			return

@@ -74,10 +74,10 @@ func init() {
 	initMessenger()
 	initTemplate()
 	initCSRF()
+	initRouterPaths()
 	initRouting()
 	//initCacheReset()
 	initFormValidation()
-	initRouterPaths()
 }
 
 func initFormValidation() {
@@ -176,30 +176,19 @@ func initCSRF() {
 
 func initRouting() {
 	anonUrls := []string{
-		"/api/account/user/details",
-		"/api/account/login",
-		"/api/account/confirm-password-reset",
-		"/api/account/reset-password",
-		"/api/account/resend-verification-email",
-		"/api/account/logged-in",
+		RouterPaths["login"],
+		RouterPaths["resetPassword"],
+		RouterPaths["confirmPasswordReset"],
+		RouterPaths["userDetails"],
 	}
 
 	userUrls := append(anonUrls, []string{
-		"/api/account/logout",
+		RouterPaths["logout"],
+		RouterPaths["changePassword"],
 		"/api/machine",
 	}...)
 
-	// managerUrls := append(employeeUrls, []string{
-	// 	"/api/user",
-	// }...)
-
-	// adminUrls := append(managerUrls, []string{
-	// 	"/api/call-status",
-	// 	"/api/rejection-reason",
-	// 	"/api/areas/all",
-	// }...)
-
-	Routing["Anon"] = anonUrls
+	//Routing["Anon"] = anonUrls
 	Routing["User"] = userUrls
 }
 

@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,6 +18,7 @@ import (
 )
 
 const (
+	WorkerEmail      = "worker@email.com"
 	TestPassword     = "Password123!"
 	TestPasswordHash = "$2a$10$bi8mFKrlUfYlXgeIJj6buucEgT0scC./LaMAqOfnAAHMEcTPaXqy2"
 	TestEmail        = "testemail@email.com"
@@ -74,9 +74,18 @@ func initDB() {
 }
 
 func initIntegrationTestAPIs() {
-	accountAPI := NewAccountAPI(TestDB, config.Cache, config.SessionStore, TestMailer, map[string]formutil.Validator{
-		"loginForm": forms.LoginValidator{FormValidation: TestFormValidation},
-	})
+	accountAPI := NewAccountAPI(
+		TestDB,
+		config.Cache,
+		config.SessionStore,
+		TestMailer,
+		config.Conf.Prod,
+		map[string]formutil.Validator{
+			"loginForm":           forms.NewLoginValidator(config.FormValidation),
+			"changePasswordForm":  forms.NewChangePasswordValidator(config.FormValidation),
+			"confirmPasswordForm": forms.NewConfirmPasswordValidator(config.FormValidation),
+			"emailForm":           forms.NewEmailValidator(config.FormValidation),
+		})
 	machineAPI := NewMachineAPI(TestDB, config.Cache, map[string]formutil.Validator{
 		"form":     forms.NewMachineValidator(TestFormValidation),
 		"formSwap": forms.NewMachineSwapValidator(TestFormValidation),
@@ -86,7 +95,7 @@ func initIntegrationTestAPIs() {
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["login"], accountAPI.Login).Methods("GET", "POST")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["logout"], accountAPI.Logout).Methods("GET")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["userDetails"], accountAPI.AccountDetails).Methods("GET")
-	IntegrationTestRouter.HandleFunc(config.RouterPaths["chagePassword"], accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
+	IntegrationTestRouter.HandleFunc(config.RouterPaths["changePassword"], accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["resetPassword"], accountAPI.ResetPassword).Methods("GET", "POST")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["confirmPasswordReset"], accountAPI.ConfirmPasswordReset).Methods("GET", "POST", "OPTIONS")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["emailExists"], accountAPI.EmailExists).Methods("GET")
@@ -100,9 +109,15 @@ func initIntegrationTestAPIs() {
 }
 
 func initUnitTestAPIs() {
-	accountAPI := NewAccountAPI(config.DB, config.Cache, config.SessionStore, config.Mailer, map[string]formutil.Validator{
-		"loginForm": forms.LoginValidator{FormValidation: TestFormValidation},
-	})
+	accountAPI := NewAccountAPI(
+		config.DB,
+		config.Cache,
+		config.SessionStore,
+		config.Mailer,
+		config.Conf.Prod,
+		map[string]formutil.Validator{
+			"loginForm": forms.LoginValidator{FormValidation: TestFormValidation},
+		})
 	machineAPI := NewMachineAPI(config.DB, config.Cache, map[string]formutil.Validator{
 		"form":     forms.NewMachineValidator(config.FormValidation),
 		"formSwap": forms.NewMachineSwapValidator(config.FormValidation),
@@ -112,7 +127,7 @@ func initUnitTestAPIs() {
 	UnitTestRouter.HandleFunc(config.RouterPaths["login"], accountAPI.Login).Methods("GET", "POST")
 	UnitTestRouter.HandleFunc(config.RouterPaths["logout"], accountAPI.Logout).Methods("GET")
 	UnitTestRouter.HandleFunc(config.RouterPaths["userDetails"], accountAPI.AccountDetails).Methods("GET")
-	UnitTestRouter.HandleFunc(config.RouterPaths["chagePassword"], accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
+	UnitTestRouter.HandleFunc(config.RouterPaths["changePassword"], accountAPI.ChangePassword).Methods("GET", "POST", "OPTIONS")
 	UnitTestRouter.HandleFunc(config.RouterPaths["resetPassword"], accountAPI.ResetPassword).Methods("GET", "POST")
 	UnitTestRouter.HandleFunc(config.RouterPaths["confirmPasswordReset"], accountAPI.ConfirmPasswordReset).Methods("GET", "POST", "OPTIONS")
 	UnitTestRouter.HandleFunc(config.RouterPaths["emailExists"], accountAPI.EmailExists).Methods("GET")
@@ -126,12 +141,6 @@ func initUnitTestAPIs() {
 }
 
 func App() http.Handler {
-	// middleware := apiutil.NewMiddleware(config.SessionStore, config.Cache, TestDB, []string{
-	// 	config.RouterPaths["login"],
-	// 	config.RouterPaths["resetPassword"],
-	// 	config.RouterPaths["confirmPasswordReset"],
-	// })
-
 	middleware := apiutil.Middleware{
 		CacheStore:      config.Cache,
 		SessionStore:    config.SessionStore,
@@ -141,7 +150,7 @@ func App() http.Handler {
 		AnonRouting: []string{
 			config.RouterPaths["login"],
 			config.RouterPaths["resetPassword"],
-			config.RouterPaths["confirmPasswordReset"],
+			"api/account/confirm-password-reset",
 		},
 	}
 	recoverHandler := negroni.NewRecovery()
@@ -213,7 +222,6 @@ func loginUser(email, password string, ts *httptest.Server) (string, error) {
 		return "", err
 	}
 
-	fmt.Printf("login headers: %s", res.Header)
 	return res.Header.Get(SetCookieHeader), nil
 }
 

@@ -1,7 +1,12 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,8 +17,8 @@ import (
 	"github.com/TravisS25/inventory-tracking/src/server/models"
 )
 
-func TestLogin(t *testing.T) {
-	user := models.UserProfile{
+var (
+	user = models.UserProfile{
 		TitleID:    2,
 		Email:      "testuser@email.com",
 		Password:   TestPasswordHash,
@@ -22,7 +27,9 @@ func TestLogin(t *testing.T) {
 		IsActive:   true,
 		DateJoined: time.Now().UTC().Format(confutil.DateTimeLayout),
 	}
+)
 
+func TestLogin(t *testing.T) {
 	err := user.Insert(TestDB)
 
 	if err != nil {
@@ -58,13 +65,206 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-// type MockAccountDB struct {
-// 	httputil.DBInterface
-// }
+func TestChangePassword(t *testing.T) {
+	err := user.Insert(TestDB)
 
-// var (
-// 	mockAccountDB = &MockAccountDB{}
-// )
+	if err != nil {
+		t.Fatal("Could not insert test user")
+	}
+
+	testCase1 := apiutil.TestCase{
+		TestName:       "changePassword1",
+		Method:         "GET",
+		RequestURL:     config.RouterPaths["changePassword"],
+		ExpectedStatus: http.StatusOK,
+		Handler:        IntegrationTestRouter,
+	}
+
+	testCase2 := testCase1
+	testCase2.TestName = "changePassword2"
+	testCase2.Method = "POST"
+	testCase2.Form = forms.ChangePasswordForm{
+		CurrentPassword: TestPassword,
+		NewPassword:     "NewPassword",
+		ConfirmPassword: "NewPassword",
+	}
+
+	testCase3 := testCase2
+	testCase3.TestName = "changePassword3"
+	testCase3.Form = forms.ChangePasswordForm{}
+	testCase3.ExpectedStatus = http.StatusNotAcceptable
+
+	apiutil.RunTestCases(t, []apiutil.TestCase{
+		testCase1,
+		testCase2,
+		testCase3,
+	})
+
+	err = user.Delete(TestDB)
+
+	if err != nil {
+		t.Fatal("Could not delete user")
+	}
+}
+
+type Token struct {
+	Token string `json:"token"`
+}
+
+func TestAccountAPIs(t *testing.T) {
+	var req *http.Request
+	var res *http.Response
+	var err error
+	var buffer bytes.Buffer
+	var token, csrfCookie, userCookie string
+
+	defer func() {
+		TestDB.Exec(
+			`
+			update 
+				user_profile
+			set
+				password = $1
+			where
+				email = $2,
+			`,
+			TestPasswordHash,
+			WorkerEmail,
+		)
+	}()
+
+	ts := httptest.NewServer(App())
+	defer ts.Close()
+	userCookie, err = loginUser(WorkerEmail, TestPassword, ts)
+
+	if err != nil {
+		t.Fatal("Could not login user")
+	}
+
+	client := &http.Client{}
+	baseURL := ts.URL
+
+	//loginURL := baseURL + config.RouterPaths["login"]
+	//logoutURL := baseURL + config.RouterPaths["logout"]
+	changePasswordURL := baseURL + config.RouterPaths["changePassword"]
+	resetPasswordURL := baseURL + config.RouterPaths["resetPassword"]
+	confirmPasswordResetURL := baseURL + config.RouterPaths["confirmPasswordReset"]
+
+	// -----------------------------------------------------------------
+	//
+	// ChangePassword API
+
+	req, err = http.NewRequest("GET", changePasswordURL, nil)
+
+	if err != nil {
+		t.Fatal("err on new request")
+	}
+
+	req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	}
+
+	token = res.Header.Get(TokenHeader)
+	csrfCookie = res.Header.Get(SetCookieHeader)
+	changePasswordForm := forms.ChangePasswordForm{
+		CurrentPassword: TestPassword,
+		NewPassword:     "NewPassword",
+		ConfirmPassword: "NewPassword",
+	}
+	buffer = apiutil.GetJSONBuffer(changePasswordForm)
+	req, err = http.NewRequest("POST", changePasswordURL, &buffer)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+	buffer.Reset()
+
+	// -----------------------------------------------------------------
+	//
+	// Reset Password API
+
+	req, err = http.NewRequest("GET", resetPasswordURL, nil)
+
+	if err != nil {
+		t.Fatal("err on new request")
+	}
+
+	//req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	}
+
+	token = res.Header.Get(TokenHeader)
+	csrfCookie = res.Header.Get(SetCookieHeader)
+	resetPasswordForm := forms.EmailForm{
+		Email: WorkerEmail,
+	}
+	buffer = apiutil.GetJSONBuffer(resetPasswordForm)
+	req, err = http.NewRequest("POST", resetPasswordURL, &buffer)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrfCookie+"; "+userCookie)
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+	buffer.Reset()
+	buffer.ReadFrom(res.Body)
+
+	var resetToken Token
+	json.Unmarshal(buffer.Bytes(), &resetToken)
+
+	// -----------------------------------------------------------------
+	//
+	// Confirm Password Reset API
+
+	url := strings.Replace(confirmPasswordResetURL, "{token}", resetToken.Token, 1)
+
+	fmt.Printf("myyyy url: %s\n", url)
+	req, err = http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		t.Fatal("err on new request")
+	}
+
+	//req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	}
+
+	token = res.Header.Get(TokenHeader)
+	csrfCookie = res.Header.Get(SetCookieHeader)
+	confirmPasswordResetForm := forms.ConfirmPasswordForm{
+		NewPassword:     "New Password",
+		ConfirmPassword: "New Password",
+	}
+	buffer = apiutil.GetJSONBuffer(confirmPasswordResetForm)
+	req, err = http.NewRequest("POST", url, &buffer)
+
+	if err != nil {
+		t.Fatal("err on request")
+	}
+
+	req.Header.Set(TokenHeader, token)
+	req.Header.Set(CookieHeader, csrfCookie)
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+	buffer.Reset()
+}
 
 // ------------------------ TEST FUNCTIONS ----------------------------------
 

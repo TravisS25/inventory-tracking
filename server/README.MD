@@ -17,3 +17,6 @@ To generate code coverage file type:
 
 To view code coverge file in html type:
     $ go tool cover -html=<file_name>
+
+In order to insert test data use command:
+    $ psql -h host -U username -d myDataBase -a -f myInsertFile
