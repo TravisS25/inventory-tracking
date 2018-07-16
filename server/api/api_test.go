@@ -67,6 +67,7 @@ func initMailer() {
 
 func initDB() {
 	var err error
+	fmt.Println(config.Conf.DatabaseConfig.Test.DBName)
 	TestDB, err = dbutil.NewDB(dbutil.DBConfig{
 		Host:     config.Conf.DatabaseConfig.Test.Host,
 		User:     config.Conf.DatabaseConfig.Test.User,
@@ -118,13 +119,13 @@ func initIntegrationTestAPIs() {
 
 	// Logging API
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["logIndex"], loggingAPI.Index).Methods("GET")
-	IntegrationTestRouter.HandleFunc(config.RouterPaths["logDetails"], loggingAPI.Index).Methods("GET")
-	IntegrationTestRouter.HandleFunc(config.RouterPaths["logRowDetails"], loggingAPI.Index).Methods("GET")
+	IntegrationTestRouter.HandleFunc(config.RouterPaths["logDetails"], loggingAPI.LogDetails).Methods("GET")
+	IntegrationTestRouter.HandleFunc(config.RouterPaths["logRowDetails"], loggingAPI.RowDetails).Methods("GET")
 }
 
 func initUnitTestAPIs() {
 	accountAPI := NewAccountAPI(
-		config.DB,
+		TestDB,
 		config.Cache,
 		config.SessionStore,
 		config.Mailer,

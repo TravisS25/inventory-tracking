@@ -26,7 +26,6 @@ func NewLoggingAPI(db httputil.DBInterface) *LoggingAPI {
 
 func (l *LoggingAPI) Index(w http.ResponseWriter, r *http.Request) {
 	var data interface{}
-	userID := r.FormValue("userID")
 	takeLimit := uint64(100)
 
 	selectStmt := queryutil.Select
@@ -39,10 +38,9 @@ func (l *LoggingAPI) Index(w http.ResponseWriter, r *http.Request) {
 		`
 	from
 		logging_history
-	where
-		entered_by_id = $1
 	`
 	fieldNames := []string{
+		"entered_by_id",
 		"date_entered",
 		"operation",
 	}
@@ -56,9 +54,7 @@ func (l *LoggingAPI) Index(w http.ResponseWriter, r *http.Request) {
 		&countQuery,
 		takeLimit,
 		sqlx.DOLLAR,
-		[]interface{}{
-			userID,
-		},
+		nil,
 		fieldNames,
 		l.db,
 	)
@@ -131,7 +127,8 @@ func (l *LoggingAPI) LogDetails(w http.ResponseWriter, r *http.Request) {
 		apiURL,
 	)
 
-	if apiutil.HasQueryError(w, err, "Log not found") {
+	if err != nil {
+		apiutil.ServerError(w, err, "")
 		return
 	}
 

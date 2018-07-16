@@ -221,7 +221,7 @@ func initRouterPaths() {
 
 	// Logging Urls
 	RouterPaths["logIndex"] = "/api/log/index/"
-	RouterPaths["logDetails"] = "/api/log/details/{userID:[0-9]+}/{apiURL:[0-9]+}/"
+	RouterPaths["logDetails"] = "/api/log/details/{userID:[0-9]+}/{apiURL}/"
 	RouterPaths["logRowDetails"] = "/api/log/row-details/{id}/"
 }
 
@@ -268,6 +268,7 @@ func initCacheReset() {
 func LogInserter(w http.ResponseWriter, r *http.Request, payload []byte, db httputil.DBInterface) error {
 	var userID *int
 	var operation models.HTTPOperation
+	usePayload := true
 	userBytes := apiutil.GetUser(r)
 	currentTime := time.Now().UTC().Format(confutil.DateTimeLayout)
 
@@ -277,6 +278,7 @@ func LogInserter(w http.ResponseWriter, r *http.Request, payload []byte, db http
 		userID = &user.ID
 	} else {
 		if strings.Contains(r.URL.Path, "login") {
+			usePayload = false
 			id, _ := strconv.Atoi(w.Header().Get("id"))
 			w.Header().Del("id")
 			userID = &id
@@ -297,10 +299,12 @@ func LogInserter(w http.ResponseWriter, r *http.Request, payload []byte, db http
 		return err
 	}
 
+	tempURL := r.URL.Path[1 : len(r.URL.Path)-1]
+	url := strings.Replace(tempURL, "/", "-", -1)
 	logger := models.LoggingHistory{
 		ID:          id,
 		DateEntered: &currentTime,
-		APIURL:      r.URL.Path,
+		APIURL:      url,
 		Operation:   operation,
 		EnteredByID: userID,
 	}
@@ -311,7 +315,7 @@ func LogInserter(w http.ResponseWriter, r *http.Request, payload []byte, db http
 		return err
 	}
 
-	if payload != nil {
+	if payload != nil && usePayload {
 		val, ok := i.(map[string]interface{})
 
 		if !ok {
@@ -327,6 +331,9 @@ func LogInserter(w http.ResponseWriter, r *http.Request, payload []byte, db http
 		} else {
 			logger.JSONData = val
 		}
+	} else {
+		fmt.Println("made to null json")
+		logger.JSONData = make(map[string]interface{})
 	}
 
 	logger.Insert(db)

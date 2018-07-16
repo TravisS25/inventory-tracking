@@ -84,7 +84,12 @@ func (l LoginValidator) Validate(item interface{}) error {
 	query := "select email, password from user_profile where email = $1;"
 	err := l.GetQuerier().QueryRow(query, form.Email).Scan(&email, &password)
 
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	if err == sql.ErrNoRows {
+		fmt.Println(form.Email + "no here")
 		correctInfo = false
 	}
 
