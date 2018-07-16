@@ -51,8 +51,8 @@ func ({{ $short }} {{ $type }}) Value() (driver.Value, error) {
 }
 
 // Scan satisfies the database/sql.Scanner interface for {{ $type }}.
-func ({{ $short }} *{{ $type }}) Scan(contractor-tracking interface{}) error {
-	buf, ok := contractor-tracking.([]byte)
+func ({{ $short }} *{{ $type }}) Scan(item interface{}) error {
+	buf, ok := item.([]byte)
 	if !ok {
 	   return errors.New("invalid {{ $type }}")
 	}

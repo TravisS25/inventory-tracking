@@ -5,18 +5,19 @@ package models
 
 import (
 	"github.com/TravisS25/httputil"
+	"github.com/TravisS25/httputil/queryutil"
 	uuid "github.com/satori/go.uuid"
 )
 
 // LoggingHistory represents a row from 'public.logging_history'.
 type LoggingHistory struct {
-	ID          uuid.UUID    `json:"id,omitempty" db:"id"`                     // id
-	DateEntered *string      `json:"dateEntered,omitempty" db:"date_entered"`  // date_entered
-	URL         string       `json:"url,omitempty" db:"url"`                   // url
-	Operation   string       `json:"operation,omitempty" db:"operation"`       // operation
-	Value       *string      `json:"value,omitempty" db:"value"`               // value
-	EnteredByID *int         `json:"enteredByID,omitempty" db:"entered_by_id"` // entered_by_id
-	EnteredBy   *UserProfile `json:"enteredBy,omitempty" db:"entered_by"`
+	ID          uuid.UUID             `json:"id,omitempty" db:"id"`                     // id
+	DateEntered *string               `json:"dateEntered,omitempty" db:"date_entered"`  // date_entered
+	APIURL      string                `json:"apiURL,omitempty" db:"api_url"`            // api_url
+	Operation   HTTPOperation         `json:"operation,omitempty" db:"operation"`       // operation
+	JSONData    queryutil.GeneralJSON `json:"jsonData,omitempty" db:"json_data"`        // json_data
+	EnteredByID *int                  `json:"enteredByID,omitempty" db:"entered_by_id"` // entered_by_id
+	EnteredBy   *UserProfile          `json:"enteredBy,omitempty" db:"entered_by"`
 }
 
 func QueryLoggingHistory(db httputil.SqlxDB, query string, args ...interface{}) (*LoggingHistory, error) {
@@ -37,14 +38,14 @@ func (lh *LoggingHistory) Insert(db httputil.XODB) error {
 
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO public.logging_history (` +
-		`id, date_entered, url, operation, value, entered_by_id` +
+		`id, date_entered, api_url, operation, json_data, entered_by_id` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, lh.ID, lh.DateEntered, lh.URL, lh.Operation, lh.Value, lh.EnteredByID)
-	err = db.QueryRow(sqlstr, lh.ID, lh.DateEntered, lh.URL, lh.Operation, lh.Value, lh.EnteredByID).Scan(&lh.ID)
+	XOLog(sqlstr, lh.ID, lh.DateEntered, lh.APIURL, lh.Operation, lh.JSONData, lh.EnteredByID)
+	err = db.QueryRow(sqlstr, lh.ID, lh.DateEntered, lh.APIURL, lh.Operation, lh.JSONData, lh.EnteredByID).Scan(&lh.ID)
 	if err != nil {
 		return err
 	}
@@ -58,14 +59,14 @@ func (lh *LoggingHistory) Update(db httputil.XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.logging_history SET (` +
-		`date_entered, url, operation, value, entered_by_id` +
+		`date_entered, api_url, operation, json_data, entered_by_id` +
 		`) = ( ` +
 		`$1, $2, $3, $4, $5` +
 		`) WHERE id = $6`
 
 	// run query
-	XOLog(sqlstr, lh.DateEntered, lh.URL, lh.Operation, lh.Value, lh.EnteredByID, lh.ID)
-	_, err = db.Exec(sqlstr, lh.DateEntered, lh.URL, lh.Operation, lh.Value, lh.EnteredByID, lh.ID)
+	XOLog(sqlstr, lh.DateEntered, lh.APIURL, lh.Operation, lh.JSONData, lh.EnteredByID, lh.ID)
+	_, err = db.Exec(sqlstr, lh.DateEntered, lh.APIURL, lh.Operation, lh.JSONData, lh.EnteredByID, lh.ID)
 	return err
 }
 
@@ -77,18 +78,18 @@ func (lh *LoggingHistory) Upsert(db httputil.XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.logging_history (` +
-		`id, date_entered, url, operation, value, entered_by_id` +
+		`id, date_entered, api_url, operation, json_data, entered_by_id` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, date_entered, url, operation, value, entered_by_id` +
+		`id, date_entered, api_url, operation, json_data, entered_by_id` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.date_entered, EXCLUDED.url, EXCLUDED.operation, EXCLUDED.value, EXCLUDED.entered_by_id` +
+		`EXCLUDED.id, EXCLUDED.date_entered, EXCLUDED.api_url, EXCLUDED.operation, EXCLUDED.json_data, EXCLUDED.entered_by_id` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, lh.ID, lh.DateEntered, lh.URL, lh.Operation, lh.Value, lh.EnteredByID)
-	_, err = db.Exec(sqlstr, lh.ID, lh.DateEntered, lh.URL, lh.Operation, lh.Value, lh.EnteredByID)
+	XOLog(sqlstr, lh.ID, lh.DateEntered, lh.APIURL, lh.Operation, lh.JSONData, lh.EnteredByID)
+	_, err = db.Exec(sqlstr, lh.ID, lh.DateEntered, lh.APIURL, lh.Operation, lh.JSONData, lh.EnteredByID)
 	if err != nil {
 		return err
 	}

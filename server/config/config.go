@@ -2,9 +2,12 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -60,9 +63,11 @@ var (
 	// DB is global database variable for app
 	DB *dbutil.DB
 
-	// Router is global router
+	// RouterPaths is global map for containing api end points for router
 	RouterPaths = make(map[string]string)
 
+	// Routing is global map for indicating which routes a user has access
+	// to depending on their group
 	Routing = make(map[string][]string)
 )
 
@@ -175,21 +180,26 @@ func initCSRF() {
 }
 
 func initRouting() {
-	anonUrls := []string{
+	anonURLs := []string{
 		RouterPaths["login"],
 		RouterPaths["resetPassword"],
 		RouterPaths["confirmPasswordReset"],
 		RouterPaths["userDetails"],
 	}
 
-	userUrls := append(anonUrls, []string{
+	userURLs := append(anonURLs, []string{
 		RouterPaths["logout"],
 		RouterPaths["changePassword"],
 		"/api/machine",
 	}...)
 
+	adminURLs := append(userURLs, []string{
+		"/api/log",
+	}...)
+
 	//Routing["Anon"] = anonUrls
-	Routing["User"] = userUrls
+	Routing["User"] = userURLs
+	Routing["Admin"] = adminURLs
 }
 
 func initRouterPaths() {
@@ -208,6 +218,11 @@ func initRouterPaths() {
 	RouterPaths["machineDetails"] = "/api/machine/details/{id:[0-9]+}/"
 	RouterPaths["machineSwap"] = "/api/machine/swap/{oldID:[0-9]+}/{newID:[0-9]+}/"
 	RouterPaths["machineEdit"] = "/api/machine/edit/{id:[0-9]+}/"
+
+	// Logging Urls
+	RouterPaths["logIndex"] = "/api/log/index/"
+	RouterPaths["logDetails"] = "/api/log/details/{userID:[0-9]+}/{apiURL:[0-9]+}/"
+	RouterPaths["logRowDetails"] = "/api/log/row-details/{id}/"
 }
 
 func initCacheReset() {
@@ -250,8 +265,9 @@ func initCacheReset() {
 	}
 }
 
-func LogInserter(r *http.Request, payload []byte, db httputil.DBInterface) error {
+func LogInserter(w http.ResponseWriter, r *http.Request, payload []byte, db httputil.DBInterface) error {
 	var userID *int
+	var operation models.HTTPOperation
 	userBytes := apiutil.GetUser(r)
 	currentTime := time.Now().UTC().Format(confutil.DateTimeLayout)
 
@@ -259,6 +275,20 @@ func LogInserter(r *http.Request, payload []byte, db httputil.DBInterface) error
 		var user models.UserProfile
 		json.Unmarshal(userBytes, &user)
 		userID = &user.ID
+	} else {
+		if strings.Contains(r.URL.Path, "login") {
+			id, _ := strconv.Atoi(w.Header().Get("id"))
+			w.Header().Del("id")
+			userID = &id
+		}
+	}
+
+	if r.Method == "POST" {
+		operation = models.HTTPOperationPost
+	} else if r.Method == "PUT" {
+		operation = models.HTTPOperationPut
+	} else if r.Method == "DELETE" {
+		operation = models.HTTPOperationDelete
 	}
 
 	id, err := uuid.NewV4()
@@ -270,15 +300,36 @@ func LogInserter(r *http.Request, payload []byte, db httputil.DBInterface) error
 	logger := models.LoggingHistory{
 		ID:          id,
 		DateEntered: &currentTime,
-		URL:         r.URL.Path,
-		Operation:   r.Method,
+		APIURL:      r.URL.Path,
+		Operation:   operation,
 		EnteredByID: userID,
 	}
 
-	if payload != nil {
-		value := string(payload)
-		logger.Value = &value
+	var i interface{}
+	err = json.Unmarshal(payload, &i)
+	if err != nil {
+		return err
 	}
 
-	return logger.Insert(db)
+	if payload != nil {
+		val, ok := i.(map[string]interface{})
+
+		if !ok {
+			arr, ok := i.([]interface{})
+
+			if ok {
+				newV := make(map[string]interface{})
+				newV["array"] = arr
+				logger.JSONData = newV
+			} else {
+				return errors.New("Not valid json")
+			}
+		} else {
+			logger.JSONData = val
+		}
+	}
+
+	logger.Insert(db)
+
+	return nil
 }

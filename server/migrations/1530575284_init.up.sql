@@ -63,14 +63,23 @@ CREATE TABLE IF NOT EXISTS user_profile(
     FOREIGN KEY(title_id) REFERENCES title(id)
 );
 
+DROP TYPE IF EXISTS http_operation; 
+CREATE TYPE http_operation AS ENUM ('POST', 'PUT', 'DELETE');
+
 CREATE TABLE IF NOT EXISTS logging_history (
     id             uuid primary key not null DEFAULT uuid_generate_v4(),
     date_entered   timestamp DEFAULT now(),
-    url            text not null,
-    operation      text not null,
-    value          jsonb,
+    api_url        text not null,
+    operation      http_operation not null,
+    json_data      jsonb,
     entered_by_id  int REFERENCES user_profile(id)
 );
+
+CREATE INDEX logging_history_operation_idx
+ON logging_history (operation);
+
+CREATE INDEX logging_history_entered_by_idx
+ON logging_history (entered_by_id);
 
 CREATE TABLE IF NOT EXISTS user_group_join(
     id SERIAL PRIMARY KEY,
@@ -139,6 +148,5 @@ INSERT INTO title VALUES
 (DEFAULT, 'Client', '2017-01-02 15:10:00');
 
 INSERT INTO user_group VALUES
-(DEFAULT, 'Any'),
 (DEFAULT, 'User'),
 (DEFAULT, 'Admin');

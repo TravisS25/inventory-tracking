@@ -20,3 +20,4 @@ To view code coverge file in html type:
 
 In order to insert test data use command:
     $ psql -h host -U username -d myDataBase -a -f myInsertFile
+    eg. psql -h localhost -U postgres -d inventory_tracking_test -a -f data.sql

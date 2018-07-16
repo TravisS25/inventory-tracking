@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
 
 	"github.com/TravisS25/httputil/formutil"
 
@@ -182,7 +183,8 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 		groupStringKey := fmt.Sprintf(confutil.GroupKey, user.Email)
 		a.cache.Set(urlStringKey, urlBytes, 0)
 		a.cache.Set(groupStringKey, groupBytes, 0)
-		w.WriteHeader(http.StatusOK)
+		w.Header().Set("id", strconv.Itoa(user.ID))
+		//w.Write([]byte(strconv.Itoa(user.ID)))
 	}
 }
 

@@ -2,9 +2,15 @@ package api
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/TravisS25/httputil/confutil"
+	"github.com/TravisS25/httputil/queryutil"
+	"github.com/satori/go.uuid"
 
 	"github.com/TravisS25/httputil/apiutil"
 	"github.com/TravisS25/httputil/dbutil"
@@ -12,6 +18,7 @@ import (
 	"github.com/TravisS25/httputil/mailutil"
 	"github.com/TravisS25/inventory-tracking/src/server/config"
 	"github.com/TravisS25/inventory-tracking/src/server/forms"
+	"github.com/TravisS25/inventory-tracking/src/server/models"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
@@ -19,6 +26,7 @@ import (
 
 const (
 	WorkerEmail      = "worker@email.com"
+	AdminEmail       = "admin@email.com"
 	TestPassword     = "Password123!"
 	TestPasswordHash = "$2a$10$bi8mFKrlUfYlXgeIJj6buucEgT0scC./LaMAqOfnAAHMEcTPaXqy2"
 	TestEmail        = "testemail@email.com"
@@ -90,6 +98,7 @@ func initIntegrationTestAPIs() {
 		"form":     forms.NewMachineValidator(TestFormValidation),
 		"formSwap": forms.NewMachineSwapValidator(TestFormValidation),
 	})
+	loggingAPI := NewLoggingAPI(TestDB)
 
 	// Account API
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["login"], accountAPI.Login).Methods("GET", "POST")
@@ -106,6 +115,11 @@ func initIntegrationTestAPIs() {
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["machineDetails"], machineAPI.MachineDetails).Methods("GET")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["machineSwap"], machineAPI.MachineSwap).Methods("GET", "PUT")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["machineEdit"], machineAPI.MachineEdit).Methods("GET", "PUT")
+
+	// Logging API
+	IntegrationTestRouter.HandleFunc(config.RouterPaths["logIndex"], loggingAPI.Index).Methods("GET")
+	IntegrationTestRouter.HandleFunc(config.RouterPaths["logDetails"], loggingAPI.Index).Methods("GET")
+	IntegrationTestRouter.HandleFunc(config.RouterPaths["logRowDetails"], loggingAPI.Index).Methods("GET")
 }
 
 func initUnitTestAPIs() {
@@ -158,7 +172,8 @@ func App() http.Handler {
 		[]string{"admin@email.com"},
 		"admin@email.com",
 		"500 Panic Error",
-		[]string{"TravisS25"},
+		nil,
+		//[]string{"TravisS25"},
 		TestMailer,
 	)
 
@@ -224,6 +239,74 @@ func loginUser(email, password string, ts *httptest.Server) (string, error) {
 
 	return res.Header.Get(SetCookieHeader), nil
 }
+
+func TestLoggerInsert(t *testing.T) {
+	id, _ := uuid.NewV4()
+	form := queryutil.GeneralJSON{
+		"password": "Password123!",
+		"email":    "worker@email.com",
+	}
+
+	currentTime := time.Now().UTC().Format(confutil.DateTimeLayout)
+	logger := models.LoggingHistory{
+		ID:          id,
+		DateEntered: &currentTime,
+		APIURL:      "/api/account/login/",
+		Operation:   models.HTTPOperationPost,
+		JSONData:    form,
+	}
+
+	fmt.Println(logger)
+	err := logger.Insert(TestDB)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	machine := models.Machine{
+		MachineName:     "Foo",
+		RoomID:          1,
+		MachineStatusID: 1,
+		ScannedTime:     time.Now().UTC().Format(confutil.DateTimeLayout),
+	}
+
+	err = machine.Insert(TestDB)
+
+	if err != nil {
+		fmt.Printf("machine err: %s", err.Error())
+	}
+}
+
+// func TestJSON(t *testing.T) {
+// 	logs, err := models.QueryLoggingHistories(
+// 		TestDB,
+// 		"select * from logging_history",
+// 	)
+
+// 	if err != nil {
+// 		t.Fatalf("query err: %s", err.Error())
+// 	}
+
+// 	for _, v := range logs {
+// 		for k, m := range v.JSONData {
+// 			if k == "array" {
+// 				newM := m.([]interface{})
+
+// 				for _, boom := range newM {
+// 					conv := boom.(map[string]interface{})
+
+// 					for l, p := range conv {
+// 						t.Errorf("inner key: %s\n", l)
+// 						t.Errorf("inner value: %s\n", p)
+// 					}
+// 				}
+// 			}
+
+// 			t.Errorf("key: %s\n", k)
+// 			t.Errorf("value: %s\n", m)
+// 		}
+// 	}
+// }
 
 // ------------------- END TO END TESTING ---------------------
 

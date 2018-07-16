@@ -389,6 +389,7 @@ func TestMachineAPIs(t *testing.T) {
 	// -----------------------------------------------------------------
 	//
 	// Machine Upload API
+
 	req, err = http.NewRequest("GET", machineUploadURL, nil)
 	req.Header.Set(CookieHeader, userCookie)
 
@@ -397,7 +398,6 @@ func TestMachineAPIs(t *testing.T) {
 	}
 
 	res, err = client.Do(req)
-
 	token = res.Header.Get(TokenHeader)
 	csrfCookie = res.Header.Get(SetCookieHeader)
 
@@ -430,6 +430,7 @@ func TestMachineAPIs(t *testing.T) {
 	// -----------------------------------------------------------------
 	//
 	// Machine Search API
+
 	req, err = http.NewRequest("GET", machineSearchURL, nil)
 
 	if err != nil {

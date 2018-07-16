@@ -18,7 +18,6 @@ import (
 	"github.com/go-ozzo/ozzo-validation"
 
 	"github.com/TravisS25/httputil/apiutil"
-	"github.com/TravisS25/httputil/dbutil"
 	"github.com/TravisS25/httputil/formutil"
 	"github.com/TravisS25/inventory-tracking/src/server/forms"
 	"github.com/TravisS25/inventory-tracking/src/server/models"
@@ -111,9 +110,7 @@ func (m *MachineAPI) MachineUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *MachineAPI) MachineSearch(w http.ResponseWriter, r *http.Request) {
-	var machines []*models.Machine
 	var data interface{}
-	var err error
 	var query string
 	var countQuery string
 	takeLimit := uint64(100)
@@ -154,13 +151,15 @@ func (m *MachineAPI) MachineSearch(w http.ResponseWriter, r *http.Request) {
 	query = selectStmt + machineSelect + fromClause
 	countQuery = selectStmt + countSelect + fromClause
 
-	replacements, err := queryutil.ApplyAll(
+	rower, count, err := queryutil.GetFilteredResults(
 		r,
 		&query,
+		&countQuery,
 		takeLimit,
 		sqlx.DOLLAR,
 		nil,
 		fieldNames,
+		m.db,
 	)
 
 	if err != nil {
@@ -169,36 +168,26 @@ func (m *MachineAPI) MachineSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	machines, err = models.QueryMachines(
-		m.db,
-		query,
-		replacements...,
-	)
-
-	countReplacements, err := queryutil.WhereFilter(
-		r,
-		&countQuery,
-		sqlx.DOLLAR,
-		nil,
-		fieldNames,
-	)
-
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	count, err := dbutil.QueryCount(
-		m.db,
-		countQuery,
-		countReplacements...,
-	)
-
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		w.Write([]byte(err.Error()))
-		return
+	machines := make([]models.Machine, 0)
+	for rower.Next() {
+		machine := models.Machine{
+			Room: &models.Room{
+				Department: &models.Department{
+					BuildingFloor: &models.BuildingFloor{
+						Building: &models.Building{},
+					},
+				},
+			},
+		}
+		rower.Scan(
+			&machine.MachineName,
+			&machine.ScannedTime,
+			&machine.Room.Name,
+			&machine.Room.Department.Name,
+			&machine.Room.Department.BuildingFloor.Name,
+			&machine.Room.Department.BuildingFloor.Building.Name,
+		)
+		machines = append(machines, machine)
 	}
 
 	if len(machines) == 0 {
@@ -209,7 +198,7 @@ func (m *MachineAPI) MachineSearch(w http.ResponseWriter, r *http.Request) {
 
 	apiutil.SendPayload(w, r, false, map[string]interface{}{
 		"data":  data,
-		"total": count.Total,
+		"total": count,
 	})
 }
 

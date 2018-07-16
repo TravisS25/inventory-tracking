@@ -40,6 +40,7 @@ func main() {
 		"form":     forms.NewMachineValidator(config.FormValidation),
 		"formSwap": forms.NewMachineSwapValidator(config.FormValidation),
 	})
+	loggingAPI := api.NewLoggingAPI(config.DB)
 
 	// Account API
 	r.HandleFunc(config.RouterPaths["login"], accountAPI.Login).Methods("GET", "POST")
@@ -56,6 +57,11 @@ func main() {
 	r.HandleFunc(config.RouterPaths["machineDetails"], machineAPI.MachineDetails).Methods("GET")
 	r.HandleFunc(config.RouterPaths["machineSwap"], machineAPI.MachineSwap).Methods("GET", "PUT")
 	r.HandleFunc(config.RouterPaths["machineEdit"], machineAPI.MachineEdit).Methods("GET", "PUT")
+
+	// Logging API
+	r.HandleFunc(config.RouterPaths["logIndex"], loggingAPI.Index).Methods("GET").Queries(filterParams...)
+	r.HandleFunc(config.RouterPaths["logDetails"], loggingAPI.LogDetails).Methods("GET")
+	r.HandleFunc(config.RouterPaths["logRowDetails"], loggingAPI.RowDetails).Methods("GET")
 
 	middleware := apiutil.Middleware{
 		CacheStore:      config.Cache,
