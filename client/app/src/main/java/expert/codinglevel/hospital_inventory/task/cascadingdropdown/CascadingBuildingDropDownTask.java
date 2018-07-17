@@ -55,16 +55,19 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
         String floorID = null;
         String departmentID = null;
 
+        // Database cursors for each table
         Cursor buildingCursor;
         Cursor floorCursor;
         Cursor departmentCursor;
         Cursor roomCursor;
 
+        // Init arrays for values we will query from db
         ArrayList<TextValue> buildingArray = new ArrayList<>();
         ArrayList<TextValue> floorArray = new ArrayList<>();
         ArrayList<TextValue> departmentArray = new ArrayList<>();
         ArrayList<TextValue> roomArray = new ArrayList<>();
 
+        // Get queries to use against db from our db helper
         String buildingQuery = HospitalDbHelper.getAllBuildingsQuery();
         String floorQuery = HospitalDbHelper.getFloorByBuildingQuery();
         String departmentQuery = HospitalDbHelper.getDepartmentByFloorQuery();
@@ -72,6 +75,7 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
 
         buildingCursor = mDB.rawQuery(buildingQuery, null);
 
+        // Loop through building cursor and add id and text value to array list
         while(buildingCursor.moveToNext()){
             String text = buildingCursor.getString(
                     buildingCursor.getColumnIndex("building_name")
@@ -90,6 +94,7 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
             floorCursor = mDB.rawQuery(floorQuery, new String[]{mMachine.getBuilding().getValue()});
         }
 
+        // Loop through floor cursor and add id and text value to array list
         while(floorCursor.moveToNext()){
             counter++;
             String text = floorCursor.getString(
@@ -117,6 +122,7 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
         }
 
         counter = 0;
+        // Loop through department cursor and add id and text value to array list
         while(departmentCursor.moveToNext()){
             counter++;
             String text = departmentCursor.getString(
@@ -140,6 +146,7 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
             roomCursor = mDB.rawQuery(roomQuery, new String[]{mMachine.getDepartment().getValue()});
         }
 
+        // Loop through room cursor and add id and text value to array list
         while(roomCursor.moveToNext()){
             String text = roomCursor.getString(
                     roomCursor.getColumnIndex("room_name")

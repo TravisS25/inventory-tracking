@@ -33,6 +33,10 @@ import expert.codinglevel.hospital_inventory.task.cascadingdropdown.CascadingBui
 import expert.codinglevel.hospital_inventory.view.TextValue;
 import expert.codinglevel.hospital_inventory.widget.CascadingDropDown;
 
+/**
+ *  DefaultMachineSettingsActivity is activity that allows user to set
+ *  defaults for when they scan barcodes such as default room, machine status etc.
+ */
 public class DefaultMachineSettingsActivity extends AppCompatActivity {
     public static final String TAG = DefaultMachineSettingsActivity.class.getSimpleName();
     private SQLiteDatabase mDB;
@@ -59,6 +63,8 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         Log.i(TAG, "+++ onResume +++");
         super.onResume();
 
+        // Set database instance and set machine settings saved from
+        // preferences to dropdown
         new RetrieveDatabaseTask(
             this,
             new IAsyncResponse<SQLiteDatabase>() {
@@ -86,6 +92,9 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         mDB.close();
     }
 
+    // saveSettings converts mMachineSettings instance into json format
+    // and saves it to our apps preferences file and then redirects to
+    // DashboardActivity
     public void saveSettings(View view){
         Gson gson = new Gson();
         String json = gson.toJson(mMachineSettings);

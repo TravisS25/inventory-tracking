@@ -9,6 +9,14 @@ import expert.codinglevel.hospital_inventory.interfaces.IMachine;
 import expert.codinglevel.hospital_inventory.model.Machine;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
+/**
+ *  MachineSettings is used to transfer machine settings between
+ *  intents without having to re-query/preference lookup every time
+ *  we need to access the information
+ *
+ *  Because we should only have one machine settings for app
+ *  this class follows the singleton pattern
+ */
 public class MachineSettings implements Parcelable, IMachine {
     private static MachineSettings instance = null;
     private TextValue mBuilding;

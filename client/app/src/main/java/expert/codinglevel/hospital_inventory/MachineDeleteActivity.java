@@ -22,7 +22,10 @@ import expert.codinglevel.hospital_inventory.model.Machine;
 import expert.codinglevel.hospital_inventory.task.DeleteDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 
-
+/**
+ *  MachineDeleteActivity is activity that allows user to delete
+ *  machine scanned on their device
+ */
 public class MachineDeleteActivity extends AppCompatActivity {
     public static final String TAG = MachineDeleteActivity.class.getSimpleName();
     private AlertDialog mDialog;
@@ -35,7 +38,10 @@ public class MachineDeleteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_machine);
         mMachine = getIntent().getParcelableExtra("machine");
+        // init delete button
         initDeleteButton();
+
+        // init delete dialog alert
         initAlertDialog();
     }
 
@@ -43,6 +49,8 @@ public class MachineDeleteActivity extends AppCompatActivity {
     protected void onResume(){
         Log.i(TAG, "+++ onResume +++");
         super.onResume();
+
+        // Init mDB instance and init list adapter
         new RetrieveDatabaseTask(
                 this,
                 new IAsyncResponse<SQLiteDatabase>() {
@@ -75,6 +83,7 @@ public class MachineDeleteActivity extends AppCompatActivity {
         });
     }
 
+    // initListAdapter inits list adapter to display machine properties
     private void initListAdapter(){
         ArrayList<Machine.MachineProperty> properties = new ArrayList<>();
         Machine.MachineProperty machineName = new Machine.MachineProperty(

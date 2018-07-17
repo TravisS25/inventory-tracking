@@ -44,6 +44,9 @@ import expert.codinglevel.hospital_inventory.task.MultipleReadDBTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
+/**
+ *  LoginActivity is activity that allows user to login
+ */
 public class LoginActivity extends AppCompatActivity {
     public static final String TAG = LoginActivity.class.getSimpleName();
 

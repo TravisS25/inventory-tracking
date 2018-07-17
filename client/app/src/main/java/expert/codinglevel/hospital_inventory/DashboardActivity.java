@@ -36,7 +36,11 @@ import expert.codinglevel.hospital_inventory.json.CustomJsonObjectRequest;
 import expert.codinglevel.hospital_inventory.json.JsonResponses;
 import expert.codinglevel.hospital_inventory.setting.Preferences;
 
-
+/**
+ *  DashboardActivity is "main" activity once logged in
+ *  This activity allows user to redirect to many other activities
+ *  including scanning, lookup, machine settings etc.
+ */
 public class DashboardActivity extends AppCompatActivity {
     private boolean mIsLoggedIn;
     private String mUserSession;
@@ -97,40 +101,49 @@ public class DashboardActivity extends AppCompatActivity {
             // If expire date is after current date, then user is still logged in
             // Else user is not logged in
             if(expireDate.after(currentDate)){
-                button.setText("Logout");
+                button.setText(getString(R.string.logout));
                 mIsLoggedIn = true;
             }
             else{
-                button.setText("Login");
+                button.setText(getString(R.string.login));
                 mIsLoggedIn = false;
             }
 
-            button.setText("Logout");
+            button.setText(getString(R.string.logout));
             mIsLoggedIn = true;
         }
         else{
-            button.setText("Login");
+            button.setText(getString(R.string.login));
             mIsLoggedIn = false;
         }
     }
 
+    // lookupInventory is redirect to new intent that allows user
+    // to scan barcode to look it up
     public void lookUpInventory(View view){
         Intent intent = new Intent(this, ScanActivity.class);
         intent.putExtra("scanType", ScanType.LOOKUP);
         startActivity(intent);
     }
 
+    // scanInventory is redirect to new intent that allows user
+    // to scan barcode to save locally to be able to upload at
+    // later time
     public void scanInventory(View view){
         Intent intent = new Intent(this, ScanActivity.class);
         intent.putExtra("scanType", ScanType.INVENTORY);
         startActivity(intent);
     }
 
+    // viewScannedInventory is redirect to new intent that allows user
+    // to view all scanned items
     public void viewScannedInventory(View view){
         Intent intent = new Intent(this, MachineListActivity.class);
         startActivity(intent);
     }
 
+    // defaultMachineSettings is redirect to new intent that allows user
+    // to set new machine scan settings
     public void defaultMachineSettings(View view){
         Intent intent = new Intent(this, DefaultMachineSettingsActivity.class);
         startActivity(intent);
