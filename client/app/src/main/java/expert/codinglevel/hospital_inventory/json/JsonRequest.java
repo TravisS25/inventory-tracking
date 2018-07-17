@@ -22,7 +22,6 @@ public class JsonRequest {
     public static JsonObjectRequest getJSONRequestTokenObject(
             final Context context,
             final HashMap<String, String> headers,
-//            final boolean displayToastError,
             final IJsonRequestCallback callback,
             String url
     )

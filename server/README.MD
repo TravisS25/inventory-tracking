@@ -13,7 +13,7 @@ To generate models from database, run command(while in directory /server):
 
 To generate code coverage file type:
     $ go test -coverprofile=<file_name> <path/to/package>
-    ex: $ go test -coverprofile=/tmp/code-cover bitbucket.org/TravisS25/contractor-tracking/contractor-tracking/contractor-server/api
+    ex: $ go test -coverprofile=/tmp/code-cover github.com/TravisS25/inventory-tracking/src/server/api
 
 To view code coverge file in html type:
     $ go tool cover -html=<file_name>

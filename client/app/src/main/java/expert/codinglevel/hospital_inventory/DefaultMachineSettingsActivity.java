@@ -96,6 +96,9 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // initSettingsButton sets attribute properties like text, color
+    // background color etc along with attaching event handler to save
+    // settings
     private void initSettingsButton(){
         Button button = (Button) findViewById(R.id.save_settings);
         button.setText(getText(R.string.save_settings));
@@ -109,11 +112,14 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         });
     }
 
+    // setSettingsFromBundle grabs machine settings from bundle state
+    // and applies to instance settings
     private void setSettingsFromBundle(){
         mMachineSettings = mBundle.getParcelable(getString(R.string.machine_settings));
         Log.i(TAG, "Room value from bundle " + mMachineSettings.getRoom().getValue());
     }
 
+    // setSettingsFromPref sets instance settings from preference file
     private void setSettingsFromPref(){
         Gson gson = new Gson();
         String json = Preferences.getDefaults(this, getString(R.string.machine_settings));
@@ -123,6 +129,7 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         Log.i(TAG, "Room value from pref " + mMachineSettings.getRoom().getValue());
     }
 
+    // initListAdapter
     private void initListAdapter(){
         final Activity activity = this;
 

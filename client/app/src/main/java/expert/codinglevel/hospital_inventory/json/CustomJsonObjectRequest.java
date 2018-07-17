@@ -10,7 +10,12 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ *  CustomJsonObjectRequest inherits from JsonObjectRequest and sole
+ *  purpose is to be able to add headers to a json request
+ *  This class takes an extra parameter to the default constructor
+ *  and overrides the getHeaders() function to return the passed headers
+ */
 public class CustomJsonObjectRequest extends JsonObjectRequest {
     private HashMap<String, String> mHeaders;
 
@@ -27,6 +32,10 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
         mHeaders = headers;
     }
 
+    /**
+     *  Returns and sends the passed headers from the contractor
+     *  to requests
+     */
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
         return mHeaders;

@@ -90,10 +90,10 @@ func initIntegrationTestAPIs() {
 		TestMailer,
 		config.Conf.Prod,
 		map[string]formutil.Validator{
-			"loginForm":           forms.NewLoginValidator(config.FormValidation),
-			"changePasswordForm":  forms.NewChangePasswordValidator(config.FormValidation),
-			"confirmPasswordForm": forms.NewConfirmPasswordValidator(config.FormValidation),
-			"emailForm":           forms.NewEmailValidator(config.FormValidation),
+			"loginForm":           forms.NewLoginValidator(TestFormValidation),
+			"changePasswordForm":  forms.NewChangePasswordValidator(TestFormValidation),
+			"confirmPasswordForm": forms.NewConfirmPasswordValidator(TestFormValidation),
+			"emailForm":           forms.NewEmailValidator(TestFormValidation),
 		})
 	machineAPI := NewMachineAPI(TestDB, config.Cache, map[string]formutil.Validator{
 		"form":     forms.NewMachineValidator(TestFormValidation),

@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -48,14 +47,32 @@ func TestLogin(t *testing.T) {
 	testCase2.TestName = "login2"
 	testCase2.Method = "POST"
 	testCase2.Form = forms.LoginForm{
-		//Email:    user.Email,
 		Email:    "testuser@email.com",
 		Password: TestPassword,
 	}
 
+	testCase3 := testCase2
+	testCase3.TestName = "login3"
+	testCase3.ExpectedStatus = http.StatusNotAcceptable
+	testCase3.ExpectedBody = apiutil.ErrBodyMessage.Error()
+	testCase3.Form = nil
+
+	testCase4 := testCase3
+	testCase4.TestName = "login4"
+	testCase4.Form = "Invalid json"
+	testCase4.ExpectedBody = apiutil.ErrInvalidJSON.Error()
+
+	testCase5 := testCase4
+	testCase5.TestName = "login5"
+	testCase5.Form = forms.LoginForm{}
+	testCase5.ExpectedBody = ""
+
 	apiutil.RunTestCases(t, []apiutil.TestCase{
 		testCase1,
 		testCase2,
+		testCase3,
+		testCase4,
+		testCase5,
 	})
 
 	err = user.Delete(TestDB)
@@ -145,7 +162,7 @@ func TestAccountAPIs(t *testing.T) {
 	baseURL := ts.URL
 
 	//loginURL := baseURL + config.RouterPaths["login"]
-	//logoutURL := baseURL + config.RouterPaths["logout"]
+	logoutURL := baseURL + config.RouterPaths["logout"]
 	changePasswordURL := baseURL + config.RouterPaths["changePassword"]
 	resetPasswordURL := baseURL + config.RouterPaths["resetPassword"]
 	confirmPasswordResetURL := baseURL + config.RouterPaths["confirmPasswordReset"]
@@ -186,6 +203,10 @@ func TestAccountAPIs(t *testing.T) {
 	res, err = client.Do(req)
 	apiutil.ResponseError(t, res, http.StatusOK, err)
 	buffer.Reset()
+
+	if err != nil {
+		t.Fatal("Could not execute update query")
+	}
 
 	// -----------------------------------------------------------------
 	//
@@ -231,8 +252,6 @@ func TestAccountAPIs(t *testing.T) {
 	// Confirm Password Reset API
 
 	url := strings.Replace(confirmPasswordResetURL, "{token}", resetToken.Token, 1)
-
-	fmt.Printf("myyyy url: %s\n", url)
 	req, err = http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -264,6 +283,23 @@ func TestAccountAPIs(t *testing.T) {
 	res, err = client.Do(req)
 	apiutil.ResponseError(t, res, http.StatusOK, err)
 	buffer.Reset()
+
+	_, err = TestDB.Exec(
+		`update user_profile set password = $1 where email = $2`,
+		TestPasswordHash,
+		WorkerEmail,
+	)
+
+	// -----------------------------------------------------------------
+	//
+	// Logout Api
+
+	userCookie, err = loginUser(WorkerEmail, TestPassword, ts)
+	req, _ = http.NewRequest("GET", logoutURL, nil)
+	req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+
 }
 
 // ------------------------ TEST FUNCTIONS ----------------------------------

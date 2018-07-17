@@ -20,14 +20,24 @@ import (
 
 // ------------------- UNIT TESTING ----------------------------
 
+// func TestMachineUploadUnitTest(t *testing.T) {
+// 	testCase1 := apiutil.TestCase{
+// 		TestName:       "machineUpload1",
+// 		Method:         "POST",
+// 		RequestURL:     config.RouterPaths["machineUpload"],
+// 		ExpectedStatus: http.StatusInternalServerError,
+// 		ExpectedBody:   "",
+// 		Handler:        IntegrationTestRouter,
+// 	}
+// }
+
 // ------------------- INTEGRATION TESTING ---------------------
 
 func TestMachineUploadIntegrationTest(t *testing.T) {
 	testCase1 := apiutil.TestCase{
-		TestName:   "machineUpload1",
-		Method:     "GET",
-		RequestURL: config.RouterPaths["machineUpload"],
-		//RequestURL:     "/api/machine/upload/",
+		TestName:       "machineUpload1",
+		Method:         "GET",
+		RequestURL:     config.RouterPaths["machineUpload"],
 		ExpectedStatus: http.StatusOK,
 		ExpectedBody:   "",
 		Handler:        IntegrationTestRouter,

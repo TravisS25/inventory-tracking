@@ -46,6 +46,8 @@ import expert.codinglevel.hospital_inventory.view.TextValue;
 
 public class LoginActivity extends AppCompatActivity {
     public static final String TAG = LoginActivity.class.getSimpleName();
+
+    // mHeaders represents http headers that will be used for csrf tokens
     private HashMap<String, String> mHeaders = new HashMap<>();
     private RequestQueue mQueue;
     private String mURL;
@@ -80,6 +82,11 @@ public class LoginActivity extends AppCompatActivity {
         mQueue = Volley.newRequestQueue(this);
         mURL = getString(R.string.host_url) + "/";
 
+        // If no saved instance state, create json object request
+        // which will be used to make request to get tokens and
+        // be inserted into the mHeaders
+        //
+        // Else use tokens from saved instance state
         if(savedInstanceState == null){
             JsonObjectRequest request = JsonRequest.getJSONRequestTokenObject(
                     this,
@@ -106,6 +113,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.i(TAG, mHeaders.toString());
         }
 
+        // Query and set default machine settings
         new RetrieveDatabaseTask(
             this,
             new IAsyncResponse<SQLiteDatabase>() {
@@ -122,11 +130,16 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // attemptLogin is used to attempt to login a user based
+    // on email and password given from the user
+    // If successful, will receive session token to be
+    // used throughout the app
     public void attemptLogin(View view){
         final Context context = this;
         EditText email = (EditText)findViewById(R.id.email);
         EditText password = (EditText)findViewById(R.id.password);
 
+        // Validate that fields are not empty
         if(email.getText().toString().equals("") || password.getText().toString().equals("")){
             mErrorView.setText("Email and password are required");
             return;
@@ -134,6 +147,7 @@ public class LoginActivity extends AppCompatActivity {
 
         final JSONObject jsonObject = new JSONObject();
 
+        // Add email and password fields to json object
         try{
             jsonObject.put("email", email.getText().toString());
             jsonObject.put("password", password.getText().toString());
@@ -144,6 +158,8 @@ public class LoginActivity extends AppCompatActivity {
 
         Log.i(TAG, "Passed jsonobject");
         Log.i(TAG, "url " + mURL);
+
+        // Request
         CustomJsonObjectRequest jsonRequest = new CustomJsonObjectRequest(
                 Request.Method.POST,
                 mURL,
@@ -165,6 +181,9 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         Log.i(TAG, user + ";" + expire);
+
+                        // Get user session token along with expiration from response
+                        // and add to app's preferences file
                         Preferences.setDefaults(
                             context,
                             context.getString(R.string.user_session),

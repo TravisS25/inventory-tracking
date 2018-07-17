@@ -23,6 +23,7 @@ func TestLoggingAPIs(t *testing.T) {
 
 	ts := httptest.NewServer(App())
 	defer ts.Close()
+
 	workerUserCookie, err = loginUser(WorkerEmail, TestPassword, ts)
 	adminUserCookie, err = loginUser(AdminEmail, TestPassword, ts)
 
@@ -99,4 +100,8 @@ func TestLoggingAPIs(t *testing.T) {
 
 	res, err = client.Do(req)
 	apiutil.ResponseError(t, res, http.StatusOK, err)
+
+	req.Header.Set(CookieHeader, workerUserCookie)
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusForbidden, err)
 }
