@@ -35,7 +35,7 @@ import expert.codinglevel.hospital_inventory.widget.CascadingDropDown;
 
 /**
  *  DefaultMachineSettingsActivity is activity that allows user to set
- *  defaults for when they scan barcodes such as default room, machine status etc.
+ *  defaults for when they scan bar codes such as default room, machine status etc.
  */
 public class DefaultMachineSettingsActivity extends AppCompatActivity {
     public static final String TAG = DefaultMachineSettingsActivity.class.getSimpleName();
@@ -138,7 +138,8 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         Log.i(TAG, "Room value from pref " + mMachineSettings.getRoom().getValue());
     }
 
-    // initListAdapter
+    // initListAdapter queries db for cascading drop downs used in view and then
+    // inits list adapter
     private void initListAdapter(){
         final Activity activity = this;
 

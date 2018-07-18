@@ -7,6 +7,9 @@ import android.os.AsyncTask;
 import expert.codinglevel.hospital_inventory.model.HospitalDbHelper;
 import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
 
+/**
+ *  RetrieveDatabaseTask is aysnc task used to get app database instance
+ */
 public class RetrieveDatabaseTask extends AsyncTask<Void, Void, SQLiteDatabase> {
     public static final String TAG = RetrieveDatabaseTask.class.getSimpleName();
     private IAsyncResponse<SQLiteDatabase> mDelegate;

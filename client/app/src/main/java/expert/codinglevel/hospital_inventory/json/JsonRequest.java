@@ -16,6 +16,10 @@ import java.util.HashMap;
 import expert.codinglevel.hospital_inventory.R;
 import expert.codinglevel.hospital_inventory.interfaces.IJsonRequestCallback;
 
+/**
+ *  JsonRequest is util class for making http request and extracting
+ *  the headers from response, mainly for tokens to use on future requests
+ */
 public class JsonRequest {
     private JsonRequest(){}
 

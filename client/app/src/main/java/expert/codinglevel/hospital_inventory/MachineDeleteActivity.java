@@ -126,6 +126,9 @@ public class MachineDeleteActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
+    // initAlertDialog inits dialog for when a user clicks the
+    // delete button.  It verifies whether they want to delete
+    // machine or not
     private void initAlertDialog(){
         final Activity activity = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

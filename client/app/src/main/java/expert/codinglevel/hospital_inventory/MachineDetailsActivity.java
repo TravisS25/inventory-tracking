@@ -30,6 +30,7 @@ public class MachineDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
         Machine machine = getIntent().getParcelableExtra("machine");
 
+        // Get machine from intent, insert as Machine.Property and display details
         Machine.MachineProperty machineName = new Machine.MachineProperty(
                 getString(R.string.asset_tag_text),
                 machine.getAssetTag().getText()

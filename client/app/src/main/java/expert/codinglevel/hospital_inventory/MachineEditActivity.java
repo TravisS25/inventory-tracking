@@ -77,6 +77,8 @@ public class MachineEditActivity extends AppCompatActivity{
         super.onResume();
         final Activity activity = this;
 
+        // Retrieve database instance and use that instance
+        // to retrieve our machine instance that we want
         new RetrieveDatabaseTask(
             this,
             new IAsyncResponse<SQLiteDatabase>() {
@@ -90,17 +92,22 @@ public class MachineEditActivity extends AppCompatActivity{
                             @Override
                             public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
                                 Log.i(TAG, result.toString());
+
+                                // Adds result to mPropertyList
                                 MachineProperties.addCascadingProperties(
                                     activity,
                                     result,
                                     mPropertyList
                                 );
+
+                                // This is query statuses from db and add to property list
                                 new MultipleReadDBTask(
                                     HospitalDbHelper.getMachineDatabaseReadList(mMachine),
                                     mDB,
                                     new IAsyncResponse<HashMap<String, Cursor>>() {
                                         @Override
                                         public void processFinish(HashMap<String, Cursor> result) {
+                                            // Adds result to mPropertyList
                                             MachineProperties.addProperties(
                                                     activity,
                                                     result,
@@ -125,6 +132,8 @@ public class MachineEditActivity extends AppCompatActivity{
         mDB.close();
     }
 
+    // initMachine gets machine properties from intent and
+    // wraps the asset tag and scan time property to Machine Property
     private void initMachine(){
         mMachine = getIntent().getParcelableExtra("machine");
         mPropertyList.add(new Machine.MachineProperty(
@@ -139,6 +148,8 @@ public class MachineEditActivity extends AppCompatActivity{
         );
     }
 
+    // initEditButton adds event handler to edit button to
+    // edit machine properties
     private void initEditButton(){
         Button button = (Button) findViewById(R.id.action_button);
         button.setText(getText(R.string.edit));
@@ -152,6 +163,7 @@ public class MachineEditActivity extends AppCompatActivity{
         });
     }
 
+    // editButton
     public void editButton(final View view){
         JSONObject jsonObject;
         final Activity activity = this;

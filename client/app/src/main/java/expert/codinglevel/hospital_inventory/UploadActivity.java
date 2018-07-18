@@ -50,7 +50,7 @@ import expert.codinglevel.hospital_inventory.view.TextValue;
 
 
 public class UploadActivity extends AppCompatActivity{
-    public static final String TAG = MachineListActivity.class.getSimpleName();
+    public static final String TAG = UploadActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
     private static final int LOADER_ID = 1;
     private HashMap<String, String> mHeaders = new HashMap<>();

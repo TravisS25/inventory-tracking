@@ -10,9 +10,20 @@ import expert.codinglevel.hospital_inventory.R;
 import expert.codinglevel.hospital_inventory.enums.MachineAttribute;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
+/**
+ *  MachineProperties is just a util class for manipulating machine properties
+ */
 public class MachineProperties {
     private MachineProperties(){}
 
+    /**
+     * Takes the result parameter and wraps the values extracted into machine properties
+     * to then add to property list
+     * @param context - The current activity
+     * @param result - HashMap where the key is a table name and value is array of TextValue
+     *               which is used for forms fields like dropdown, checkbox etc
+     * @param propertyList - Caller's array (which should be empty) to add machine properties to
+     */
     public static void addCascadingProperties(
             Context context,
             HashMap<String, ArrayList<TextValue>> result,
@@ -52,14 +63,15 @@ public class MachineProperties {
             ArrayList<Machine.MachineProperty> propertyList
     )
     {
-        Cursor machineStatusCursor = result.get(
-                HospitalContract.TABLE_MACHINE_STATUS_NAME
-        );
+        // Extract cursors from result
+        Cursor machineStatusCursor = result.get(HospitalContract.TABLE_MACHINE_STATUS_NAME);
 
+        // Init array with count from cursor
         ArrayList<TextValue> machineStatusArray = new ArrayList<>(
                 machineStatusCursor.getCount()
         );
 
+        // Loop through cursor and extract text and value to add
         while(machineStatusCursor.moveToNext()){
             String text = machineStatusCursor.getString(
                     machineStatusCursor.getColumnIndex("status_name")

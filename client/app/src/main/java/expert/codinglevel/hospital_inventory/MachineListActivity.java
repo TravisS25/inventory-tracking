@@ -41,7 +41,10 @@ import expert.codinglevel.hospital_inventory.task.ReadDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
-
+/**
+ *  MachineListActivity is list activity that displays all the machine bar codes
+ *  that have been scanned along with ability to upload all of them to server
+ */
 public class MachineListActivity extends AppCompatActivity{
     public static final String TAG = MachineListActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
@@ -55,7 +58,10 @@ public class MachineListActivity extends AppCompatActivity{
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        // This is set to true so every time screen rotates, we know its already
+        // been activated
         savedInstanceState.putBoolean("toastActivated", true);
+
         savedInstanceState.putParcelableArrayList("machineList", mMachineList);
         savedInstanceState.putParcelableArrayList("machineJsonList", mMachineJsonList);
         super.onSaveInstanceState(savedInstanceState);
@@ -76,6 +82,9 @@ public class MachineListActivity extends AppCompatActivity{
             mMachineJsonList = savedInstanceState.getParcelableArrayList("machineJsonList");
         }
 
+        // This is to check if toastr has already been activated previously (due to changing
+        // screen rotation).  Have to check this or every time user changes screen rotation
+        // after initial toastr, message will pop up
         if(toastMessage != null && !toastActivated){
             Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
         }
