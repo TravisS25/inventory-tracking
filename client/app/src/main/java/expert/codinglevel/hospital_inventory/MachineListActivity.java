@@ -154,7 +154,7 @@ public class MachineListActivity extends AppCompatActivity{
                                 Log.i(TAG, "+++ on response +++");
 
                                 if(!mIsSavedInstance){
-                                    initDeleteDatabaseTask();
+                                    execDeleteDatabaseTask();
                                 }
                                 else{
                                     new RetrieveDatabaseTask(
@@ -163,7 +163,7 @@ public class MachineListActivity extends AppCompatActivity{
                                                 @Override
                                                 public void processFinish(SQLiteDatabase result) {
                                                     mDB = result;
-                                                    initDeleteDatabaseTask();
+                                                    execDeleteDatabaseTask();
                                                 }
                                             }
                                     ).execute();
@@ -212,6 +212,7 @@ public class MachineListActivity extends AppCompatActivity{
         dialog.show();
     }
 
+    // initButtonListener inits button listener
     private void initButtonListener() {
         Button button = (Button) findViewById(R.id.action_button);
         button.setText(getString(R.string.upload));
@@ -225,7 +226,9 @@ public class MachineListActivity extends AppCompatActivity{
         });
     }
 
-    private void initDeleteDatabaseTask(){
+    // execDeleteDatabaseTask executes deleting all scanned bar code
+    // machines from db
+    private void execDeleteDatabaseTask(){
         final Activity activity = this;
         new DeleteDatabaseTask(
                 HospitalContract.TABLE_MACHINE_NAME,
@@ -246,8 +249,10 @@ public class MachineListActivity extends AppCompatActivity{
         ).execute();
     }
 
+    // initListView inits list view along with setting event listener
+    // for list to allow user to navigate to detail activity
     private void initListView(){
-        ListView listView = (ListView) findViewById(R.id.list_view);
+        ListView listView = findViewById(R.id.list_view);
         listView.setAdapter(mAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -266,6 +271,8 @@ public class MachineListActivity extends AppCompatActivity{
         });
     }
 
+    // queryMachineList queries all machines from device's db
+    // for list view
     private void queryMachineList(){
         final Activity activity = this;
 
