@@ -32,6 +32,7 @@ import java.util.HashMap;
 
 import expert.codinglevel.hospital_inventory.adapter.MachineEditAdapter;
 import expert.codinglevel.hospital_inventory.enums.MachineAttribute;
+import expert.codinglevel.hospital_inventory.json.CustomJsonObjectRequest;
 import expert.codinglevel.hospital_inventory.model.HospitalDbHelper;
 import expert.codinglevel.hospital_inventory.model.MachineJson;
 import expert.codinglevel.hospital_inventory.model.HospitalContract;
@@ -51,12 +52,16 @@ public class MachineEditActivity extends AppCompatActivity{
     private static final int LOADER_ID = 1;
     private SQLiteDatabase mDB;
     private ArrayList<Machine.MachineProperty> mPropertyList = new ArrayList<>();
+    private HashMap<String, String> mHeaders = new HashMap<>();
+    private String mCSRFToken, mCookie;
     private Bundle mBundle;
     private Machine mMachine;
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         Machine machine = new Machine(mMachine);
+        savedInstanceState.putString(getString(R.string.csrf_token), mCSRFToken);
+        savedInstanceState.putString(getString(R.string.cookie), mCookie);
         savedInstanceState.putParcelable("machine", machine);
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -67,6 +72,15 @@ public class MachineEditActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_machine);
         mBundle = savedInstanceState;
+
+//        if (savedInstanceState != null){
+//            mHeaders.put(getString(R.string.csrf_token), savedInstanceState.getString(getString(R.string.csrf_token)));
+//            mHeaders.put(getString(R.string.cookie), savedInstanceState.getString(getString(R.string.cookie)));
+//
+//        } else{
+//            mBundle = null;
+//        }
+
         initMachine();
         initEditButton();
     }
@@ -78,7 +92,8 @@ public class MachineEditActivity extends AppCompatActivity{
         final Activity activity = this;
 
         // Retrieve database instance and use that instance
-        // to retrieve our machine instance that we want
+        // to retrieve our machine instance that we want along with
+        // querying for our cascading drop downs
         new RetrieveDatabaseTask(
             this,
             new IAsyncResponse<SQLiteDatabase>() {
@@ -163,22 +178,28 @@ public class MachineEditActivity extends AppCompatActivity{
         });
     }
 
-    // editButton
+    // editButton edits the current machine properties depending on whether
+    // the current machine properties are local or from server
     public void editButton(final View view){
-        JSONObject jsonObject;
+        final JSONObject jsonObject;
         final Activity activity = this;
         boolean serverEdit = getIntent().getBooleanExtra("serverEdit", false);
         Log.i(TAG, "+++ Server edit" + serverEdit +" +++");
         String id = mMachine.getAssetTag().getValue();
-        String machineName = mMachine.getAssetTag().getText();
+        final String machineName = mMachine.getAssetTag().getText();
         String buildingID = mMachine.getBuilding().getValue();
         String floorID = mMachine.getFloor().getValue();
         String departmentID = mMachine.getDepartment().getValue();
         String roomID = mMachine.getRoom().getValue();
         String machineStatusID = mMachine.getMachineStatus().getValue();
 
+        // If we got to this activity edit from a scan look up, that means the current
+        // machine we are editing is from the server so convert current machine properties
+        // to json format and send to server
+        //
+        // Else this edit is local so update local db with machine properties
         if(serverEdit){
-            RequestQueue queue = Volley.newRequestQueue(this);
+            final RequestQueue queue = Volley.newRequestQueue(this);
             Gson gson = new Gson();
             MachineJson machine = new MachineJson(
                     machineName,
@@ -197,20 +218,68 @@ public class MachineEditActivity extends AppCompatActivity{
                 ex.printStackTrace();
                 return;
             }
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST,
+
+            CustomJsonObjectRequest getRequest = new CustomJsonObjectRequest(
+                    Request.Method.GET,
                     getString(R.string.host_url) + "/api/machine/edit/" + machineName,
-                    jsonObject,
+                    null,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Toast.makeText(
-                                    getApplicationContext(),
-                                    "Machine edited",
-                                    Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(activity, LookUpActivity.class);
-                            intent.putExtra("machineJson", response.toString());
-                            startActivity(intent);
+                            CustomJsonObjectRequest request = new CustomJsonObjectRequest(
+                                    Request.Method.POST,
+                                    getString(R.string.host_url) + "/api/machine/edit/" + machineName,
+                                    jsonObject,
+                                    new Response.Listener<JSONObject>() {
+                                        @Override
+                                        public void onResponse(JSONObject response) {
+                                            Toast.makeText(
+                                                    getApplicationContext(),
+                                                    "Machine edited",
+                                                    Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(activity, LookUpActivity.class);
+                                            intent.putExtra("machineJson", response.toString());
+                                            startActivity(intent);
+                                        }
+                                    },
+                                    new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            if(error.getCause() == null){
+                                                Toast.makeText(
+                                                        getApplicationContext(),
+                                                        "Unexpected error has occurred, please try again later",
+                                                        Toast.LENGTH_LONG).show();
+                                                return;
+                                            }
+
+                                            if(error.getCause() instanceof ConnectException){
+                                                Toast.makeText(
+                                                        getApplicationContext(),
+                                                        "Error connecting to server, try again later",
+                                                        Toast.LENGTH_LONG).show();
+                                                return;
+                                            }
+
+                                            final int statusCode = error.networkResponse.statusCode;
+                                            if(statusCode == HttpURLConnection.HTTP_NOT_FOUND){
+                                                Toast.makeText(
+                                                        getApplicationContext(),
+                                                        "Machine not found",
+                                                        Toast.LENGTH_SHORT).show();
+
+                                                return;
+                                            }
+
+                                            Toast.makeText(
+                                                    getApplicationContext(),
+                                                    "Unexpected error has occurred, please try again later",
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                    },
+                                    mHeaders
+                            );
+                            queue.add(request);
                         }
                     },
                     new Response.ErrorListener() {
@@ -247,10 +316,12 @@ public class MachineEditActivity extends AppCompatActivity{
                                     "Unexpected error has occurred, please try again later",
                                     Toast.LENGTH_LONG).show();
                         }
-                    }
+                    },
+                    mHeaders,
+                    this
             );
 
-            queue.add(request);
+            queue.add(getRequest);
         }
         else{
             ContentValues contentValues = new ContentValues();

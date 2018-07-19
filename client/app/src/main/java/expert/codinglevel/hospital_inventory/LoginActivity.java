@@ -1,6 +1,7 @@
 package expert.codinglevel.hospital_inventory;
 
 import android.app.Activity;
+import android.app.VoiceInteractor;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -162,102 +163,139 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "Passed jsonobject");
         Log.i(TAG, "url " + mURL);
 
-        // Request
         CustomJsonObjectRequest jsonRequest = new CustomJsonObjectRequest(
-                Request.Method.POST,
+                Request.Method.GET,
                 mURL,
-                jsonObject,
+                null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.i(TAG, "positive response");
-                        String user;
-                        String expire;
+                        CustomJsonObjectRequest postRequest = new CustomJsonObjectRequest(
+                                Request.Method.POST,
+                                mURL,
+                                jsonObject,
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
 
-                        try{
-                            user = response.getString("user");
-                            expire = response.getString("expire");
-                        }
-                        catch (JSONException ex){
-                            ex.printStackTrace();
-                            return;
-                        }
-
-                        Log.i(TAG, user + ";" + expire);
-
-                        // Get user session token along with expiration from response
-                        // and add to app's preferences file
-                        Preferences.setDefaults(
-                            context,
-                            context.getString(R.string.user_session),
-                            user + ";" + expire
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        JsonResponses.volleyError(context, error);
+                                    }
+                                }
                         );
-                        Toast.makeText(
-                                getApplicationContext(),
-                                "Successfully Logged In",
-                                Toast.LENGTH_SHORT).show();
-
-                        Intent intent = new Intent(context, DashboardActivity.class);
-                        context.startActivity(intent);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        String csrfToken = "csrfToken";
-                        String cookie = "cookie";
-                        String generalError = "Error";
-                        String email = "Email";
-                        String password = "Password";
-                        String jsonString;
-//                        TextView emailErrorView = (TextView) findViewById(R.id.email_error);
-//                        TextView passwordErrorView = (TextView) findViewById(R.id.password_error);
-//                        emailErrorView.setTextColor(Color.RED);
-//                        passwordErrorView.setTextColor(Color.RED);
-
-                        mEmailErrorView.setText("");
-                        mPasswordErrorView.setText("");
-                        mErrorView.setText("");
-
-                        try{
-                            if(error.networkResponse != null){
-                                try{
-                                    jsonString = new String(
-                                        error.networkResponse.data,
-                                        "UTF-8"
-                                    );
-                                }
-                                catch (UnsupportedEncodingException ex){
-                                    ex.printStackTrace();
-                                    return;
-                                }
-
-                                Log.i(TAG, jsonString);
-                                JSONObject jsonObject = new JSONObject(jsonString);
-                                if (jsonObject.has(email)){
-                                    mEmailErrorView.setText(jsonObject.getString(email));
-                                }
-                                if(jsonObject.has(password)){
-                                    mPasswordErrorView.setText(jsonObject.getString(password));
-                                }
-                                if(jsonObject.has(generalError)){
-                                    mErrorView.setText(jsonObject.getString(generalError));
-                                }
-                            }
-                            else{
-                                mErrorView.setText(
-                                    "Unexpected error has occurred, please try again later"
-                                );
-                            }
-                        }
-                        catch (JSONException ex){
-                            ex.printStackTrace();
-                            mErrorView.setText("Unexpected error has occurred");
-                        }
+                        JsonResponses.volleyError(context, error);
                     }
                 },
-                mHeaders
+                mHeaders,
+                this
         );
+
+
+//        CustomJsonObjectRequest jsonRequest = new CustomJsonObjectRequest(
+//                Request.Method.POST,
+//                mURL,
+//                jsonObject,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        Log.i(TAG, "positive response");
+//                        String user;
+//                        String expire;
+//
+//                        try{
+//                            user = response.getString("user");
+//                            expire = response.getString("expire");
+//                        }
+//                        catch (JSONException ex){
+//                            ex.printStackTrace();
+//                            return;
+//                        }
+//
+//                        Log.i(TAG, user + ";" + expire);
+//
+//                        // Get user session token along with expiration from response
+//                        // and add to app's preferences file
+//                        Preferences.setDefaults(
+//                            context,
+//                            context.getString(R.string.user_session),
+//                            user + ";" + expire
+//                        );
+//                        Toast.makeText(
+//                                getApplicationContext(),
+//                                "Successfully Logged In",
+//                                Toast.LENGTH_SHORT).show();
+//
+//                        Intent intent = new Intent(context, DashboardActivity.class);
+//                        context.startActivity(intent);
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        String csrfToken = "csrfToken";
+//                        String cookie = "cookie";
+//                        String generalError = "Error";
+//                        String email = "Email";
+//                        String password = "Password";
+//                        String jsonString;
+////                        TextView emailErrorView = (TextView) findViewById(R.id.email_error);
+////                        TextView passwordErrorView = (TextView) findViewById(R.id.password_error);
+////                        emailErrorView.setTextColor(Color.RED);
+////                        passwordErrorView.setTextColor(Color.RED);
+//
+//                        mEmailErrorView.setText("");
+//                        mPasswordErrorView.setText("");
+//                        mErrorView.setText("");
+//
+//                        try{
+//                            if(error.networkResponse != null){
+//                                try{
+//                                    jsonString = new String(
+//                                        error.networkResponse.data,
+//                                        "UTF-8"
+//                                    );
+//                                }
+//                                catch (UnsupportedEncodingException ex){
+//                                    ex.printStackTrace();
+//                                    return;
+//                                }
+//
+//                                Log.i(TAG, jsonString);
+//                                JSONObject jsonObject = new JSONObject(jsonString);
+//                                if (jsonObject.has(email)){
+//                                    mEmailErrorView.setText(jsonObject.getString(email));
+//                                }
+//                                if(jsonObject.has(password)){
+//                                    mPasswordErrorView.setText(jsonObject.getString(password));
+//                                }
+//                                if(jsonObject.has(generalError)){
+//                                    mErrorView.setText(jsonObject.getString(generalError));
+//                                }
+//                            }
+//                            else{
+//                                mErrorView.setText(
+//                                    "Unexpected error has occurred, please try again later"
+//                                );
+//                            }
+//                        }
+//                        catch (JSONException ex){
+//                            ex.printStackTrace();
+//                            mErrorView.setText("Unexpected error has occurred");
+//                        }
+//                    }
+//                },
+//                mHeaders,
+//                this
+//        );
 
         Log.i(TAG, "added to queue");
         mQueue.add(jsonRequest);

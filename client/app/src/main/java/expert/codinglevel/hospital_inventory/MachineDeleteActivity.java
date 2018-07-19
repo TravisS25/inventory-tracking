@@ -70,6 +70,8 @@ public class MachineDeleteActivity extends AppCompatActivity {
         mDB.close();
     }
 
+    // initDeleteButton sets listener on delete button that activate dialog
+    // when pressed
     private void initDeleteButton(){
         Button button = (Button) findViewById(R.id.action_button);
         button.setText(getText(R.string.delete));

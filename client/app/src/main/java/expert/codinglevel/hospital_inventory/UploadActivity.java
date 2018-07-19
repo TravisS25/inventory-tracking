@@ -101,6 +101,9 @@ public class UploadActivity extends AppCompatActivity{
         }
     }
 
+    // initAlertDialog creates instance of dialog to use when the user
+    // clicks the upload button as the dialog will verify whether they want
+    // to upload or not
     private void initAlertDialog(){
         final Activity activity = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
