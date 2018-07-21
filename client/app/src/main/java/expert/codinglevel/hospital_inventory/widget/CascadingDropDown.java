@@ -15,20 +15,35 @@ import expert.codinglevel.hospital_inventory.interfaces.ICascadeResponse;
 import expert.codinglevel.hospital_inventory.model.HospitalContract;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
-
+/**
+ *  CascadingDropDown is util class that allows us to apply form views (spinners, checkboxes etc)
+ *  to an appropriate position in a list view
+ */
 public class CascadingDropDown {
     private CascadingDropDown(){}
 
+    /**
+     * Takes passed {@param result} parameter and applies the results into the appropriate
+     * list view slot found in {@param widgetPosition} and then applies that to the overall
+     * list view of {@param viewGroup}
+     *
+     * applyBuildingCascade is used to cascade from building table
+     * @param viewGroup - List view representation
+     * @param widgetPosition - Hashmap where table name is key and position in list view is value
+     * @param result - Hashmap
+     */
     public static void applyBuildingCascade(
             ViewGroup viewGroup,
             HashMap<String, Integer> widgetPosition,
             HashMap<String, ArrayList<TextValue>> result
     )
     {
+        // Property spinners
         Spinner floorSpinner;
         Spinner departmentSpinner;
         Spinner roomSpinner;
 
+        // Extract array of text values based on table
         ArrayList<TextValue> floorArray = result.get(
                 HospitalContract.TABLE_BUILDING_FLOOR_NAME
         );
@@ -39,6 +54,7 @@ public class CascadingDropDown {
                 HospitalContract.TABLE_ROOM_NAME
         );
 
+        // Get list view position based on table
         View floorView = viewGroup.getChildAt(
                 widgetPosition.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
         );
@@ -49,6 +65,7 @@ public class CascadingDropDown {
                 widgetPosition.get(HospitalContract.TABLE_ROOM_NAME)
         );
 
+        // Apply text values extracted above
         ArrayAdapter<TextValue> floorAdapter = new ArrayAdapter<>(
                 floorView.getContext(),
                 android.R.layout.simple_spinner_item,
@@ -84,6 +101,16 @@ public class CascadingDropDown {
         roomSpinner.setAdapter(roomAdapter);
     }
 
+    /**
+     * Takes passed {@param result} parameter and applies the results into the appropriate
+     * list view slot found in {@param widgetPosition} and then applies that to the overall
+     * list view of {@param viewGroup}
+     *
+     * applyFloorCascade is used to cascade from floor table
+     * @param viewGroup - List view representation
+     * @param widgetPosition - Hashmap where table name is key and position in list view is value
+     * @param result - Hashmap
+     */
     public static void applyFloorCascade(
             ViewGroup viewGroup,
             HashMap<String, Integer> widgetPosition,
@@ -133,6 +160,16 @@ public class CascadingDropDown {
         roomSpinner.setAdapter(roomAdapter);
     }
 
+    /**
+     * Takes passed {@param result} parameter and applies the results into the appropriate
+     * list view slot found in {@param widgetPosition} and then applies that to the overall
+     * list view of {@param viewGroup}
+     *
+     * applyDepartmentCascade is used to cascade from department table
+     * @param viewGroup - List view representation
+     * @param widgetPosition - Hashmap where table name is key and position in list view is value
+     * @param result - Hashmap
+     */
     public static void applyDepartmentCascade(
             ViewGroup viewGroup,
             HashMap<String, Integer> widgetPosition,

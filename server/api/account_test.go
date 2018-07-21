@@ -166,6 +166,21 @@ func TestAccountAPIs(t *testing.T) {
 	changePasswordURL := baseURL + config.RouterPaths["changePassword"]
 	resetPasswordURL := baseURL + config.RouterPaths["resetPassword"]
 	confirmPasswordResetURL := baseURL + config.RouterPaths["confirmPasswordReset"]
+	userDetailsURL := baseURL + config.RouterPaths["userDetails"]
+
+	// -----------------------------------------------------------------
+	//
+	// User Details API
+
+	req, _ = http.NewRequest("GET", userDetailsURL, nil)
+	req.Header.Set(CookieHeader, userCookie)
+	res, err = client.Do(req)
+
+	if err != nil {
+		t.Fatal("err on response")
+	}
+
+	apiutil.ResponseError(t, res, http.StatusOK, err)
 
 	// -----------------------------------------------------------------
 	//

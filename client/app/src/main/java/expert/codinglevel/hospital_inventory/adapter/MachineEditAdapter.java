@@ -32,6 +32,10 @@ import expert.codinglevel.hospital_inventory.task.cascadingdropdown.CascadingFlo
 import expert.codinglevel.hospital_inventory.view.TextValue;
 import expert.codinglevel.hospital_inventory.widget.CascadingDropDown;
 
+/**
+ *  MachineEditAdapter is list adapter used to view machine properties
+ *  and have the ability to edit them
+ */
 public class MachineEditAdapter extends BaseAdapter {
     public final static String TAG = MachineEditAdapter.class.getSimpleName();
     private LayoutInflater mInflater;
@@ -39,6 +43,13 @@ public class MachineEditAdapter extends BaseAdapter {
     private IMachine mMachine;
     private HashMap<String, Integer> mWidgetPosition;
     private SQLiteDatabase mDB;
+
+    // mInitLoad is used as a "work around" for the cascading dropdowns as the onItemSelected
+    // event is activated on initialization even when we don't select item which in turn
+    // messes with the cascading dropdowns
+    // We use this variable for each table(key) that we need a cascade dropdown for and skip
+    // the initialization trigger by setting the value "true" for each table and when the code
+    // runs and skips the trigger, we set them all to "false" so future selections will work
     private HashMap<String, Boolean> mInitLoad;
 
     public MachineEditAdapter(
@@ -53,6 +64,8 @@ public class MachineEditAdapter extends BaseAdapter {
         mDB = db;
         mWidgetPosition = new HashMap<>();
         mInitLoad = new HashMap<>();
+
+        // Set the initial
         mInitLoad.put(HospitalContract.TABLE_BUILDING_NAME, true);
         mInitLoad.put(HospitalContract.TABLE_BUILDING_FLOOR_NAME, true);
         mInitLoad.put(HospitalContract.TABLE_DEPARTMENT_NAME, true);
@@ -88,6 +101,9 @@ public class MachineEditAdapter extends BaseAdapter {
         // check if the view already exists if so, no need to inflate and findViewById again!
         if (convertView == null) {
 //            Log.i(TAG, "+++ convertview null +++");
+
+            // Check what view type each machine property has and then display
+            // the appropriate layout
             if(machineProperty.getViewType() == ViewType.SPINNER){
                 spinnerHolder = new SpinnerViewHolder();
                 convertView = mInflater.inflate(R.layout.machine_spinner_item, outerParent, false);
@@ -111,6 +127,8 @@ public class MachineEditAdapter extends BaseAdapter {
             }
         }
         else {
+            // If layout already inflated, still have to check what view type
+            // to cast the layout to
             if(machineProperty.getViewType() == ViewType.SPINNER){
                 spinnerHolder = (SpinnerViewHolder) convertView.getTag();
             }
@@ -122,10 +140,13 @@ public class MachineEditAdapter extends BaseAdapter {
             }
         }
 
+        // If spinnerHolder is not null, then current layout view contains spinner
         if(spinnerHolder != null){
             spinnerHolder.mPropertyTextView.setText(machineProperty.getPropertyText());
             ArrayList<TextValue> spinnerArray = machineProperty.getSpinnerArrayList();
-            Log.i(TAG, spinnerHolder.mPropertyTextView.getText().toString());
+            //Log.i(TAG, spinnerHolder.mPropertyTextView.getText().toString());
+
+            // ArrayAdapter is used for dropdown lists
             ArrayAdapter<TextValue> adapter = new ArrayAdapter<>(
                     convertView.getContext(),
                     android.R.layout.simple_spinner_item,
@@ -134,6 +155,8 @@ public class MachineEditAdapter extends BaseAdapter {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerHolder.mSpinner.setAdapter(adapter);
 
+            // Check what type machine attribute current machine property has to apply
+            // proper cascading dropdown selection
             if(machineProperty.getMachineAttribute() == MachineAttribute.BUILDING){
                 spinnerHolder.mSpinner.setOnItemSelectedListener(
                     new AdapterView.OnItemSelectedListener() {
@@ -141,9 +164,13 @@ public class MachineEditAdapter extends BaseAdapter {
                         public void onItemSelected(final AdapterView<?> parent, View view, int position, long id) {
                             if(!mInitLoad.get(HospitalContract.TABLE_BUILDING_NAME)){
                                 Log.i(TAG, "+++ building selected +++");
+
+                                // Extract value from selected value
                                 TextValue item = (TextValue) parent.getSelectedItem();
                                 mMachine.setBuilding(item);
 
+                                // Perform db query task against selected building item and all
+                                // tables attached to building
                                 new CascadingBuildingDropDownTask(
                                         item.getValue(),
                                         mDB,
@@ -177,9 +204,13 @@ public class MachineEditAdapter extends BaseAdapter {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         if(!mInitLoad.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)){
                             Log.i(TAG, "+++ floor selected +++");
+
+                            // Extract value from selected value
                             TextValue item = (TextValue) parent.getSelectedItem();
                             mMachine.setFloor(item);
 
+                            // Perform db query task against selected floor item and all
+                            // tables attached to floor
                             new CascadingFloorDropDownTask(
                                     item.getValue(),
                                     mDB,
@@ -213,9 +244,13 @@ public class MachineEditAdapter extends BaseAdapter {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         if(!mInitLoad.get(HospitalContract.TABLE_DEPARTMENT_NAME)){
                             Log.i(TAG, "+++ department selected +++");
+
+                            // Extract value from selected value
                             TextValue item = (TextValue) parent.getSelectedItem();
                             mMachine.setDepartment(item);
 
+                            // Perform db read task based on selected department to get all the
+                            // rooms connected to department instance selected
                             new ReadDatabaseTask(
                                     HospitalDbHelper.getRoomByDepartmentQuery(),
                                     new String[]{item.getValue()},
@@ -280,6 +315,9 @@ public class MachineEditAdapter extends BaseAdapter {
                 });
             }
 
+            // Loop through current spinner and verify which spinner we are currently on
+            // by checking the machine attribute property and then set the spinner value based
+            // on the machine passed
             for(int i = 0; i < spinnerArray.size(); i++){
 //                Log.i(TAG, mMachine.toString());
                 if(machineProperty.getMachineAttribute() == MachineAttribute.BUILDING){

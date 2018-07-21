@@ -27,6 +27,7 @@ import expert.codinglevel.hospital_inventory.model.Machine;
 import expert.codinglevel.hospital_inventory.model.MachineProperties;
 import expert.codinglevel.hospital_inventory.setting.MachineSettings;
 import expert.codinglevel.hospital_inventory.setting.Preferences;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.task.MultipleReadDBTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.cascadingdropdown.CascadingBuildingDropDownTask;
@@ -37,7 +38,7 @@ import expert.codinglevel.hospital_inventory.widget.CascadingDropDown;
  *  DefaultMachineSettingsActivity is activity that allows user to set
  *  defaults for when they scan bar codes such as default room, machine status etc.
  */
-public class DefaultMachineSettingsActivity extends AppCompatActivity {
+public class DefaultMachineSettingsActivity extends UserActivity {
     public static final String TAG = DefaultMachineSettingsActivity.class.getSimpleName();
     private SQLiteDatabase mDB;
     private Bundle mBundle;

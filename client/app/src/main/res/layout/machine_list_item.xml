@@ -10,7 +10,7 @@
         android:id="@+id/textView3"
         android:layout_width="195dp"
         android:layout_height="wrap_content"
-        android:text="@string/asset_tag_text"
+        android:text="@string/machine_name_text"
         android:textColor="@android:color/black"
         android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"

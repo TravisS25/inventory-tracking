@@ -14,6 +14,11 @@ import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
 import expert.codinglevel.hospital_inventory.task.DatabaseTask;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
+/**
+ *  CascadingBuildingDropDownTask is a task that queries local database for building
+ *  and then queries everything connected to that building instance to use for cascading
+ *  values
+ */
 public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap<String, ArrayList<TextValue>>> {
     public static final String TAG = DatabaseTask.class.getSimpleName();
     private SQLiteDatabase mDB;
@@ -22,7 +27,8 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
     private IAsyncResponse <HashMap<String, ArrayList<TextValue>>> mDelegate;
 
     /**
-     * Constructor to use if we wish to query the database
+     * Constructor that includes which machine we want use as template for querying against db
+     * @param machine - Machine that we wish to query its properties against in db
      * @param db - The underlying database we will query against
      * @param delegate - The callback that will be called on onPostExecute
      */
@@ -36,6 +42,12 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
         mDelegate = delegate;
     }
 
+    /**
+     * Constructor that bases our cascading querying on the passed building id
+     * @param buildingID - ID to base our initial querying and use for cascading querying
+     * @param db - The underlying database we will query against
+     * @param delegate - The callback that will be called on onPostExecute
+     */
     public CascadingBuildingDropDownTask(
             String buildingID,
             SQLiteDatabase db,
@@ -87,6 +99,8 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
         }
         buildingCursor.close();
 
+        // If mMachine is null, then use the buildingID passed in constructor for query
+        // Else use mMachine's building property
         if(mMachine == null){
             floorCursor = mDB.rawQuery(floorQuery, new String[]{mBuildingID});
         }
@@ -111,6 +125,8 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
         }
         floorCursor.close();
 
+        // If mMachine is null, then use the floorID gathered from above
+        // Else use mMachine's building property
         if(mMachine == null){
             departmentCursor = mDB.rawQuery(departmentQuery, new String[]{floorID});
         }
@@ -139,6 +155,8 @@ public class CascadingBuildingDropDownTask extends AsyncTask<Void, Void, HashMap
         }
         departmentCursor.close();
 
+        // If mMachine is null, then use the departmentID gathered from above
+        // Else use mMachine's building property
         if(mMachine == null){
             roomCursor = mDB.rawQuery(roomQuery, new String[]{departmentID});
         }

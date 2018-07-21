@@ -63,7 +63,7 @@ public final class HospitalContract {
         public static final String TABLE_DEPARTMENT_NAME_ID = HospitalContract.TABLE_DEPARTMENT_NAME + "_id";
         public static final String TABLE_FLOOR_NAME_ID = HospitalContract.TABLE_BUILDING_FLOOR_NAME + "_id";
         public static final String TABLE_MACHINE_STATUS_NAME_ID = HospitalContract.TABLE_MACHINE_STATUS_NAME + "_id";
-        public static final String ASSET_TAG = "asset_tag";
+        public static final String MACHINE_NAME = "machine_name";
         public static final String SCANNED_TIME = "scanned_time";
     }
 }

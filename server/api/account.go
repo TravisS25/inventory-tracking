@@ -62,7 +62,12 @@ func NewAccountAPI(
 // ------------------------------ APIS -------------------------------------
 
 func (u *AccountAPI) AccountDetails(w http.ResponseWriter, r *http.Request) {
-	apiutil.SendPayload(w, r, true, map[string]interface{}{})
+	user, _ := GetUser(apiutil.GetUser(r))
+	groups := apiutil.GetUserGroups(r)
+	apiutil.SendPayload(w, r, map[string]interface{}{
+		"user":   user,
+		"groups": groups,
+	})
 }
 
 func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
@@ -430,10 +435,10 @@ func (a *AccountAPI) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		a.cache.Set(hash, form.Email, (time.Hour * time.Duration(cachedHours)))
 
 		// This is simply used for testing in non prod
-		// Here we send the verification token so our tests
-		// can grab the token and test the confirm reset api
+		// Here we send the verification token in json response
+		// so our tests can grab the token and test the confirm reset api
 		if !config.Conf.Prod {
-			apiutil.SendPayload(w, r, false, map[string]interface{}{
+			apiutil.SendPayload(w, r, map[string]interface{}{
 				"token": hash,
 			})
 		}
@@ -524,12 +529,12 @@ func (a *AccountAPI) EmailExists(w http.ResponseWriter, r *http.Request) {
 
 	if err == sql.ErrNoRows {
 		fmt.Println("unique")
-		apiutil.SendPayload(w, r, false, map[string]interface{}{
+		apiutil.SendPayload(w, r, map[string]interface{}{
 			"uniqueEmail": true,
 		})
 	} else {
 		fmt.Println("not unique")
-		apiutil.SendPayload(w, r, false, map[string]interface{}{
+		apiutil.SendPayload(w, r, map[string]interface{}{
 			"uniqueEmail": false,
 		})
 	}

@@ -35,13 +35,14 @@ import expert.codinglevel.hospital_inventory.interfaces.IJsonRequestCallback;
 import expert.codinglevel.hospital_inventory.json.CustomJsonObjectRequest;
 import expert.codinglevel.hospital_inventory.json.JsonResponses;
 import expert.codinglevel.hospital_inventory.setting.Preferences;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 
 /**
  *  DashboardActivity is "main" activity once logged in
  *  This activity allows user to redirect to many other activities
  *  including scanning, lookup, machine settings etc.
  */
-public class DashboardActivity extends AppCompatActivity {
+public class DashboardActivity extends UserActivity {
     private boolean mIsLoggedIn;
     private String mUserSession;
 
@@ -71,7 +72,7 @@ public class DashboardActivity extends AppCompatActivity {
     // Determines whether our button for login/logout displays "Login" or "Logout"
     // depending on if user session exists in our shared preference file
     private void initLoginLogoutButton(){
-        Button button = (Button)  findViewById(R.id.login_logout);
+        Button button = (Button) findViewById(R.id.login_logout);
 
         // Grab user session, if exists, from our shared preferences file
         mUserSession = Preferences.getDefaults(this, getString(R.string.user_session));
@@ -191,8 +192,7 @@ public class DashboardActivity extends AppCompatActivity {
                         JsonResponses.volleyError(activity, error);
                     }
                 },
-                headers,
-                    this
+                headers
             );
             queue.add(request);
         }

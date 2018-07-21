@@ -20,7 +20,7 @@
     <string name="debug">true</string>
     <string name="default_machine_settings">Default Machine Settings</string>
 
-    <string name="asset_tag_text">Asset Tag</string>
+    <string name="machine_name_text">Machine Name</string>
     <string name="building_text">Building</string>
     <string name="department_text">Department</string>
     <string name="floor_text">Floor</string>
@@ -41,4 +41,5 @@
 
     <string name="csrf_token">X-CSRF-Token</string>
     <string name="cookie">Cookie</string>
+    <string name="set_cookie">Set-Cookie</string>
 </resources>

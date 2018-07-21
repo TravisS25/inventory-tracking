@@ -7,9 +7,10 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import expert.codinglevel.hospital_inventory.adapter.MachineDetailsAdapter;
 import expert.codinglevel.hospital_inventory.model.Machine;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 
 
-public class MachineDetailsActivity extends AppCompatActivity {
+public class MachineDetailsActivity extends UserActivity {
     public static final String TAG = MachineDetailsActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
 
@@ -32,8 +33,8 @@ public class MachineDetailsActivity extends AppCompatActivity {
 
         // Get machine from intent, insert as Machine.Property and display details
         Machine.MachineProperty machineName = new Machine.MachineProperty(
-                getString(R.string.asset_tag_text),
-                machine.getAssetTag().getText()
+                getString(R.string.machine_name_text),
+                machine.getMachineName().getText()
         );
         Machine.MachineProperty status = new Machine.MachineProperty(
                 getString(R.string.machine_status_text),

@@ -16,7 +16,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import expert.codinglevel.hospital_inventory.R;
 
 /**
  *  CustomJsonObjectRequest inherits from JsonObjectRequest and sole
@@ -26,18 +25,7 @@ import expert.codinglevel.hospital_inventory.R;
  */
 public class CustomJsonObjectRequest extends JsonObjectRequest {
     private HashMap<String, String> mHeaders;
-    private Context mContext;
-
-    public CustomJsonObjectRequest(
-            int method,
-            String url,
-            JSONObject jsonObject,
-            Response.Listener<JSONObject> listener,
-            Response.ErrorListener errorListener
-    )
-    {
-        super(method, url, jsonObject, listener, errorListener);
-    }
+    private String[] mHeaderNames;
 
     public CustomJsonObjectRequest(
         int method,
@@ -59,12 +47,12 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
             Response.Listener<JSONObject> listener,
             Response.ErrorListener errorListener,
             HashMap<String, String> headers,
-            Context context
+            String[] headerNames
     )
     {
         super(method, url, jsonObject, listener, errorListener);
         mHeaders = headers;
-        mContext = context;
+        mHeaderNames = headerNames;
     }
 
     /**
@@ -82,14 +70,16 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
             String jsonString = new String(response.data,
                     HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
             JSONObject jsonResponse = new JSONObject(jsonString);
-            mHeaders.put(
-                    mContext.getString(R.string.csrf_token),
-                    jsonResponse.getString(mContext.getString(R.string.csrf_token))
-            );
-            mHeaders.put(
-                    mContext.getString(R.string.cookie),
-                    jsonResponse.getString(mContext.getString(R.string.cookie))
-            );
+
+            if(mHeaderNames != null){
+                for(String headerName: mHeaderNames){
+                    mHeaders.put(
+                            headerName,
+                            jsonResponse.getString(headerName)
+                    );
+                }
+            }
+
             return Response.success(jsonResponse,
                     HttpHeaderParser.parseCacheHeaders(response));
         } catch (UnsupportedEncodingException e) {
@@ -98,19 +88,4 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
             return Response.error(new ParseError(je));
         }
     }
-
-//    public static String getJsonString(String jsonString, String key){
-//        JSONObject temp;
-//        String value;
-//        try {
-//            temp = new JSONObject(jsonString);
-//            value = temp.getString(key);
-//        } catch (JSONException e) {
-//            value = null;
-//            e.printStackTrace();
-//
-//        }
-//        return value;
-//    }
-
 }

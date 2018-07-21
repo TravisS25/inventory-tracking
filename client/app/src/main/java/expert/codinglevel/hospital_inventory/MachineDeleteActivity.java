@@ -19,6 +19,7 @@ import expert.codinglevel.hospital_inventory.adapter.MachineDetailsAdapter;
 import expert.codinglevel.hospital_inventory.model.HospitalContract;
 import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
 import expert.codinglevel.hospital_inventory.model.Machine;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.task.DeleteDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 
@@ -26,7 +27,7 @@ import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
  *  MachineDeleteActivity is activity that allows user to delete
  *  machine scanned on their device
  */
-public class MachineDeleteActivity extends AppCompatActivity {
+public class MachineDeleteActivity extends UserActivity {
     public static final String TAG = MachineDeleteActivity.class.getSimpleName();
     private AlertDialog mDialog;
     private SQLiteDatabase mDB;
@@ -89,8 +90,8 @@ public class MachineDeleteActivity extends AppCompatActivity {
     private void initListAdapter(){
         ArrayList<Machine.MachineProperty> properties = new ArrayList<>();
         Machine.MachineProperty machineName = new Machine.MachineProperty(
-                getString(R.string.asset_tag_text),
-                mMachine.getAssetTag().getText()
+                getString(R.string.machine_name_text),
+                mMachine.getMachineName().getText()
         );
         Machine.MachineProperty scannedTime = new Machine.MachineProperty(
                 getString(R.string.scan_time),
@@ -138,7 +139,7 @@ public class MachineDeleteActivity extends AppCompatActivity {
                 .setTitle(R.string.delete);
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                String machineID = mMachine.getAssetTag().getValue();
+                String machineID = mMachine.getMachineName().getValue();
                 new DeleteDatabaseTask(
                         HospitalContract.TABLE_MACHINE_NAME,
                         "_id=?",

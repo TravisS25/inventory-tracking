@@ -39,6 +39,7 @@ import expert.codinglevel.hospital_inventory.model.HospitalContract;
 import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
 import expert.codinglevel.hospital_inventory.model.Machine;
 import expert.codinglevel.hospital_inventory.model.MachineProperties;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.task.MultipleReadDBTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.UpdateDatabaseTask;
@@ -46,7 +47,7 @@ import expert.codinglevel.hospital_inventory.task.cascadingdropdown.CascadingBui
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
 
-public class MachineEditActivity extends AppCompatActivity{
+public class MachineEditActivity extends UserActivity{
     public static final String TAG = MachineEditActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
     private static final int LOADER_ID = 1;
@@ -152,8 +153,8 @@ public class MachineEditActivity extends AppCompatActivity{
     private void initMachine(){
         mMachine = getIntent().getParcelableExtra("machine");
         mPropertyList.add(new Machine.MachineProperty(
-                getString(R.string.asset_tag_text),
-                mMachine.getAssetTag().getText()
+                getString(R.string.machine_name_text),
+                mMachine.getMachineName().getText()
             )
         );
         mPropertyList.add(new Machine.MachineProperty(
@@ -185,8 +186,8 @@ public class MachineEditActivity extends AppCompatActivity{
         final Activity activity = this;
         boolean serverEdit = getIntent().getBooleanExtra("serverEdit", false);
         Log.i(TAG, "+++ Server edit" + serverEdit +" +++");
-        String id = mMachine.getAssetTag().getValue();
-        final String machineName = mMachine.getAssetTag().getText();
+        String id = mMachine.getMachineName().getValue();
+        final String machineName = mMachine.getMachineName().getText();
         String buildingID = mMachine.getBuilding().getValue();
         String floorID = mMachine.getFloor().getValue();
         String departmentID = mMachine.getDepartment().getValue();
@@ -318,7 +319,7 @@ public class MachineEditActivity extends AppCompatActivity{
                         }
                     },
                     mHeaders,
-                    this
+                    new String[]{getString(R.string.csrf_token), getString(R.string.cookie)}
             );
 
             queue.add(getRequest);

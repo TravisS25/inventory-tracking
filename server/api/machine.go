@@ -196,7 +196,7 @@ func (m *MachineAPI) MachineSearch(w http.ResponseWriter, r *http.Request) {
 		data = machines
 	}
 
-	apiutil.SendPayload(w, r, false, map[string]interface{}{
+	apiutil.SendPayload(w, r, map[string]interface{}{
 		"data":  data,
 		"total": count,
 	})
@@ -234,7 +234,7 @@ func (m *MachineAPI) MachineDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiutil.SendPayload(w, r, false, map[string]interface{}{
+	apiutil.SendPayload(w, r, map[string]interface{}{
 		"machine": machine,
 	})
 

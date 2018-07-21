@@ -25,6 +25,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,38 +36,40 @@ import java.util.HashMap;
 
 import expert.codinglevel.hospital_inventory.adapter.MachineUploadAdapter;
 import expert.codinglevel.hospital_inventory.interfaces.IJsonRequestCallback;
+import expert.codinglevel.hospital_inventory.json.CustomJsonArrayRequest;
 import expert.codinglevel.hospital_inventory.json.CustomJsonObjectRequest;
 import expert.codinglevel.hospital_inventory.json.JsonRequest;
 import expert.codinglevel.hospital_inventory.json.JsonResponses;
 import expert.codinglevel.hospital_inventory.model.HospitalContract;
 import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
 import expert.codinglevel.hospital_inventory.model.Machine;
+import expert.codinglevel.hospital_inventory.model.MachineExclusionStrategy;
 import expert.codinglevel.hospital_inventory.model.MachineJson;
 import expert.codinglevel.hospital_inventory.setting.Preferences;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.task.DeleteDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.ReadDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
 
-public class UploadActivity extends AppCompatActivity{
+public class UploadActivity extends UserActivity{
     public static final String TAG = UploadActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
     private static final int LOADER_ID = 1;
+    private final String mUploadURL = getString(R.string.host_url) + "/api/machine/upload/";
     private HashMap<String, String> mHeaders = new HashMap<>();
     private AlertDialog mDialog;
     private SQLiteDatabase mDB;
     private MachineUploadAdapter mAdapter = null;
     private ArrayList<Machine> mMachineList;
-    private ArrayList<MachineJson> mMachineJsonList;
+    //private ArrayList<MachineJson> mMachineJsonList;
     private RequestQueue mQueue;
-    private String mCSRFToken;
-    private String mCookie;
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putParcelableArrayList("machineList", mMachineList);
-        savedInstanceState.putParcelableArrayList("machineJsonList", mMachineJsonList);
+        //savedInstanceState.putParcelableArrayList("machineJsonList", mMachineJsonList);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -106,23 +109,25 @@ public class UploadActivity extends AppCompatActivity{
     // to upload or not
     private void initAlertDialog(){
         final Activity activity = this;
+
+        // Init dialog with message and title
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.upload_message)
                 .setTitle(R.string.upload);
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                Gson gson = new Gson();
-                JSONObject jsonObject = new JSONObject();
-                String session;
-                String jsonMachineList = gson.toJson(mMachineJsonList);
+                Gson gson = new GsonBuilder()
+                        .setExclusionStrategies(new MachineExclusionStrategy())
+                        .create();
+                final JSONArray jsonArray;
+                final String session = Preferences.getDefaults(
+                        activity,
+                        activity.getString(R.string.user_session)
+                );
+                String jsonMachineList = gson.toJson(mMachineList);
 
                 try{
-                    jsonObject.put("machineList", jsonMachineList);
-                    session = Preferences.getDefaults(
-                            activity,
-                            activity.getString(R.string.user_session)
-                    );
-                    jsonObject.put(getString(R.string.user_session), session);
+                    jsonArray = new JSONArray(jsonMachineList);
                 }
                 catch (JSONException e){
                     e.printStackTrace();
@@ -134,57 +139,51 @@ public class UploadActivity extends AppCompatActivity{
                         "Uploading...",
                         Toast.LENGTH_LONG).show();
 
-                CustomJsonObjectRequest jsonObjectRequest = new CustomJsonObjectRequest(
-                        Request.Method.POST,
-                        getString(R.string.host_url) + "/api/machine/upload",
-                        jsonObject,
+                // Make GET request to get token headers and immediately make POST request with
+                // json array of all the machines that we stored locally
+                CustomJsonObjectRequest getRequest = new CustomJsonObjectRequest(
+                        Request.Method.GET,
+                        mUploadURL,
+                        null,
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        "Machines uploaded",
-                                        Toast.LENGTH_LONG).show();
+                                mHeaders.put("user", session);
 
-                                new DeleteDatabaseTask(
-                                        HospitalContract.TABLE_MACHINE_NAME,
-                                        null,
-                                        null,
-                                        mDB,
-                                        new IAsyncResponse<Integer>() {
+                                CustomJsonArrayRequest postRequest = new CustomJsonArrayRequest(
+                                        Request.Method.POST,
+                                        mUploadURL,
+                                        jsonArray,
+                                        new Response.Listener<JSONArray>() {
                                             @Override
-                                            public void processFinish(Integer result) {
-                                                mDB.close();
-                                                Intent intent = new Intent(
-                                                        activity,
-                                                        DashboardActivity.class
-                                                );
+                                            public void onResponse(JSONArray response) {
+                                                Intent intent = new Intent(activity, DashboardActivity.class);
+                                                intent.putExtra("toast", "Machines Uploaded Successfully");
                                                 startActivity(intent);
                                             }
-                                        }
-                                ).execute();
+                                        },
+                                        new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                JsonResponses.volleyError(activity, error);
+                                            }
+                                        },
+                                        mHeaders
+                                );
+                                mQueue.add(postRequest);
                             }
                         },
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                if(error.getCause() == null){
-                                    Toast.makeText(
-                                            getApplicationContext(),
-                                            "Unexpected error has occurred, please try again later",
-                                            Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        error.getMessage(),
-                                        Toast.LENGTH_LONG).show();
+                                JsonResponses.volleyError(activity, error);
                             }
                         },
-                        mHeaders
+                        mHeaders,
+                        new String[]{getString(R.string.csrf_token), getString(R.string.cookie)}
                 );
-                mQueue.add(jsonObjectRequest);
+
+                mQueue.add(getRequest);
             }
         });
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -196,8 +195,9 @@ public class UploadActivity extends AppCompatActivity{
         mDialog = builder.create();
     }
 
+    // initButtonListener sets event listener
     private void initButtonListener() {
-        final Activity activity = this;
+        //final Activity activity = this;
         Button button = (Button) findViewById(R.id.action_button);
         button.setText(getString(R.string.upload));
         button.setBackgroundColor(Color.GREEN);
@@ -205,29 +205,13 @@ public class UploadActivity extends AppCompatActivity{
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String hostUrl = activity.getString(R.string.host_url);
-                String uploadUrl = hostUrl + "/api/machine/upload/";
-                JsonObjectRequest requestObject = JsonRequest.getJSONRequestTokenObject(
-                    activity,
-                    mHeaders,
-                    new IJsonRequestCallback<JSONObject>() {
-                        @Override
-                        public void successCallback(JSONObject response) {
-                            mDialog.show();
-                        }
-
-                        @Override
-                        public void errorCallback(Context context, VolleyError error) {
-                            JsonResponses.volleyError(context, error);
-                        }
-                    },
-                    uploadUrl
-                );
-                mQueue.add(requestObject);
+                mDialog.show();
             }
         });
     }
 
+    // initListView inits list view with click event listener which will take
+    // the user to the details view of the selected item
     private void initListView(){
         ListView listView = (ListView) findViewById(R.id.list_view);
         listView.setAdapter(mAdapter);
@@ -248,6 +232,8 @@ public class UploadActivity extends AppCompatActivity{
         });
     }
 
+    // queryMachineList queries all machines found on local db and adds them to
+    // machine list which is added list adapter
     private void queryMachineList(){
         final Activity activity = this;
         String query =
@@ -283,7 +269,6 @@ public class UploadActivity extends AppCompatActivity{
                 @Override
                 public void processFinish(Cursor result) {
                     mMachineList = new ArrayList<>(result.getCount());
-                    mMachineJsonList = new ArrayList<>(result.getCount());
                     while(result.moveToNext()){
                         String id = result.getString(result.getColumnIndex("_id"));
                         String buildingID = result.getString(
@@ -324,24 +309,13 @@ public class UploadActivity extends AppCompatActivity{
                         );
 
                         Machine machine = new Machine();
-                        machine.setAssetTag(new TextValue(machineName, id));
+                        machine.setMachineName(new TextValue(machineName, id));
                         machine.setBuilding(new TextValue(buildingName, buildingID));
                         machine.setFloor(new TextValue(floor, floorID));
                         machine.setDepartment(new TextValue(departmentName, departmentID));
                         machine.setRoom(new TextValue(roomName, roomID));
                         machine.setMachineStatus(new TextValue(machineStatusName, machineStatusID));
                         mMachineList.add(machine);
-
-                        MachineJson machineJson = new MachineJson(
-                                machineName,
-                                scannedName,
-                                buildingID,
-                                floorID,
-                                departmentID,
-                                roomID,
-                                machineStatusID
-                        );
-                        mMachineJsonList.add(machineJson);
                     }
                     result.close();
 

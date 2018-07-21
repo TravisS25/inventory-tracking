@@ -83,7 +83,7 @@ func (l *LoggingAPI) Index(w http.ResponseWriter, r *http.Request) {
 		data = logs
 	}
 
-	apiutil.SendPayload(w, r, true, map[string]interface{}{
+	apiutil.SendPayload(w, r, map[string]interface{}{
 		"data":  data,
 		"total": count,
 	})
@@ -102,7 +102,7 @@ func (l *LoggingAPI) RowDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiutil.SendPayload(w, r, true, map[string]interface{}{
+	apiutil.SendPayload(w, r, map[string]interface{}{
 		"log": log,
 	})
 }
@@ -132,7 +132,7 @@ func (l *LoggingAPI) LogDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiutil.SendPayload(w, r, true, map[string]interface{}{
+	apiutil.SendPayload(w, r, map[string]interface{}{
 		"logs": logs,
 	})
 }

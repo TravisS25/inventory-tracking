@@ -53,7 +53,7 @@ public class MachineDetailsAdapter extends BaseAdapter {
             holder.propertyTextView = convertView.findViewById(R.id.property_text);
             holder.propertyValueView = convertView.findViewById(R.id.property_value);
 
-            // hang onto this holder for future recyclage
+            // hang onto this holder for future
             convertView.setTag(holder);
         }
         else {

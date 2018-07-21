@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS machine(
     _id INTEGER PRIMARY KEY,
     room_id INT,
     machine_status_id INT,
-    asset_tag VARCHAR(30) UNIQUE,
+    machine_name VARCHAR(30) UNIQUE,
     scanned_time DATETIME,
     FOREIGN KEY(room_id) REFERENCES room(_id),
     FOREIGN KEY(machine_status_id) REFERENCES machine_status(_id)

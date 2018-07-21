@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import expert.codinglevel.hospital_inventory.adapter.MachineDetailsAdapter;
 import expert.codinglevel.hospital_inventory.enums.ScanType;
 import expert.codinglevel.hospital_inventory.model.Machine;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.view.TextValue;
 
 /**
@@ -25,7 +26,7 @@ import expert.codinglevel.hospital_inventory.view.TextValue;
  *  user will have the ability to edit machine or swap machine that
  *  will directly updated to server
  */
-public class LookUpActivity extends AppCompatActivity {
+public class LookUpActivity extends UserActivity {
     public static final String TAG = LookUpActivity.class.getSimpleName();
     private Machine mMachine;
 
@@ -84,7 +85,7 @@ public class LookUpActivity extends AppCompatActivity {
 
             // Set TextValues to machine instance
             // This is used when moving to edit or swap activities
-            mMachine.setAssetTag(machine);
+            mMachine.setMachineName(machine);
             mMachine.setBuilding(building);
             mMachine.setFloor(floor);
             mMachine.setDepartment(department);
@@ -100,8 +101,8 @@ public class LookUpActivity extends AppCompatActivity {
         // Create machine properties of each machine settings
         // These will used as individual fields in the list view
         Machine.MachineProperty machine = new Machine.MachineProperty(
-                getString(R.string.asset_tag_text),
-                mMachine.getAssetTag().getText()
+                getString(R.string.machine_name_text),
+                mMachine.getMachineName().getText()
         );
         Machine.MachineProperty status = new Machine.MachineProperty(
                 getString(R.string.machine_status_text),

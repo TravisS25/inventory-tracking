@@ -50,12 +50,13 @@ import expert.codinglevel.hospital_inventory.setting.MachineSettings;
 import expert.codinglevel.hospital_inventory.setting.Preferences;
 import expert.codinglevel.hospital_inventory.model.HospitalContract;
 import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.task.InsertDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.ReadDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 
 
-public class ScanActivity extends Activity implements
+public class ScanActivity extends UserActivity implements
         DecoratedBarcodeView.TorchListener {
     private static final String TAG = ScanActivity.class.getSimpleName();
     private static final int SCAN_DELAY = 1500; // 1.5 sec
@@ -290,7 +291,7 @@ public class ScanActivity extends Activity implements
         String json = Preferences.getDefaults(mActivity, getString(R.string.machine_settings));
         MachineSettings machineSettings = gson.fromJson(json, MachineSettings.class);
         ContentValues contentValues = new ContentValues();
-        contentValues.put(HospitalContract.Machine.ASSET_TAG, machineName);
+        contentValues.put(HospitalContract.Machine.MACHINE_NAME, machineName);
         contentValues.put(HospitalContract.Machine.SCANNED_TIME, dateFormat.format(currentDate));
         contentValues.put(
                 HospitalContract.Room.ID,
@@ -312,7 +313,7 @@ public class ScanActivity extends Activity implements
 
         new ReadDatabaseTask(
                 HospitalDbHelper.getMachineByAssetTagQuery(),
-                new String[]{contentValues.getAsString(HospitalContract.Machine.ASSET_TAG)},
+                new String[]{contentValues.getAsString(HospitalContract.Machine.MACHINE_NAME)},
                 mDB,
                 new IAsyncResponse<Cursor>(){
                     @Override
@@ -336,7 +337,7 @@ public class ScanActivity extends Activity implements
 
                                             mBarcodeView.setStatusText(
                                                 contentValues.getAsString(
-                                                    HospitalContract.Machine.ASSET_TAG
+                                                    HospitalContract.Machine.MACHINE_NAME
                                                 )
                                             );
 
@@ -352,7 +353,7 @@ public class ScanActivity extends Activity implements
                         else{
                             while(outerCursor.moveToNext()){
                                 Log.i(TAG, outerCursor.getString(
-                                        outerCursor.getColumnIndex(HospitalContract.Machine.ASSET_TAG))
+                                        outerCursor.getColumnIndex(HospitalContract.Machine.MACHINE_NAME))
                                 );
                             }
 

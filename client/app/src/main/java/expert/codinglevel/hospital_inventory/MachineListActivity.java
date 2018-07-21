@@ -36,6 +36,7 @@ import expert.codinglevel.hospital_inventory.model.HospitalDbHelper;
 import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
 import expert.codinglevel.hospital_inventory.model.Machine;
 import expert.codinglevel.hospital_inventory.model.MachineJson;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.task.DeleteDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.ReadDatabaseTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
@@ -45,7 +46,7 @@ import expert.codinglevel.hospital_inventory.view.TextValue;
  *  MachineListActivity is list activity that displays all the machine bar codes
  *  that have been scanned along with ability to upload all of them to server
  */
-public class MachineListActivity extends AppCompatActivity{
+public class MachineListActivity extends UserActivity{
     public static final String TAG = MachineListActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
     private static final int LOADER_ID = 1;
@@ -305,7 +306,7 @@ public class MachineListActivity extends AppCompatActivity{
                                     result.getColumnIndex(HospitalContract.MachineStatus.ID)
                             );
                             String assetTag = result.getString(
-                                    result.getColumnIndex(HospitalContract.Machine.ASSET_TAG)
+                                    result.getColumnIndex(HospitalContract.Machine.MACHINE_NAME)
                             );
                             String buildingName = result.getString(
                                     result.getColumnIndex(HospitalContract.Building.BUILDING_NAME)
@@ -327,7 +328,7 @@ public class MachineListActivity extends AppCompatActivity{
                             );
 
                             Machine machine = new Machine();
-                            machine.setAssetTag(new TextValue(assetTag, machineID));
+                            machine.setMachineName(new TextValue(assetTag, machineID));
                             machine.setBuilding(new TextValue(buildingName, buildingID));
                             machine.setFloor(new TextValue(floor, floorID));
                             machine.setDepartment(new TextValue(departmentName, departmentID));

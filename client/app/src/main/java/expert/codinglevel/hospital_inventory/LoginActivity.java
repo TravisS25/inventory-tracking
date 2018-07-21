@@ -41,6 +41,7 @@ import expert.codinglevel.hospital_inventory.model.HospitalDbHelper;
 import expert.codinglevel.hospital_inventory.interfaces.IAsyncResponse;
 import expert.codinglevel.hospital_inventory.setting.MachineSettings;
 import expert.codinglevel.hospital_inventory.setting.Preferences;
+import expert.codinglevel.hospital_inventory.setting.UserActivity;
 import expert.codinglevel.hospital_inventory.task.MultipleReadDBTask;
 import expert.codinglevel.hospital_inventory.task.RetrieveDatabaseTask;
 import expert.codinglevel.hospital_inventory.view.TextValue;
@@ -48,7 +49,7 @@ import expert.codinglevel.hospital_inventory.view.TextValue;
 /**
  *  LoginActivity is activity that allows user to login
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends UserActivity {
     public static final String TAG = LoginActivity.class.getSimpleName();
 
     // mHeaders represents http headers that will be used for csrf tokens
@@ -163,6 +164,10 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "Passed jsonobject");
         Log.i(TAG, "url " + mURL);
 
+
+        // If validation passes, then make GET request to obtain token
+        // and on success request make a POST request to login and get
+        // session token to use for rest of app
         CustomJsonObjectRequest jsonRequest = new CustomJsonObjectRequest(
                 Request.Method.GET,
                 mURL,
@@ -177,7 +182,13 @@ public class LoginActivity extends AppCompatActivity {
                                 new Response.Listener<JSONObject>() {
                                     @Override
                                     public void onResponse(JSONObject response) {
+                                        Preferences.setDefaults(
+                                            context,
+                                            "user", mHeaders.get(getString(R.string.set_cookie))
+                                        );
 
+                                        Intent intent = new Intent(context, DashboardActivity.class);
+                                        startActivity(intent);
                                     }
                                 },
                                 new Response.ErrorListener() {
@@ -185,8 +196,12 @@ public class LoginActivity extends AppCompatActivity {
                                     public void onErrorResponse(VolleyError error) {
                                         JsonResponses.volleyError(context, error);
                                     }
-                                }
+                                },
+                                mHeaders,
+                                new String[]{getString(R.string.set_cookie)}
                         );
+
+                        mQueue.add(postRequest);
                     }
                 },
                 new Response.ErrorListener() {
@@ -196,111 +211,14 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 },
                 mHeaders,
-                this
+                new String[]{getString(R.string.csrf_token), getString(R.string.cookie)}
         );
-
-
-//        CustomJsonObjectRequest jsonRequest = new CustomJsonObjectRequest(
-//                Request.Method.POST,
-//                mURL,
-//                jsonObject,
-//                new Response.Listener<JSONObject>() {
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                        Log.i(TAG, "positive response");
-//                        String user;
-//                        String expire;
-//
-//                        try{
-//                            user = response.getString("user");
-//                            expire = response.getString("expire");
-//                        }
-//                        catch (JSONException ex){
-//                            ex.printStackTrace();
-//                            return;
-//                        }
-//
-//                        Log.i(TAG, user + ";" + expire);
-//
-//                        // Get user session token along with expiration from response
-//                        // and add to app's preferences file
-//                        Preferences.setDefaults(
-//                            context,
-//                            context.getString(R.string.user_session),
-//                            user + ";" + expire
-//                        );
-//                        Toast.makeText(
-//                                getApplicationContext(),
-//                                "Successfully Logged In",
-//                                Toast.LENGTH_SHORT).show();
-//
-//                        Intent intent = new Intent(context, DashboardActivity.class);
-//                        context.startActivity(intent);
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        String csrfToken = "csrfToken";
-//                        String cookie = "cookie";
-//                        String generalError = "Error";
-//                        String email = "Email";
-//                        String password = "Password";
-//                        String jsonString;
-////                        TextView emailErrorView = (TextView) findViewById(R.id.email_error);
-////                        TextView passwordErrorView = (TextView) findViewById(R.id.password_error);
-////                        emailErrorView.setTextColor(Color.RED);
-////                        passwordErrorView.setTextColor(Color.RED);
-//
-//                        mEmailErrorView.setText("");
-//                        mPasswordErrorView.setText("");
-//                        mErrorView.setText("");
-//
-//                        try{
-//                            if(error.networkResponse != null){
-//                                try{
-//                                    jsonString = new String(
-//                                        error.networkResponse.data,
-//                                        "UTF-8"
-//                                    );
-//                                }
-//                                catch (UnsupportedEncodingException ex){
-//                                    ex.printStackTrace();
-//                                    return;
-//                                }
-//
-//                                Log.i(TAG, jsonString);
-//                                JSONObject jsonObject = new JSONObject(jsonString);
-//                                if (jsonObject.has(email)){
-//                                    mEmailErrorView.setText(jsonObject.getString(email));
-//                                }
-//                                if(jsonObject.has(password)){
-//                                    mPasswordErrorView.setText(jsonObject.getString(password));
-//                                }
-//                                if(jsonObject.has(generalError)){
-//                                    mErrorView.setText(jsonObject.getString(generalError));
-//                                }
-//                            }
-//                            else{
-//                                mErrorView.setText(
-//                                    "Unexpected error has occurred, please try again later"
-//                                );
-//                            }
-//                        }
-//                        catch (JSONException ex){
-//                            ex.printStackTrace();
-//                            mErrorView.setText("Unexpected error has occurred");
-//                        }
-//                    }
-//                },
-//                mHeaders,
-//                this
-//        );
 
         Log.i(TAG, "added to queue");
         mQueue.add(jsonRequest);
     }
 
+    // initErrorTextViews inits the text color of error field to be red
     private void initErrorTextViews(){
         mEmailErrorView = (TextView) findViewById(R.id.email_error);
         mPasswordErrorView = (TextView) findViewById(R.id.password_error);
@@ -311,6 +229,8 @@ public class LoginActivity extends AppCompatActivity {
         mErrorView.setTextColor(Color.RED);
     }
 
+    // initDefaultMachineSettings tries to get machine settings from preferences app file
+    // If settings do not exist (generally when user first uses app) then create defaults
     private void initDefaultMachineSettings(SQLiteDatabase db){
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String json = sharedPref.getString(getString(R.string.machine_settings), null);
@@ -324,6 +244,11 @@ public class LoginActivity extends AppCompatActivity {
                 "select _id as machine_status_id, status_name " +
                 "from machine_status where _id = ?";
 
+            // Init array of MultipleReadDBTask.DatabaseRead and add query to retrieve
+            // the first building in db to use as default for settings along with joining
+            // other tables connected to building to use for defaults
+            //
+            // Also add query for machine status to use for default
             List<MultipleReadDBTask.DatabaseRead> databaseReadList = new ArrayList<>();
             databaseReadList.add(new MultipleReadDBTask.DatabaseRead(
                     HospitalDbHelper.BUILDING_JOIN,
@@ -334,6 +259,10 @@ public class LoginActivity extends AppCompatActivity {
                     new MultipleReadDBTask.DatabaseQuery(machineStatusQuery, new String[]{"1"})
             ));
 
+            // Exec the multiple queries from our list above and extract the returned values
+            // from cursor
+            // Use the extracted values to put into MachineSettings singleton and convert the
+            // settings to json to store in preferences file
             new MultipleReadDBTask(
                 databaseReadList,
                 db,
@@ -348,6 +277,7 @@ public class LoginActivity extends AppCompatActivity {
                         queryCursor.moveToFirst();
                         machineStatusCursor.moveToFirst();
 
+                        // Extract values from cursor based on table
                         String buildingID = queryCursor.getString(
                                 queryCursor.getColumnIndex(HospitalContract.Building.ID)
                         );
@@ -381,9 +311,12 @@ public class LoginActivity extends AppCompatActivity {
                             )
                         );
 
+                        // Close cursors
                         queryCursor.close();
                         machineStatusCursor.close();
 
+                        // Put extracted values in machine settings and convert to json to put
+                        // into preferences file
                         MachineSettings machineSettings = MachineSettings.getInstance();
                         machineSettings.setBuilding(new TextValue(buildingName, buildingID));
                         machineSettings.setFloor(new TextValue(floor, floorID));

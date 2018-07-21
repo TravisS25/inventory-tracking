@@ -288,7 +288,7 @@ public class HospitalDbHelper extends SQLiteOpenHelper {
         return
             "select " +
                 "machine._id as machine_id, " +
-                "machine.asset_tag, " +
+                "machine.machine_name, " +
                 "machine.scanned_time, " +
                 "building._id as building_id, " +
                 "building.building_name, " +
@@ -316,6 +316,6 @@ public class HospitalDbHelper extends SQLiteOpenHelper {
     }
 
     public static String getMachineByAssetTagQuery(){
-        return "SELECT * FROM machine WHERE asset_tag = ?";
+        return "SELECT * FROM machine WHERE machine_name = ?";
     }
 }
