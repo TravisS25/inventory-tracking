@@ -64,7 +64,7 @@ public class MachineUploadAdapter extends BaseAdapter {
 
         // Update row view's textviews to display machine information
         holder.propertyTextView.setText("Machine");
-        holder.propertyValueView.setText(machine.getAssetTag().getText());
+        holder.propertyValueView.setText(machine.getMachineName().getText());
 
         return convertView;
     }

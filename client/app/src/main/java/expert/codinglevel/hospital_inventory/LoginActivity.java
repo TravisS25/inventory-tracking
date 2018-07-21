@@ -49,7 +49,7 @@ import expert.codinglevel.hospital_inventory.view.TextValue;
 /**
  *  LoginActivity is activity that allows user to login
  */
-public class LoginActivity extends UserActivity {
+public class LoginActivity extends AppCompatActivity {
     public static final String TAG = LoginActivity.class.getSimpleName();
 
     // mHeaders represents http headers that will be used for csrf tokens
@@ -84,39 +84,39 @@ public class LoginActivity extends UserActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initErrorTextViews();
-        mQueue = Volley.newRequestQueue(this);
-        mURL = getString(R.string.host_url) + "/";
-
-        // If no saved instance state, create json object request
-        // which will be used to make request to get tokens and
-        // be inserted into the mHeaders
-        //
-        // Else use tokens from saved instance state
-        if(savedInstanceState == null){
-            JsonObjectRequest request = JsonRequest.getJSONRequestTokenObject(
-                    this,
-                    mHeaders,
-                    null,
-                    mURL
-            );
-            mQueue.add(request);
-        }
-        else{
-            mHeaders.put(
-                getString(R.string.csrf_token),
-                savedInstanceState.getString(getString(R.string.csrf_token))
-            );
-            mHeaders.put(
-                getString(R.string.cookie),
-                savedInstanceState.getString(getString(R.string.cookie))
-            );
-
-            mEmailErrorView.setText(savedInstanceState.getString(mEmailError));
-            mPasswordErrorView.setText(savedInstanceState.getString(mPasswordError));
-            mErrorView.setText(savedInstanceState.getString(mError));
-
-            Log.i(TAG, mHeaders.toString());
-        }
+//        mQueue = Volley.newRequestQueue(this);
+//        mURL = getString(R.string.host_url) + "/";
+//
+//        // If no saved instance state, create json object request
+//        // which will be used to make request to get tokens and
+//        // be inserted into the mHeaders
+//        //
+//        // Else use tokens from saved instance state
+//        if(savedInstanceState == null){
+//            JsonObjectRequest request = JsonRequest.getJSONRequestTokenObject(
+//                    this,
+//                    mHeaders,
+//                    null,
+//                    mURL
+//            );
+//            mQueue.add(request);
+//        }
+//        else{
+//            mHeaders.put(
+//                getString(R.string.csrf_token),
+//                savedInstanceState.getString(getString(R.string.csrf_token))
+//            );
+//            mHeaders.put(
+//                getString(R.string.cookie),
+//                savedInstanceState.getString(getString(R.string.cookie))
+//            );
+//
+//            mEmailErrorView.setText(savedInstanceState.getString(mEmailError));
+//            mPasswordErrorView.setText(savedInstanceState.getString(mPasswordError));
+//            mErrorView.setText(savedInstanceState.getString(mError));
+//
+//            Log.i(TAG, mHeaders.toString());
+//        }
 
         // Query and set default machine settings
         new RetrieveDatabaseTask(

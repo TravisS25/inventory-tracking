@@ -92,7 +92,7 @@ public class MachineListAdapter extends BaseAdapter {
         }
 
         // Update row view's textviews to display machine information
-        holder.mMachineNameTextView.setText(machine.getAssetTag().getText());
+        holder.mMachineNameTextView.setText(machine.getMachineName().getText());
 
         return convertView;
     }
