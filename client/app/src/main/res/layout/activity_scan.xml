@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="expert.codinglevel.hospital_inventory.ScanActivity">
+    tools:context="expert.codinglevel.inventory_tracking.expert.codinglevel.inventory_tracking.ScanActivity">
 
     <com.journeyapps.barcodescanner.DecoratedBarcodeView
         android:id="@+id/zxing_barcode_scanner"
@@ -30,7 +30,7 @@
     <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
     <!--android:layout_width="match_parent"-->
     <!--android:layout_height="match_parent"-->
-    <!--tools:context="expert.codinglevel.hospital_inventory.ScanActivity">-->
+    <!--tools:context="ScanActivity">-->
 
     <!--<com.journeyapps.barcodescanner.DecoratedBarcodeView-->
         <!--android:id="@+id/zxing_barcode_scanner"-->

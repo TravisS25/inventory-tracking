@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Hospital-Inventory</string>
-    <string name="host_url">http://192.168.1.3:8003</string>
+    <string name="host_url">http://192.168.1.102:8004</string>
     <string name="turn_on_flashlight">Turn On Flashlight</string>
     <string name="turn_off_flashlight">Turn Off Flashlight</string>
     <string name="scan_inventory">Scan Inventory</string>

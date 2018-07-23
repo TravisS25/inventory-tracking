@@ -50,7 +50,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.hospital_inventory.model"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.inventory_tracking.model"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?expert/codinglevel/hospital_inventory/model/DatabaseTask.html" target="_top">Frames</a></li>
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">expert.codinglevel.hospital_inventory.model</div>
+<div class="subTitle">expert.codinglevel.inventory_tracking.model</div>
 <h2 title="Class DatabaseTask" class="title">Class DatabaseTask</h2>
 </div>
 <div class="contentContainer">
@@ -100,10 +100,10 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.hospital_inventory.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</li>
+<li>android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.inventory_tracking.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</li>
 <li>
 <ul class="inheritance">
-<li>expert.codinglevel.hospital_inventory.task.DatabaseTask</li>
+<li>expert.codinglevel.inventory_tracking.task.DatabaseTask</li>
 </ul>
 </li>
 </ul>
@@ -115,7 +115,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">DatabaseTask</span>
-extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.hospital_inventory.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</pre>
+extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.inventory_tracking.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</pre>
 <div class="block">This class is used for making async calls to our underling database
  The two constructors are for either querying data or inserting data
  If you wish to query data, use constructor:
@@ -142,7 +142,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.hospital_inventory.model">DatabaseTask.AsyncResponse</a></span></code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.inventory_tracking.model">DatabaseTask.AsyncResponse</a></span></code>
 <div class="block">Callback interface used in the onPostExecute function
  This callback is simply used to get the result of the async task
  back to the caller</div>
@@ -188,14 +188,14 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.html#DatabaseTask-java.lang.String-java.lang.String:A-android.database.sqlite.SQLiteDatabase-expert.codinglevel.hospital_inventory.task.DatabaseTask.AsyncResponse-">DatabaseTask</a></span>(java.lang.String&nbsp;query,
             java.lang.String[]&nbsp;args,
             android.database.sqlite.SQLiteDatabase&nbsp;db,
-            <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.hospital_inventory.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</code>&nbsp;</td>
+            <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.inventory_tracking.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.html#DatabaseTask-java.lang.String-java.lang.String-android.content.ContentValues-android.database.sqlite.SQLiteDatabase-expert.codinglevel.hospital_inventory.task.DatabaseTask.AsyncResponse-">DatabaseTask</a></span>(java.lang.String&nbsp;tableName,
             java.lang.String&nbsp;nullColumnHack,
             android.content.ContentValues&nbsp;contentValues,
             android.database.sqlite.SQLiteDatabase&nbsp;db,
-            <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.hospital_inventory.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</code>&nbsp;</td>
+            <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.inventory_tracking.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -214,7 +214,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected android.database.Cursor</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.html#doInBackground-expert.codinglevel.hospital_inventory.model.DbOperation...-">doInBackground</a></span>(<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.hospital_inventory.model">DbOperation</a>...&nbsp;params)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.html#doInBackground-expert.codinglevel.hospital_inventory.model.DbOperation...-">doInBackground</a></span>(<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.inventory_tracking.model">DbOperation</a>...&nbsp;params)</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
@@ -249,7 +249,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DatabaseTask-java.lang.String-java.lang.String:A-android.database.sqlite.SQLiteDatabase-expert.codinglevel.hospital_inventory.task.DatabaseTask.AsyncResponse-">
+<a name="DatabaseTask-java.lang.String-java.lang.String:A-android.database.sqlite.SQLiteDatabase-expert.codinglevel.inventory_tracking.task.DatabaseTask.AsyncResponse-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -258,7 +258,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 <pre>public&nbsp;DatabaseTask(java.lang.String&nbsp;query,
                     java.lang.String[]&nbsp;args,
                     android.database.sqlite.SQLiteDatabase&nbsp;db,
-                    <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.hospital_inventory.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</pre>
+                    <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.inventory_tracking.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>query</code> - - "Query to call against the database"</dd>
@@ -268,7 +268,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 </dl>
 </li>
 </ul>
-<a name="DatabaseTask-java.lang.String-java.lang.String-android.content.ContentValues-android.database.sqlite.SQLiteDatabase-expert.codinglevel.hospital_inventory.task.DatabaseTask.AsyncResponse-">
+<a name="DatabaseTask-java.lang.String-java.lang.String-android.content.ContentValues-android.database.sqlite.SQLiteDatabase-expert.codinglevel.inventory_tracking.task.DatabaseTask.AsyncResponse-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -278,7 +278,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
                     java.lang.String&nbsp;nullColumnHack,
                     android.content.ContentValues&nbsp;contentValues,
                     android.database.sqlite.SQLiteDatabase&nbsp;db,
-                    <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.hospital_inventory.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</pre>
+                    <a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.inventory_tracking.model">DatabaseTask.AsyncResponse</a>&nbsp;delegate)</pre>
 </li>
 </ul>
 </li>
@@ -289,16 +289,16 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="doInBackground-expert.codinglevel.hospital_inventory.model.DbOperation...-">
+<a name="doInBackground-expert.codinglevel.inventory_tracking.model.DbOperation...-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>doInBackground</h4>
-<pre>protected&nbsp;android.database.Cursor&nbsp;doInBackground(<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.hospital_inventory.model">DbOperation</a>...&nbsp;params)</pre>
+<pre>protected&nbsp;android.database.Cursor&nbsp;doInBackground(<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.inventory_tracking.model">DbOperation</a>...&nbsp;params)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>doInBackground</code>&nbsp;in class&nbsp;<code>android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.hospital_inventory.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</code></dd>
+<dd><code>doInBackground</code>&nbsp;in class&nbsp;<code>android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.inventory_tracking.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -311,7 +311,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 <pre>protected&nbsp;void&nbsp;onPostExecute(android.database.Cursor&nbsp;result)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code>onPostExecute</code>&nbsp;in class&nbsp;<code>android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.hospital_inventory.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</code></dd>
+<dd><code>onPostExecute</code>&nbsp;in class&nbsp;<code>android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital_inventory/model/DbOperation.html" title="class in expert.codinglevel.inventory_tracking.model">DbOperation</a>,java.lang.Void,android.database.Cursor&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -343,7 +343,7 @@ extends android.os.AsyncTask&lt;<a href="../../../../expert/codinglevel/hospital
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.hospital_inventory.model"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../expert/codinglevel/hospital_inventory/model/DatabaseTask.AsyncResponse.html" title="interface in expert.codinglevel.inventory_tracking.model"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?expert/codinglevel/hospital_inventory/model/DatabaseTask.html" target="_top">Frames</a></li>
