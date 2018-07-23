@@ -29,8 +29,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import expert.codinglevel.inventory_tracking.json.CustomJsonObjectRequest;
+import expert.codinglevel.inventory_tracking.json.CustomStringRequest;
 import expert.codinglevel.inventory_tracking.json.JsonRequest;
 import expert.codinglevel.inventory_tracking.json.JsonResponses;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
@@ -49,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final String TAG = LoginActivity.class.getSimpleName();
 
     // mHeaders represents http headers that will be used for csrf tokens
-    private HashMap<String, String> mHeaders = new HashMap<>();
+    //private HashMap<String, String> mHeaders = new HashMap<>();
     private RequestQueue mQueue;
     private String mURL;
     private String mEmailError = "emailError";
@@ -61,14 +63,14 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString(
-            getString(R.string.csrf_token),
-            mHeaders.get(getString(R.string.csrf_token))
-        );
-        savedInstanceState.putString(
-            getString(R.string.cookie),
-            mHeaders.get(getString(R.string.cookie))
-        );
+//        savedInstanceState.putString(
+//            getString(R.string.csrf_token),
+//            mHeaders.get(getString(R.string.csrf_token))
+//        );
+//        savedInstanceState.putString(
+//            getString(R.string.cookie),
+//            mHeaders.get(getString(R.string.cookie))
+//        );
         savedInstanceState.putString(mEmailError, mEmailErrorView.getText().toString());
         savedInstanceState.putString(mPasswordError, mPasswordErrorView.getText().toString());
         savedInstanceState.putString(mError, mErrorView.getText().toString());
@@ -117,6 +119,7 @@ public class LoginActivity extends AppCompatActivity {
     // used throughout the app
     public void attemptLogin(View view){
         final Context context = this;
+        final HashMap<String, String> headers = new HashMap<>();
         EditText email = (EditText)findViewById(R.id.email);
         EditText password = (EditText)findViewById(R.id.password);
 
@@ -144,20 +147,27 @@ public class LoginActivity extends AppCompatActivity {
         // If validation passes, then make GET request to obtain token
         // and on success request make a POST request to login and get
         // session token to use for rest of app
-        CustomJsonObjectRequest jsonRequest = new CustomJsonObjectRequest(
+        CustomStringRequest jsonRequest = new CustomStringRequest(
                 Request.Method.GET,
                 mURL,
-                null,
-                new Response.Listener<JSONObject>() {
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(String response) {
+                        Log.i(TAG, "+++ Got to get response +++");
+
+                        for (Map.Entry<String, String> entry : headers.entrySet()) {
+                            String key = entry.getKey();
+                            String value = entry.getValue();
+
+                            Log.i(TAG, "key " + key);
+                            Log.i(TAG, "value " + value);
+                        }
+
                         // Extract "Set-Cookie" header value, add "Cookie" header with extracted value
                         // and then delete "Set-Cookie" header key
-                        String cookie = mHeaders.get(getString(R.string.set_cookie));
-                        mHeaders.put(getString(R.string.cookie), cookie);
-                        mHeaders.remove(getString(R.string.set_cookie));
-
-                        Log.i(TAG, "+++ Got to get response +++");
+                        String cookie = headers.get(getString(R.string.set_cookie));
+                        headers.put(getString(R.string.cookie), cookie);
+                        headers.remove(getString(R.string.set_cookie));
 
                         CustomJsonObjectRequest postRequest = new CustomJsonObjectRequest(
                                 Request.Method.POST,
@@ -173,7 +183,8 @@ public class LoginActivity extends AppCompatActivity {
                                         // to dashboard
                                         Preferences.setDefaults(
                                             context,
-                                            "user", mHeaders.get(getString(R.string.set_cookie))
+                                            getString(R.string.user_session),
+                                            headers.get(getString(R.string.set_cookie))
                                         );
 
                                         Intent intent = new Intent(context, DashboardActivity.class);
@@ -183,12 +194,36 @@ public class LoginActivity extends AppCompatActivity {
                                 new Response.ErrorListener() {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
-                                        Log.i(TAG, "+++ Got to error get response +++");
+                                        Log.i(TAG, "+++ Got to post error response +++");
+                                        if(error.networkResponse != null){
+                                            Log.i(TAG, error.networkResponse.toString());
+                                            if(error.networkResponse.statusCode == 406){
+                                                JSONObject jsonResponse;
+
+                                                try{
+                                                    Log.i(TAG, "+++" + new String(error.networkResponse.data) + "+++");
+                                                    jsonResponse = new JSONObject(new String(error.networkResponse.data));
+                                                } catch (JSONException e){
+                                                    e.printStackTrace();
+                                                    JsonResponses.volleyError(context, error);
+                                                    return;
+                                                }
+
+                                                String emailError = jsonResponse.optString("email", "");
+                                                String passwordError = jsonResponse.optString("password", "");
+                                                String errorMessage = jsonResponse.optString("errorMessage", "");
+
+                                                mEmailErrorView.setText(emailError);
+                                                mPasswordErrorView.setText(passwordError);
+                                                mErrorView.setText(errorMessage);
+
+                                                return;
+                                            }
+                                        }
                                         JsonResponses.volleyError(context, error);
                                     }
                                 },
-                                mHeaders,
-                                new String[]{getString(R.string.set_cookie)}
+                                headers
                         );
 
                         mQueue.add(postRequest);
@@ -197,27 +232,12 @@ public class LoginActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        if(error.networkResponse != null){
-                            if(error.networkResponse.statusCode == 406){
-                                try{
-                                    JSONObject jsonResponse = new JSONObject(new String(error.networkResponse.data));
-                                    String emailError = (String)jsonResponse.get("email");
-                                    String passwordError = (String)jsonResponse.get("password");
-                                    String errorMessage = (String)jsonResponse.get("errorMessage");
-
-                                    mEmailErrorView.setText(emailError);
-                                    mPasswordErrorView.setText(passwordError);
-                                    mErrorView.setText(errorMessage);
-                                } catch (JSONException e){
-                                    JsonResponses.volleyError(context, error);
-                                }
-                            }
-                        }
-
+                        Log.i(TAG, "+++ Got to get error response +++");
+                        Log.i(TAG, error.getMessage());
                         JsonResponses.volleyError(context, error);
                     }
                 },
-                mHeaders,
+                headers,
                 new String[]{getString(R.string.csrf_token), getString(R.string.set_cookie)}
         );
 

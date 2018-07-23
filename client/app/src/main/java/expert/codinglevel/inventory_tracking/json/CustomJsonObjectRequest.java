@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class CustomJsonObjectRequest extends JsonObjectRequest {
     private final static String TAG = CustomJsonObjectRequest.class.getSimpleName();
-    private HashMap<String, String> mHeaders;
+    private Map<String, String> mHeaders;
     private String[] mHeaderNames;
 
     public CustomJsonObjectRequest(
@@ -35,7 +35,7 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
         JSONObject jsonObject,
         Response.Listener<JSONObject> listener,
         Response.ErrorListener errorListener,
-        HashMap<String, String> headers
+        Map<String, String> headers
     )
     {
         super(method, url, jsonObject, listener, errorListener);
@@ -48,7 +48,7 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
             JSONObject jsonObject,
             Response.Listener<JSONObject> listener,
             Response.ErrorListener errorListener,
-            HashMap<String, String> headers,
+            Map<String, String> headers,
             String[] headerNames
     )
     {
@@ -68,36 +68,19 @@ public class CustomJsonObjectRequest extends JsonObjectRequest {
 
     @Override
     protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-        String jsonString;
-        JSONObject jsonResponse;
-
-        try {
-            if (response.data != null && !new String(response.data, "UTF-8").equals("")){
-                Log.i(TAG, "+++ response data +++ " + new String(response.data, "UTF-8"));
-                jsonString = new String(response.data,
-                        HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
-                Log.i(TAG, "String here" + jsonString);
-                jsonResponse = new JSONObject(jsonString);
-
-                if(mHeaderNames != null){
-                    for(String headerName: mHeaderNames){
-                        mHeaders.put(
-                                headerName,
-                                jsonResponse.getString(headerName)
-                        );
-                    }
-                }
-
-                return Response.success(jsonResponse, HttpHeaderParser.parseCacheHeaders(response));
+        Log.i(TAG, "+++ Made to parse network +++");
+        if(mHeaderNames != null){
+            for(String headerName: mHeaderNames){
+                mHeaders.put(
+                        headerName,
+                        response.headers.get(headerName)
+                );
             }
-
-            jsonResponse = new JSONObject("{}");
-            return Response.success(jsonResponse, HttpHeaderParser.parseCacheHeaders(response));
-
-        } catch (UnsupportedEncodingException | JSONException e) {
-            Log.i(TAG, "+++ error parsing response");
-            e.printStackTrace();
-            return Response.error(new ParseError(e));
+        } else{
+            for(Map.Entry<String, String> entry: response.headers.entrySet()){
+                mHeaders.put(entry.getKey(), entry.getValue());
+            }
         }
+        return super.parseNetworkResponse(response);
     }
 }

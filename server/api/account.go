@@ -189,7 +189,7 @@ func (a *AccountAPI) Login(w http.ResponseWriter, r *http.Request) {
 		a.cache.Set(urlStringKey, urlBytes, 0)
 		a.cache.Set(groupStringKey, groupBytes, 0)
 		w.Header().Set("id", strconv.Itoa(user.ID))
-		//w.Write([]byte(strconv.Itoa(user.ID)))
+		w.Write([]byte("{}"))
 	}
 }
 
