@@ -12,6 +12,7 @@
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="skip">Skip</string>
+    <string name="logs">Logs</string>
     <string name="date_format">yyyy-MM-dd HH:mm:ss</string>
     <string name="scan_time">Scanned</string>
     <string name="edit">Edit</string>

@@ -71,20 +71,19 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="25dp"
         android:onClick="loginLogout"
-        android:text="@string/logout"
+        android:text="@string/login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button" />
 
     <android.support.design.button.MaterialButton
-        android:id="@+id/logs"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="240dp"
-        android:layout_height="45dp"
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="25dp"
-        android:text="@string/logs"
+        android:text="Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logout" />

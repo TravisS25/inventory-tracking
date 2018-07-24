@@ -45,8 +45,12 @@ public class DashboardActivity extends UserActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
-        initLoginLogoutButton();
+        if(mUserGroups.contains("Admin")){
+
+        } else{
+            setContentView(R.layout.activity_dashboard);
+        }
+        //initLoginLogoutButton();
         boolean toastActivated = false;
         String toastMessage = getIntent().getStringExtra("toast");
 
@@ -58,6 +62,7 @@ public class DashboardActivity extends UserActivity {
             Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
         }
     }
+
 
     // Determines whether our button for login/logout displays "Login" or "Logout"
     // depending on if user session exists in our shared preference file

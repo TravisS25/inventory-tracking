@@ -65,7 +65,7 @@ func TestLogin(t *testing.T) {
 	testCase5 := testCase4
 	testCase5.TestName = "login5"
 	testCase5.Form = forms.LoginForm{}
-	testCase5.ExpectedBody = ""
+	testCase5.ExpectedBody = "u"
 
 	apiutil.RunTestCases(t, []apiutil.TestCase{
 		testCase1,

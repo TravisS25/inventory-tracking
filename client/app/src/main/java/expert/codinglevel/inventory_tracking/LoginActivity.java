@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final String TAG = LoginActivity.class.getSimpleName();
 
     // mHeaders represents http headers that will be used for csrf tokens
-    //private HashMap<String, String> mHeaders = new HashMap<>();
+    // private HashMap<String, String> mHeaders = new HashMap<>();
     private RequestQueue mQueue;
     private String mURL;
     private String mEmailError = "emailError";
@@ -94,6 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void processFinish(SQLiteDatabase result) {
                         initDefaultMachineSettings(result);
+
                     }
                 }
         ).execute();
@@ -129,6 +130,8 @@ public class LoginActivity extends AppCompatActivity {
             mErrorView.setText("Email and password are required");
             return;
         }
+
+        mErrorView.setText("");
 
         final JSONObject jsonObject = new JSONObject();
 

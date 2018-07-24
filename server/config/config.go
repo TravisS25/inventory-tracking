@@ -197,7 +197,7 @@ func initRouting() {
 		"/api/log",
 	}...)
 
-	//Routing["Anon"] = anonUrls
+	Routing["Anon"] = anonURLs
 	Routing["User"] = userURLs
 	Routing["Admin"] = adminURLs
 }

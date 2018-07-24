@@ -69,11 +69,7 @@ func main() {
 		DB:              config.DB,
 		LogInserter:     config.LogInserter,
 		UserSessionName: "user",
-		AnonRouting: []string{
-			config.RouterPaths["login"],
-			config.RouterPaths["resetPassword"],
-			config.RouterPaths["confirmPasswordReset"],
-		},
+		AnonRouting:     config.Routing["Anon"],
 	}
 	recoverHandler := negroni.NewRecovery()
 	recoverHandler.PanicHandlerFunc = apiutil.PanicHandlerFunc(
