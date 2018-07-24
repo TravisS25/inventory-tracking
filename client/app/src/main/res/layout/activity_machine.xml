@@ -10,7 +10,8 @@
         android:layout_height="0dip"
         android:layout_weight="1"></ListView>
 
-    <Button
+    <android.support.design.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/action_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

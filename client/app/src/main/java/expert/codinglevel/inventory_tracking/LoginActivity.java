@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -104,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initLoginButton(){
-        MaterialButton loginButton = (MaterialButton) findViewById(R.id.login_button);
+        Button loginButton = (Button) findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {

@@ -16,7 +16,8 @@
         android:layout_weight=".1"
         android:orientation="horizontal" >
 
-        <Button
+        <android.support.design.button.MaterialButton
+            style="@style/Widget.AppCompat.Button.Colored"
             android:id="@+id/btn1"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -24,7 +25,8 @@
             android:onClick="editMachine"
             android:text="@string/edit" />
 
-        <Button
+        <android.support.design.button.MaterialButton
+            style="@style/Widget.AppCompat.Button.Colored"
             android:id="@+id/btn2"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -41,7 +43,8 @@
         android:layout_weight=".1"
         android:orientation="horizontal" >
 
-        <Button
+        <android.support.design.button.MaterialButton
+            style="@style/Widget.AppCompat.Button.Colored"
             android:id="@+id/btn4"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -49,7 +52,8 @@
             android:onClick="continueScanning"
             android:text="@string/scanning" />
 
-        <Button
+        <android.support.design.button.MaterialButton
+            style="@style/Widget.AppCompat.Button.Colored"
             android:id="@+id/btn3"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"

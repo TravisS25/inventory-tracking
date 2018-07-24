@@ -63,8 +63,8 @@
         app:layout_constraintTop_toBottomOf="@+id/view_scanned_inventory" />
 
     <android.support.design.button.MaterialButton
-        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/login_logout"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="240dp"
         android:layout_height="45dp"
         android:layout_marginEnd="8dp"
@@ -72,6 +72,7 @@
         android:layout_marginTop="25dp"
         android:onClick="loginLogout"
         android:text="@string/login"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button" />

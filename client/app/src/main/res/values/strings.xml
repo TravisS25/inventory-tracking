@@ -5,8 +5,8 @@
     <string name="turn_off_flashlight">Turn Off Flashlight</string>
     <string name="scan_inventory">Scan Inventory</string>
     <string name="look_up_inventory">Look Up Inventory</string>
-    <string name="view_scanned_inventory">View Scanned Inventory</string>
-    <string name="upload_scanned_inventory">Upload Scanned Inventory</string>
+    <string name="view_scanned_inventory">View Inventory</string>
+    <string name="upload_scanned_inventory">Upload Inventory</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
@@ -18,7 +18,7 @@
     <string name="delete">Delete</string>
     <string name="upload">Upload</string>
     <string name="debug">true</string>
-    <string name="default_machine_settings">Default Machine Settings</string>
+    <string name="default_machine_settings">Machine Settings</string>
 
     <string name="machine_name_text">Machine Name</string>
     <string name="building_text">Building</string>
