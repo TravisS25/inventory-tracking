@@ -8,7 +8,7 @@
 
     <android.support.design.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Colored"
-        android:id="@+id/view_scanned_inventory"
+        android:id="@+id/view_inventory_button"
         android:layout_width="235dp"
         android:layout_height="45dp"
         android:layout_marginRight="40dp"
@@ -20,7 +20,7 @@
 
     <android.support.design.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Colored"
-        android:id="@+id/look_up_inventory"
+        android:id="@+id/look_up_inventory_button"
         android:layout_width="235dp"
         android:layout_height="45dp"
         android:layout_marginEnd="32dp"
@@ -30,13 +30,13 @@
         android:layout_marginTop="25dp"
         android:onClick="lookUpInventory"
         android:text="@string/look_up_inventory"
-        app:layout_constraintEnd_toStartOf="@+id/view_scanned_inventory"
+        app:layout_constraintEnd_toStartOf="@+id/view_inventory_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Colored"
-        android:id="@+id/scan_inventory"
+        android:id="@+id/scan_inventory_button"
         android:layout_width="235dp"
         android:layout_height="45dp"
         android:layout_marginEnd="40dp"
@@ -45,7 +45,7 @@
         android:onClick="defaultMachineSettings"
         android:text="@string/default_machine_settings"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_scanned_inventory" />
+        app:layout_constraintTop_toBottomOf="@+id/view_inventory_button" />
 
     <android.support.design.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Colored"
@@ -59,9 +59,9 @@
         android:layout_marginTop="25dp"
         android:onClick="scanInventory"
         android:text="@string/scan_inventory"
-        app:layout_constraintEnd_toStartOf="@+id/scan_inventory"
+        app:layout_constraintEnd_toStartOf="@+id/scan_inventory_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/look_up_inventory" />
+        app:layout_constraintTop_toBottomOf="@+id/look_up_inventory_button" />
 
     <Button
         android:id="@+id/login_logout"
@@ -87,6 +87,6 @@
         android:text="Button"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scan_inventory" />
+        app:layout_constraintTop_toBottomOf="@+id/scan_inventory_button" />
 
 </android.support.constraint.ConstraintLayout>

@@ -16,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
@@ -41,12 +42,15 @@ import expert.codinglevel.inventory_tracking.setting.UserActivity;
  *  including scanning, lookup, machine settings etc.
  */
 public class DashboardActivity extends AppCompatActivity {
-    private boolean mIsLoggedIn;
+    private Boolean mIsLoggedIn = null;
+    private boolean mIsAdmin = false;
     private String mUserSession;
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean("toastActivated", true);
+        savedInstanceState.putBoolean("isLoggedIn", mIsLoggedIn);
+        savedInstanceState.putBoolean("isAdmin", mIsAdmin);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -54,105 +58,142 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-        initLogButton();
-        //initLoginLogoutButton();
         boolean toastActivated = false;
-        String toastMessage = getIntent().getStringExtra("toast");
 
         if(savedInstanceState != null){
+            mIsLoggedIn = savedInstanceState.getBoolean("isLoggedIn");
+            mIsAdmin = savedInstanceState.getBoolean("isAdmin");
             toastActivated = savedInstanceState.getBoolean("toastActivated");
         }
+        initButtons();
+        String toastMessage = getIntent().getStringExtra("toast");
 
         if(toastMessage != null && !toastActivated){
             Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
         }
     }
 
-    private void initLogButton(){
-        String userSession = Preferences.getDefaults(this, getString(R.string.user_session));
+    private void initButtons(){
+        final MaterialButton logButton = (MaterialButton) findViewById(R.id.log_button);
+        final MaterialButton loginLogout = (MaterialButton) findViewById(R.id.login_logout_button);
 
-        if(userSession != null){
-            RequestQueue queue = Volley.newRequestQueue(this);
-            String url = getString(R.string.host_url) + "/api/user/details/";
-            JsonObjectRequest request = new JsonObjectRequest(
-                    url,
-                    null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try{
-                                JSONArray groups = response.getJSONArray("groups");
-                                for(int i = 0; i < groups.length(); i++){
-                                    if(groups.optString(i, "").equals("Admin")){
-                                        MaterialButton button = (MaterialButton) findViewById(R.id.log_button);
-                                        button.setVisibility(View.VISIBLE);
+        if(mIsLoggedIn == null){
+            String mUserSession = Preferences.getDefaults(this, getString(R.string.user_session));
+
+            if(mUserSession != null){
+                RequestQueue queue = Volley.newRequestQueue(this);
+                String url = getString(R.string.host_url) + "/api/user/details/";
+                JsonObjectRequest request = new JsonObjectRequest(
+                        url,
+                        null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                mIsLoggedIn = true;
+                                loginLogout.setText(getString(R.string.logout));
+
+                                try{
+                                    JSONArray groups = response.getJSONArray("groups");
+                                    for(int i = 0; i < groups.length(); i++){
+                                        if(groups.optString(i, "").equals("Admin")){
+                                            mIsAdmin = true;
+                                            logButton.setVisibility(View.VISIBLE);
+                                        }
                                     }
+                                } catch (JSONException e){
+                                    e.printStackTrace();
                                 }
-                            } catch (JSONException e){
-                                e.printStackTrace();
+                            }
+                        },
+                        new Response.ErrorListener(){
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                mIsLoggedIn = false;
+                                mIsAdmin = false;
+                                loginLogout.setText(getString(R.string.login));
                             }
                         }
-                    },
-                    new Response.ErrorListener(){
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
+                );
 
-                        }
-                    }
-            );
+                queue.add(request);
+            } else{
+                mIsLoggedIn = false;
+                mIsAdmin = false;
+                loginLogout.setText(getString(R.string.login));
+            }
+        } else{
+            if(mIsLoggedIn){
+                mIsLoggedIn = true;
+                loginLogout.setText(getString(R.string.logout));
 
-            queue.add(request);
+                if(mIsAdmin){
+                    logButton.setVisibility(View.VISIBLE);
+                }
+            } else{
+                mIsLoggedIn = true;
+                loginLogout.setText(getString(R.string.login));
+            }
         }
     }
 
+    private void initLogButton(){
+        String userSession = Preferences.getDefaults(this, getString(R.string.user_session));
+
+
+    }
 
     // Determines whether our button for login/logout displays "Login" or "Logout"
     // depending on if user session exists in our shared preference file
     private void initLoginLogoutButton(){
-        Button button = (Button) findViewById(R.id.login_logout);
+        if(mIsLoggedIn == null){
+            final MaterialButton button = (MaterialButton) findViewById(R.id.login_logout_button);
 
-        // Grab user session, if exists, from our shared preferences file
-        mUserSession = Preferences.getDefaults(this, getString(R.string.user_session));
+            // Grab user session, if exists, from our shared preferences file
+            mUserSession = Preferences.getDefaults(this, getString(R.string.user_session));
 
-        // If user session exists, we check the expire date substring to make sure the expire
-        // date of the cookie is past the current date
-        // If user session does not exist, then user is not logged in and display "Log In"
-        // for our button
-        if (mUserSession != null){
-            // The user session string is concatenated with a ";"
-            // The left side contains the user session info and the right side contains the
-            // expire date for the session
-            // We extract the date portion to determine if session is still good
-            String expireString = mUserSession.split(";")[1];
-            DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
-            Date expireDate;
-            Date currentDate = new Date();
+            // If user session exists, we check the expire date substring to make sure the expire
+            // date of the cookie is past the current date
+            // If user session does not exist, then user is not logged in and display "Log In"
+            // for our button
+            if (mUserSession != null){
+                RequestQueue queue = Volley.newRequestQueue(this);
+                String url = getString(R.string.host_url) + "/api/user/details/";
+                JsonObjectRequest request = new JsonObjectRequest(
+                        Request.Method.GET,
+                        url,
+                        null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    JSONObject user = response.getJSONObject("user");
 
-            try{
-                expireDate = dateFormat.parse(expireString);
-            }
-            catch(ParseException ex){
-                ex.printStackTrace();
-                return;
-            }
+                                    if (user != null) {
+                                        mIsLoggedIn = true;
+                                        button.setText(getString(R.string.logout));
+                                    } else {
+                                        mIsLoggedIn = false;
+                                        button.setText(getString(R.string.login));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                mIsLoggedIn = false;
+                            }
+                        }
+                );
 
-            // If expire date is after current date, then user is still logged in
-            // Else user is not logged in
-            if(expireDate.after(currentDate)){
-                button.setText(getString(R.string.logout));
-                mIsLoggedIn = true;
+                queue.add(request);
             }
             else{
                 button.setText(getString(R.string.login));
                 mIsLoggedIn = false;
             }
-
-            button.setText(getString(R.string.logout));
-            mIsLoggedIn = true;
-        }
-        else{
-            button.setText(getString(R.string.login));
-            mIsLoggedIn = false;
         }
     }
 

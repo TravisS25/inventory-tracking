@@ -83,34 +83,25 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initErrorTextViews();
-        initLoginButton();
-        mQueue = Volley.newRequestQueue(this);
-        mURL = getString(R.string.host_url) + "/api/account/login/";
-
-        // Query and set default machine settings
-        new RetrieveDatabaseTask(
-            this,
-            new IAsyncResponse<SQLiteDatabase>() {
-                    @Override
-                    public void processFinish(SQLiteDatabase result) {
-                        initDefaultMachineSettings(result);
-
-                    }
-                }
-        ).execute();
+        initButtons();
+        initDefaultMachineSettings();
     }
 
-    public void skipLogin(View view){
-        Intent intent = new Intent(this, DashboardActivity.class);
-        startActivity(intent);
-    }
-
-    private void initLoginButton(){
-        Button loginButton = (Button) findViewById(R.id.login_button);
+    private void initButtons(){
+        final Context context = this;
+        MaterialButton loginButton = (MaterialButton) findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 attemptLogin(view);
+            }
+        });
+        MaterialButton dashboardButton = (MaterialButton) findViewById(R.id.dashboard_button);
+        dashboardButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, DashboardActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -260,9 +251,25 @@ public class LoginActivity extends AppCompatActivity {
         mErrorView.setTextColor(Color.RED);
     }
 
+    private void initDefaultMachineSettings(){
+        mQueue = Volley.newRequestQueue(this);
+        mURL = getString(R.string.host_url) + "/api/account/login/";
+
+        // Query and set default machine settings
+        new RetrieveDatabaseTask(
+                this,
+                new IAsyncResponse<SQLiteDatabase>() {
+                    @Override
+                    public void processFinish(SQLiteDatabase result) {
+                        setDefaultMachineSettings(result);
+                    }
+                }
+        ).execute();
+    }
+
     // initDefaultMachineSettings tries to get machine settings from preferences app file
     // If settings do not exist (generally when user first uses app) then create defaults
-    private void initDefaultMachineSettings(SQLiteDatabase db){
+    private void setDefaultMachineSettings(SQLiteDatabase db){
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String json = sharedPref.getString(getString(R.string.machine_settings), null);
         final Activity activity = this;
