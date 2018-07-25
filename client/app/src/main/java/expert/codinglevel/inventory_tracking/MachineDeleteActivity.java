@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,7 +27,7 @@ import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
  *  MachineDeleteActivity is activity that allows user to delete
  *  machine scanned on their device
  */
-public class MachineDeleteActivity extends UserActivity {
+public class MachineDeleteActivity extends AppCompatActivity {
     public static final String TAG = MachineDeleteActivity.class.getSimpleName();
     private AlertDialog mDialog;
     private SQLiteDatabase mDB;

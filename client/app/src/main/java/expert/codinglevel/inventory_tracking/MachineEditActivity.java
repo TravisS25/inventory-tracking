@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -44,7 +45,7 @@ import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingBui
 import expert.codinglevel.inventory_tracking.view.TextValue;
 
 
-public class MachineEditActivity extends UserActivity {
+public class MachineEditActivity extends AppCompatActivity {
     public static final String TAG = MachineEditActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
     private static final int LOADER_ID = 1;

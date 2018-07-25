@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -53,7 +54,7 @@ import expert.codinglevel.inventory_tracking.task.ReadDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 
 
-public class ScanActivity extends UserActivity implements
+public class ScanActivity extends AppCompatActivity implements
         DecoratedBarcodeView.TorchListener {
     private static final String TAG = ScanActivity.class.getSimpleName();
     private static final int SCAN_DELAY = 1500; // 1.5 sec

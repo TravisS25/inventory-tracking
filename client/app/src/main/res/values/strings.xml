@@ -32,7 +32,9 @@
     <string name="machine_settings">machineSettings</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="user_session">user</string>
+    <string name="user_session">user_session</string>
+    <string name="user">user</string>
+    <string name="user_groups">user_groups</string>
 
     <string name="upload_message">Are you sure you want to upload machines?</string>
     <string name="delete_message">Are you sure you want to delete this machine?</string>

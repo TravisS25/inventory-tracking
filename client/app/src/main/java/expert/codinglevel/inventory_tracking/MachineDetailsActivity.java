@@ -1,6 +1,7 @@
 package expert.codinglevel.inventory_tracking;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ListView;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import expert.codinglevel.inventory_tracking.model.Machine;
 import expert.codinglevel.inventory_tracking.setting.UserActivity;
 
 
-public class MachineDetailsActivity extends UserActivity {
+public class MachineDetailsActivity extends AppCompatActivity {
     public static final String TAG = MachineDetailsActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
 

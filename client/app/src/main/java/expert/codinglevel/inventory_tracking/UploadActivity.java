@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -43,7 +44,7 @@ import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 import expert.codinglevel.inventory_tracking.view.TextValue;
 
 
-public class UploadActivity extends UserActivity {
+public class UploadActivity extends AppCompatActivity {
     public static final String TAG = UploadActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
     private static final int LOADER_ID = 1;

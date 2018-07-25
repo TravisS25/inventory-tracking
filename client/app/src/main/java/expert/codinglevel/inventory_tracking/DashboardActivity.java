@@ -3,6 +3,8 @@ package expert.codinglevel.inventory_tracking;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.button.MaterialButton;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -11,13 +13,19 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -32,7 +40,7 @@ import expert.codinglevel.inventory_tracking.setting.UserActivity;
  *  This activity allows user to redirect to many other activities
  *  including scanning, lookup, machine settings etc.
  */
-public class DashboardActivity extends UserActivity {
+public class DashboardActivity extends AppCompatActivity {
     private boolean mIsLoggedIn;
     private String mUserSession;
 
@@ -45,11 +53,8 @@ public class DashboardActivity extends UserActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(mUserGroups.contains("Admin")){
-
-        } else{
-            setContentView(R.layout.activity_dashboard);
-        }
+        setContentView(R.layout.activity_dashboard);
+        initLogButton();
         //initLoginLogoutButton();
         boolean toastActivated = false;
         String toastMessage = getIntent().getStringExtra("toast");
@@ -60,6 +65,43 @@ public class DashboardActivity extends UserActivity {
 
         if(toastMessage != null && !toastActivated){
             Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void initLogButton(){
+        String userSession = Preferences.getDefaults(this, getString(R.string.user_session));
+
+        if(userSession != null){
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String url = getString(R.string.host_url) + "/api/user/details/";
+            JsonObjectRequest request = new JsonObjectRequest(
+                    url,
+                    null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try{
+                                JSONArray groups = response.getJSONArray("groups");
+                                for(int i = 0; i < groups.length(); i++){
+                                    if(groups.optString(i, "").equals("Admin")){
+                                        MaterialButton button = (MaterialButton) findViewById(R.id.log_button);
+                                        button.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            } catch (JSONException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    },
+                    new Response.ErrorListener(){
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                        }
+                    }
+            );
+
+            queue.add(request);
         }
     }
 

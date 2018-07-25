@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,7 +46,7 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  *  MachineListActivity is list activity that displays all the machine bar codes
  *  that have been scanned along with ability to upload all of them to server
  */
-public class MachineListActivity extends UserActivity {
+public class MachineListActivity extends AppCompatActivity {
     public static final String TAG = MachineListActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
     private static final int LOADER_ID = 1;

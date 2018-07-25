@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,7 +35,7 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  *  DefaultMachineSettingsActivity is activity that allows user to set
  *  defaults for when they scan bar codes such as default room, machine status etc.
  */
-public class DefaultMachineSettingsActivity extends UserActivity {
+public class DefaultMachineSettingsActivity extends AppCompatActivity {
     public static final String TAG = DefaultMachineSettingsActivity.class.getSimpleName();
     private SQLiteDatabase mDB;
     private Bundle mBundle;
