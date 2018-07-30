@@ -2,6 +2,8 @@ package expert.codinglevel.inventory_tracking.json;
 
 
 import android.content.Context;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -12,18 +14,78 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import expert.codinglevel.inventory_tracking.R;
+import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.interfaces.IJsonRequestCallback;
+import expert.codinglevel.inventory_tracking.setting.Preferences;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.RequestFuture;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonObject;
 
 /**
  *  JsonRequest is util class for making http request and extracting
  *  the headers from response, mainly for tokens to use on future requests
  */
 public class JsonRequest {
+    private final static String TAG = JsonRequest.class.getSimpleName();
     private JsonRequest(){}
+
+    /**
+     * @param context
+     * @return - The return will indicate current
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
+    public static JSONObject getUserDetailsResponse(
+        final Context context,
+        @Nullable String userSession
+    ) throws InterruptedException, ExecutionException {
+        String url = context.getString(R.string.host_url) + "/api/account/user/details/";
+        RequestQueue queue = Volley.newRequestQueue(context);
+        RequestFuture<JSONObject> future = RequestFuture.newFuture();
+
+        if(userSession == null){
+            userSession = Preferences.getDefaults(context, context.getString(R.string.user_session));
+        }
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put(context.getString(R.string.cookie), userSession);
+        final String mURL = "https://google.com";
+
+        CustomJsonObjectRequest request = new CustomJsonObjectRequest(
+            Request.Method.GET,
+            url,
+            null,
+            future,
+            future,
+            headers
+        );
+//        JsonObjectRequest request = new JsonObjectRequest(
+//                Request.Method.GET,
+//                mURL,
+//                new JSONObject(),
+//                future,
+//                future
+//        );
+        queue.add(request);
+
+        try{
+            JSONObject foo = future.get(3, TimeUnit.SECONDS); // this will block
+            Log.i(TAG, "+++ after future request +++");
+            return foo;
+        } catch (TimeoutException e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     /**
      * Wrapper function for requesting json data and adding returned headers to {@param headers}

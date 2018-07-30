@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Inventory Tracking</string>
-    <string name="host_url">http://172.18.206.101:8004</string>
+    <string name="host_url">http://192.168.0.101:8004</string>
     <string name="turn_on_flashlight">Turn On Flashlight</string>
     <string name="turn_off_flashlight">Turn Off Flashlight</string>
     <string name="scan_inventory">Scan Inventory</string>
@@ -34,7 +34,7 @@
     <string name="no">No</string>
     <string name="user_session">user_session</string>
     <string name="user">user</string>
-    <string name="user_groups">user_groups</string>
+    <string name="user_groups">groups</string>
 
     <string name="upload_message">Are you sure you want to upload machines?</string>
     <string name="delete_message">Are you sure you want to delete this machine?</string>
@@ -45,4 +45,12 @@
     <string name="csrf_token">X-CSRF-Token</string>
     <string name="cookie">Cookie</string>
     <string name="set_cookie">Set-Cookie</string>
+
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="search_user">Search User...</string>
+    <string name="clear">Clear</string>
+    <string name="filter">Filter</string>
+    <string name="operation">Operation</string>
+    <string name="sort_date">Sort Date</string>
 </resources>

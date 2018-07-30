@@ -35,13 +35,29 @@ func TestLoggingAPIs(t *testing.T) {
 	baseURL := ts.URL
 	logIndexURL := baseURL + config.RouterPaths["logIndex"] + "?take=20&skip=0"
 	logDetailsURL := baseURL + config.RouterPaths["logDetails"]
-	logRowDetails := baseURL + config.RouterPaths["logRowDetails"]
+	logRowDetailsURL := baseURL + config.RouterPaths["logRowDetails"]
+	logCountIndexURL := baseURL + config.RouterPaths["logCountIndex"]
 
 	// -----------------------------------------------------------------
 	//
 	// Log Index API
 
 	req, _ = http.NewRequest("GET", logIndexURL, nil)
+	req.Header.Set(CookieHeader, workerUserCookie)
+
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusForbidden, err)
+
+	req.Header.Set(CookieHeader, adminUserCookie)
+
+	res, err = client.Do(req)
+	apiutil.ResponseError(t, res, http.StatusOK, err)
+
+	// -----------------------------------------------------------------
+	//
+	// Log Count Index API
+
+	req, _ = http.NewRequest("GET", logCountIndexURL, nil)
 	req.Header.Set(CookieHeader, workerUserCookie)
 
 	res, err = client.Do(req)
@@ -94,7 +110,7 @@ func TestLoggingAPIs(t *testing.T) {
 		t.Fatal("Could not query log")
 	}
 
-	rowURL := strings.Replace(logRowDetails, "{id}", log.ID.String(), 1)
+	rowURL := strings.Replace(logRowDetailsURL, "{id}", log.ID.String(), 1)
 	req, _ = http.NewRequest("GET", rowURL, nil)
 	req.Header.Set(CookieHeader, adminUserCookie)
 

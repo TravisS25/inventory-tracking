@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CustomJsonArrayRequest extends JsonArrayRequest {
-    private HashMap<String, String> mHeaders;
+    private Map<String, String> mHeaders;
     //private String[] mHeaderNames;
 
     public CustomJsonArrayRequest(
@@ -26,7 +26,7 @@ public class CustomJsonArrayRequest extends JsonArrayRequest {
             JSONArray jsonArray,
             Response.Listener<JSONArray> listener,
             Response.ErrorListener errorListener,
-            HashMap<String, String> headers
+            Map<String, String> headers
     )
     {
         super(method, url, jsonArray, listener, errorListener);

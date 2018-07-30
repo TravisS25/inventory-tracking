@@ -64,14 +64,6 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-//        savedInstanceState.putString(
-//            getString(R.string.csrf_token),
-//            mHeaders.get(getString(R.string.csrf_token))
-//        );
-//        savedInstanceState.putString(
-//            getString(R.string.cookie),
-//            mHeaders.get(getString(R.string.cookie))
-//        );
         savedInstanceState.putString(mEmailError, mEmailErrorView.getText().toString());
         savedInstanceState.putString(mPasswordError, mPasswordErrorView.getText().toString());
         savedInstanceState.putString(mError, mErrorView.getText().toString());
@@ -88,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initButtons(){
-        final Context context = this;
+        final Context context = getApplicationContext();
         MaterialButton loginButton = (MaterialButton) findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -173,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
                                     public void onResponse(JSONObject response) {
                                         // Upon successful response (meaning email and password were correct),
                                         // the response will send back user cookie which is written
-                                        // to our "mHeaders" variable in which we store in the
+                                        // to our "headers" variable in which we store in the
                                         // app's preferences file for later use and then redirect
                                         // to dashboard
                                         Preferences.setDefaults(
@@ -181,6 +173,8 @@ public class LoginActivity extends AppCompatActivity {
                                             getString(R.string.user_session),
                                             headers.get(getString(R.string.set_cookie))
                                         );
+
+                                        Log.i(TAG, "+++ User login header " + headers.get(getString(R.string.set_cookie)));
 
                                         Intent intent = new Intent(context, DashboardActivity.class);
                                         startActivity(intent);
@@ -228,7 +222,6 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.i(TAG, "+++ Got to get error response +++");
-                        Log.i(TAG, error.getMessage());
                         JsonResponses.volleyError(context, error);
                     }
                 },

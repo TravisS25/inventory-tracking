@@ -56,8 +56,7 @@ CREATE TABLE IF NOT EXISTS user_profile(
     title_id int not null,
     email VARCHAR(200) not null UNIQUE,
     password VARCHAR(1024) not null,
-    first_name VARCHAR(50) not null,
-    last_name VARCHAR(50) not null,
+    full_name VARCHAR(200) not null,
     is_active boolean not null,
     date_joined TIMESTAMP not null DEFAULT now(),
     FOREIGN KEY(title_id) REFERENCES title(id)

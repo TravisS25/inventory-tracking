@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  *  CustomJsonObjectRequest inherits from JsonObjectRequest and sole
- *  purpose is to be able to add headers to a json request// Request
+ *  purpose is to be able to add headers to a json request
  *  This class takes an extra parameter to the default constructor
  *  and overrides the getHeaders() function to return the passed headers
  */

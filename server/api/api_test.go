@@ -119,6 +119,7 @@ func initIntegrationTestAPIs() {
 
 	// Logging API
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["logIndex"], loggingAPI.Index).Methods("GET")
+	IntegrationTestRouter.HandleFunc(config.RouterPaths["logCountIndex"], loggingAPI.CountIndex).Methods("GET")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["logDetails"], loggingAPI.LogDetails).Methods("GET")
 	IntegrationTestRouter.HandleFunc(config.RouterPaths["logRowDetails"], loggingAPI.RowDetails).Methods("GET")
 }

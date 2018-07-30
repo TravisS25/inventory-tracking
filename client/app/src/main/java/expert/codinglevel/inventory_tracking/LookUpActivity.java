@@ -1,7 +1,9 @@
 package expert.codinglevel.inventory_tracking;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -25,7 +27,7 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  *  user will have the ability to edit machine or swap machine that
  *  will directly updated to server
  */
-public class LookUpActivity extends UserActivity {
+public class LookUpActivity extends AppCompatActivity {
     public static final String TAG = LookUpActivity.class.getSimpleName();
     private Machine mMachine;
 
@@ -36,6 +38,10 @@ public class LookUpActivity extends UserActivity {
         mMachine = new Machine();
         initListAdapter();
     }
+
+//    private void setupView(){
+//        new User
+//    }
 
     // initListAdapter inits list adapter with machine info that
     // was sent to this intent

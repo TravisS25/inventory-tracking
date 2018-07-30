@@ -21,8 +21,7 @@ var (
 		TitleID:    2,
 		Email:      "testuser@email.com",
 		Password:   TestPasswordHash,
-		FirstName:  "First",
-		LastName:   "Last",
+		FullName:   "First Last",
 		IsActive:   true,
 		DateJoined: time.Now().UTC().Format(confutil.DateTimeLayout),
 	}

@@ -24,6 +24,44 @@ func NewLoggingAPI(db httputil.DBInterface) *LoggingAPI {
 	}
 }
 
+func (l *LoggingAPI) CountIndex(w http.ResponseWriter, r *http.Request) {
+	selectStmt := queryutil.Select
+	countSelect := queryutil.CountSelect("logging_history.id")
+	fromClause :=
+		`
+	from
+		logging_history
+	`
+	fieldNames := []string{
+		"entered_by.full_name",
+		"entered_by_id",
+		"date_entered",
+		"operation",
+	}
+
+	countQuery := selectStmt + countSelect + fromClause
+	_, count, err := queryutil.GetFilteredResults(
+		r,
+		nil,
+		&countQuery,
+		0,
+		sqlx.DOLLAR,
+		nil,
+		fieldNames,
+		l.db,
+	)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotAcceptable)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	apiutil.SendPayload(w, r, map[string]interface{}{
+		"total": count,
+	})
+}
+
 func (l *LoggingAPI) Index(w http.ResponseWriter, r *http.Request) {
 	var data interface{}
 	takeLimit := uint64(100)
@@ -40,6 +78,7 @@ func (l *LoggingAPI) Index(w http.ResponseWriter, r *http.Request) {
 		logging_history
 	`
 	fieldNames := []string{
+		"entered_by.full_name",
 		"entered_by_id",
 		"date_entered",
 		"operation",

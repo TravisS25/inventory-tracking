@@ -221,6 +221,7 @@ func initRouterPaths() {
 
 	// Logging Urls
 	RouterPaths["logIndex"] = "/api/log/index/"
+	RouterPaths["logCountIndex"] = "/api/log/count-index/"
 	RouterPaths["logDetails"] = "/api/log/details/{userID:[0-9]+}/{apiURL}/"
 	RouterPaths["logRowDetails"] = "/api/log/row-details/{id}/"
 }
