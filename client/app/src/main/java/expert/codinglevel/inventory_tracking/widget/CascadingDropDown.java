@@ -8,6 +8,7 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import expert.codinglevel.inventory_tracking.R;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;

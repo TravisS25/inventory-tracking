@@ -42,7 +42,7 @@ public class Machine implements Parcelable, IMachine {
         setRoom(machine.getRoom());
         setMachineStatus(machine.getMachineStatus());
 
-        machineName = machine.mMachineName.getValue();
+        machineName = machine.getMachineName().getValue();
         scannedTime = machine.scannedTime;
         buildingID = machine.getBuilding().getValue();
         floorID = machine.getFloor().getValue();
@@ -67,6 +67,24 @@ public class Machine implements Parcelable, IMachine {
         departmentID = in.readString();
         roomID = in.readString();
         machineStatusID = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(getMachineName(), 0);
+        dest.writeParcelable(getBuilding(), 0);
+        dest.writeParcelable(getFloor(), 0);
+        dest.writeParcelable(getDepartment(), 0);
+        dest.writeParcelable(getRoom(), 0);
+        dest.writeParcelable(getMachineStatus(), 0);
+
+        dest.writeString(machineName);
+        dest.writeString(getScannedTime());
+        dest.writeString(buildingID);
+        dest.writeString(floorID);
+        dest.writeString(departmentID);
+        dest.writeString(roomID);
+        dest.writeString(machineStatusID);
     }
 
     public TextValue getMachineName(){ return mMachineName; }
@@ -108,24 +126,6 @@ public class Machine implements Parcelable, IMachine {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(getMachineName(), 0);
-        dest.writeParcelable(getBuilding(), 0);
-        dest.writeParcelable(getFloor(), 0);
-        dest.writeParcelable(getDepartment(), 0);
-        dest.writeParcelable(getRoom(), 0);
-        dest.writeParcelable(getMachineStatus(), 0);
-
-        dest.writeString(machineName);
-        dest.writeString(getScannedTime());
-        dest.writeString(buildingID);
-        dest.writeString(floorID);
-        dest.writeString(departmentID);
-        dest.writeString(roomID);
-        dest.writeString(machineStatusID);
     }
 
     public static final Parcelable.Creator<Machine> CREATOR

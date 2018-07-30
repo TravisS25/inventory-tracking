@@ -12,6 +12,7 @@ public class MachineExclusionStrategy implements ExclusionStrategy {
 
     public boolean shouldSkipField(FieldAttributes f) {
         ArrayList<String> machineFields = new ArrayList<>();
+        machineFields.add("id");
         machineFields.add("machineName");
         machineFields.add("scannedTime");
         machineFields.add("buildingID");

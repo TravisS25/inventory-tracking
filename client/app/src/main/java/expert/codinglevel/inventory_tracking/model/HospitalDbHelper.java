@@ -258,6 +258,10 @@ public class HospitalDbHelper extends SQLiteOpenHelper {
         return "select * from room where room.department_id = ?";
     }
 
+    public static String getAllMachineStatuses(){
+        return "select * from machine_status";
+    }
+
     public static String getBuildingJoinQuery(){
         return
             "select " +
