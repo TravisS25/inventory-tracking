@@ -15,7 +15,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import expert.codinglevel.inventory_tracking.adapter.MachineDetailsAdapter;
+//import expert.codinglevel.inventory_tracking.adapter.MachineDetailsAdapter;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.Machine;
@@ -76,8 +76,6 @@ public class MachineDeleteActivity extends AppCompatActivity {
     private void initDeleteButton(){
         Button button = (Button) findViewById(R.id.action_button);
         button.setText(getText(R.string.delete));
-        button.setBackgroundColor(Color.RED);
-        button.setTextColor(Color.WHITE);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,47 +85,47 @@ public class MachineDeleteActivity extends AppCompatActivity {
     }
 
     // initListAdapter inits list adapter to display machine properties
-    private void initListAdapter(){
-        ArrayList<Machine.MachineProperty> properties = new ArrayList<>();
-        Machine.MachineProperty machineName = new Machine.MachineProperty(
-                getString(R.string.machine_name_text),
-                mMachine.getMachineName().getText()
-        );
-        Machine.MachineProperty scannedTime = new Machine.MachineProperty(
-                getString(R.string.scan_time),
-                mMachine.getScannedTime()
-        );
-        Machine.MachineProperty buildingName = new Machine.MachineProperty(
-                getString(R.string.building_text),
-                mMachine.getBuilding().getText()
-        );
-        Machine.MachineProperty departmentName = new Machine.MachineProperty(
-                getString(R.string.department_text),
-                mMachine.getDepartment().getText()
-        );
-        Machine.MachineProperty floorName = new Machine.MachineProperty(
-                getString(R.string.floor_text),
-                mMachine.getFloor().getText()
-        );
-        Machine.MachineProperty machineStatusName = new Machine.MachineProperty(
-                getString(R.string.machine_status_text),
-                mMachine.getMachineStatus().getText()
-        );
-
-        properties.add(machineName);
-        properties.add(scannedTime);
-        properties.add(buildingName);
-        properties.add(departmentName);
-        properties.add(floorName);
-        properties.add(machineStatusName);
-
-        ListView listView = (ListView) findViewById(R.id.list_view);
-        MachineDetailsAdapter adapter = new MachineDetailsAdapter(
-                this,
-                properties
-        );
-        listView.setAdapter(adapter);
-    }
+//    private void initListAdapter(){
+//        ArrayList<Machine.MachineProperty> properties = new ArrayList<>();
+//        Machine.MachineProperty machineName = new Machine.MachineProperty(
+//                getString(R.string.machine_name_text),
+//                mMachine.getMachineName().getText()
+//        );
+//        Machine.MachineProperty scannedTime = new Machine.MachineProperty(
+//                getString(R.string.scan_time),
+//                mMachine.getScannedTime()
+//        );
+//        Machine.MachineProperty buildingName = new Machine.MachineProperty(
+//                getString(R.string.building_text),
+//                mMachine.getBuilding().getText()
+//        );
+//        Machine.MachineProperty departmentName = new Machine.MachineProperty(
+//                getString(R.string.department_text),
+//                mMachine.getDepartment().getText()
+//        );
+//        Machine.MachineProperty floorName = new Machine.MachineProperty(
+//                getString(R.string.floor_text),
+//                mMachine.getFloor().getText()
+//        );
+//        Machine.MachineProperty machineStatusName = new Machine.MachineProperty(
+//                getString(R.string.machine_status_text),
+//                mMachine.getMachineStatus().getText()
+//        );
+//
+//        properties.add(machineName);
+//        properties.add(scannedTime);
+//        properties.add(buildingName);
+//        properties.add(departmentName);
+//        properties.add(floorName);
+//        properties.add(machineStatusName);
+//
+//        ListView listView = (ListView) findViewById(R.id.list_view);
+//        MachineDetailsAdapter adapter = new MachineDetailsAdapter(
+//                this,
+//                properties
+//        );
+//        listView.setAdapter(adapter);
+//    }
 
     // initAlertDialog inits dialog for when a user clicks the
     // delete button.  It verifies whether they want to delete

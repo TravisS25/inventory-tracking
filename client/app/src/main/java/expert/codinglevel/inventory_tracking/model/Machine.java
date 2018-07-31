@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import expert.codinglevel.inventory_tracking.enums.MachineAttribute;
 import expert.codinglevel.inventory_tracking.enums.ViewType;
 import expert.codinglevel.inventory_tracking.interfaces.IMachine;
+import expert.codinglevel.inventory_tracking.setting.MachineSettings;
 import expert.codinglevel.inventory_tracking.view.TextValue;
 
 /**
@@ -18,7 +19,7 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  *  Machine implements Parcelable to be able to save state inbetween
  *  rotations
  */
-public class Machine implements Parcelable, IMachine {
+public class Machine extends MachineSettings implements Parcelable, IMachine {
     private String machineName;
     private String scannedTime;
     private String buildingID;
@@ -28,11 +29,11 @@ public class Machine implements Parcelable, IMachine {
     private String machineStatusID;
 
     private TextValue mMachineName;
-    private TextValue mBuilding;
-    private TextValue mDepartment;
-    private TextValue mFloor;
-    private TextValue mRoom;
-    private TextValue mMachineStatus;
+//    private TextValue mBuilding;
+//    private TextValue mDepartment;
+//    private TextValue mFloor;
+//    private TextValue mRoom;
+//    private TextValue mMachineStatus;
 
     public Machine(Machine machine){
         setMachineName(machine.getMachineName());
@@ -88,11 +89,11 @@ public class Machine implements Parcelable, IMachine {
     }
 
     public TextValue getMachineName(){ return mMachineName; }
-    public TextValue getBuilding() { return mBuilding; }
-    public TextValue getFloor() { return mFloor; }
-    public TextValue getDepartment() { return mDepartment; }
-    public TextValue getRoom() { return mRoom; }
-    public TextValue getMachineStatus() { return mMachineStatus; }
+//    public TextValue getBuilding() { return mBuilding; }
+//    public TextValue getFloor() { return mFloor; }
+//    public TextValue getDepartment() { return mDepartment; }
+//    public TextValue getRoom() { return mRoom; }
+//    public TextValue getMachineStatus() { return mMachineStatus; }
     public String getScannedTime(){ return scannedTime; }
 
 //    //public String getAssetTag(){ return mAssetTag; }
@@ -104,11 +105,11 @@ public class Machine implements Parcelable, IMachine {
 //    public String getScannedTime(){ return scannedTime; }
 
     public void setMachineName(TextValue machine){ mMachineName = machine; }
-    public void setBuilding(TextValue building){ mBuilding = building; }
-    public void setFloor(TextValue floor){ mFloor = floor; }
-    public void setDepartment(TextValue department){ mDepartment = department; }
-    public void setRoom(TextValue room){ mRoom = room; }
-    public void setMachineStatus(TextValue machineStatus){ mMachineStatus = machineStatus; }
+//    public void setBuilding(TextValue building){ mBuilding = building; }
+//    public void setFloor(TextValue floor){ mFloor = floor; }
+//    public void setDepartment(TextValue department){ mDepartment = department; }
+//    public void setRoom(TextValue room){ mRoom = room; }
+//    public void setMachineStatus(TextValue machineStatus){ mMachineStatus = machineStatus; }
     public void setScannedTime(String scannedTime){ scannedTime = scannedTime; }
 
 //    //public void setAssetTag(TextValue machine){ mAssetTag = machine; }
@@ -140,58 +141,58 @@ public class Machine implements Parcelable, IMachine {
     };
 
     // MachineProperty is a representation of a form view of the different machine properties
-    public static class MachineProperty{
-        private String mPropertyText;
-        private String mPropertyValue;
-        private CheckBox mCheckBox;
-        private ArrayList<TextValue> mSpinnerArrayList;
-        private ViewType mViewType;
-        private MachineAttribute mMachineAttribute;
-
-        public MachineProperty(String propertyText, String propertyValue){
-            if(propertyText == null){
-                throw new IllegalArgumentException("propertyText can't be null");
-            }
-            if(propertyValue == null){
-                throw new IllegalArgumentException("propertyValue can't be null");
-            }
-            mPropertyText = propertyText;
-            mPropertyValue = propertyValue;
-        }
-
-        public MachineProperty(
-                String propertyText,
-                ArrayList<TextValue> spinnerList,
-                MachineAttribute machineAttribute
-        ){
-            if(propertyText == null){
-                throw new IllegalArgumentException("propertyText can't be null");
-            }
-            mPropertyText = propertyText;
-            mSpinnerArrayList = spinnerList;
-            mViewType = ViewType.SPINNER;
-            mMachineAttribute = machineAttribute;
-        }
-
-        public MachineProperty(
-                String propertyText,
-                CheckBox checkBox,
-                MachineAttribute machineAttribute
-        ){
-            if(propertyText == null){
-                throw new IllegalArgumentException("propertyText can't be null");
-            }
-            mPropertyText = propertyText;
-            mCheckBox = checkBox;
-            mViewType = ViewType.CHECKBOX;
-            mMachineAttribute = machineAttribute;
-        }
-
-        public String getPropertyText(){ return mPropertyText; }
-        public String getPropertyValue(){ return mPropertyValue; }
-        public ViewType getViewType(){ return mViewType; }
-        public MachineAttribute getMachineAttribute() { return mMachineAttribute; }
-        public ArrayList<TextValue> getSpinnerArrayList(){ return mSpinnerArrayList; }
-        public CheckBox getCheckbox() {return mCheckBox; }
-    }
+//    public static class MachineProperty{
+//        private String mPropertyText;
+//        private String mPropertyValue;
+//        private CheckBox mCheckBox;
+//        private ArrayList<TextValue> mSpinnerArrayList;
+//        private ViewType mViewType;
+//        private MachineAttribute mMachineAttribute;
+//
+//        public MachineProperty(String propertyText, String propertyValue){
+//            if(propertyText == null){
+//                throw new IllegalArgumentException("propertyText can't be null");
+//            }
+//            if(propertyValue == null){
+//                throw new IllegalArgumentException("propertyValue can't be null");
+//            }
+//            mPropertyText = propertyText;
+//            mPropertyValue = propertyValue;
+//        }
+//
+//        public MachineProperty(
+//                String propertyText,
+//                ArrayList<TextValue> spinnerList,
+//                MachineAttribute machineAttribute
+//        ){
+//            if(propertyText == null){
+//                throw new IllegalArgumentException("propertyText can't be null");
+//            }
+//            mPropertyText = propertyText;
+//            mSpinnerArrayList = spinnerList;
+//            mViewType = ViewType.SPINNER;
+//            mMachineAttribute = machineAttribute;
+//        }
+//
+//        public MachineProperty(
+//                String propertyText,
+//                CheckBox checkBox,
+//                MachineAttribute machineAttribute
+//        ){
+//            if(propertyText == null){
+//                throw new IllegalArgumentException("propertyText can't be null");
+//            }
+//            mPropertyText = propertyText;
+//            mCheckBox = checkBox;
+//            mViewType = ViewType.CHECKBOX;
+//            mMachineAttribute = machineAttribute;
+//        }
+//
+//        public String getPropertyText(){ return mPropertyText; }
+//        public String getPropertyValue(){ return mPropertyValue; }
+//        public ViewType getViewType(){ return mViewType; }
+//        public MachineAttribute getMachineAttribute() { return mMachineAttribute; }
+//        public ArrayList<TextValue> getSpinnerArrayList(){ return mSpinnerArrayList; }
+//        public CheckBox getCheckbox() {return mCheckBox; }
+//    }
 }

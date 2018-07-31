@@ -11,19 +11,15 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  *  MachineSettings is used to transfer machine settings between
  *  intents without having to re-query/preference lookup every time
  *  we need to access the information
- *
- *  Because we should only have one machine settings for app
- *  this class follows the singleton pattern
  */
 public class MachineSettings implements Parcelable, IMachine {
-    private static MachineSettings instance = null;
-    private TextValue mBuilding;
-    private TextValue mFloor;
-    private TextValue mDepartment;
-    private TextValue mRoom;
-    private TextValue mMachineStatus;
+    protected TextValue mBuilding;
+    protected TextValue mFloor;
+    protected TextValue mDepartment;
+    protected TextValue mRoom;
+    protected TextValue mMachineStatus;
 
-    private MachineSettings(){}
+    public MachineSettings(){}
     private MachineSettings(Parcel in) {
         mBuilding = in.readParcelable(TextValue.class.getClassLoader());
         mFloor = in.readParcelable(TextValue.class.getClassLoader());
@@ -39,14 +35,6 @@ public class MachineSettings implements Parcelable, IMachine {
         dest.writeParcelable(getDepartment(), 0);
         dest.writeParcelable(getRoom(), 0);
         dest.writeParcelable(getMachineStatus(), 0);
-    }
-
-    public static MachineSettings getInstance(){
-        if(instance == null){
-            instance = new MachineSettings();
-        }
-
-        return instance;
     }
 
     public TextValue getBuilding() { return mBuilding; }

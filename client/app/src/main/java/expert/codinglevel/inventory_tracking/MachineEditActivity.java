@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
+//import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
 import expert.codinglevel.inventory_tracking.json.CustomJsonObjectRequest;
 import expert.codinglevel.inventory_tracking.model.HospitalDbHelper;
 import expert.codinglevel.inventory_tracking.model.MachineJson;
@@ -61,9 +61,7 @@ public class MachineEditActivity extends AppCompatActivity {
     private boolean mServerEdit;
     private Machine mMachine;
     private boolean mDBHasStopped = false;
-    private Map<String, Spinner> mSpinnerMap = new HashMap<>();
-    private Spinner mBuildingSpinner, mFloorSpinner, mDepartmentSpinner, mRoomSpinner,
-            mMachineStatusSpinner;
+    private Map<String, Spinner> mSpinnerMap;
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -94,10 +92,8 @@ public class MachineEditActivity extends AppCompatActivity {
         }
 
         initMachineTitle();
-        initSpinnerMap();
-        initDB();
-        initDropdowns();
-        applyDropdownValues();
+        mSpinnerMap = CascadingDropDown.initMachineSpinners(this);
+        initCascadingSettings();
         initEditButton();
     }
 
@@ -129,17 +125,18 @@ public class MachineEditActivity extends AppCompatActivity {
                 public void processFinish(SQLiteDatabase result) {
                     mDB = result;
                 }
-            });
+            }).execute();
         }
     }
 
-    private void initDB(){
+    private void initCascadingSettings(){
         new RetrieveDatabaseTask(
             getApplicationContext(),
             new IAsyncResponse<SQLiteDatabase>() {
                 @Override
                 public void processFinish(SQLiteDatabase result) {
-                    CascadingDropDown.initSettingDropdowns(
+                    mDB = result;
+                    CascadingDropDown.initDropdownSettings(
                         getApplicationContext(),
                         mSpinnerMap,
                         result,
@@ -147,267 +144,268 @@ public class MachineEditActivity extends AppCompatActivity {
                     );
                 }
             }
-        );
-    }
-
-    private void initSpinnerMap(){
-        Spinner buildingSpinner = (Spinner) findViewById(R.id.building_spinner);
-        Spinner floorSpinner = (Spinner) findViewById(R.id.floor_spinner);
-        Spinner departmentSpinner = (Spinner) findViewById(R.id.department_spinner);
-        Spinner roomSpinner = (Spinner) findViewById(R.id.room_spinner);
-        Spinner machineStatusSpinner = (Spinner) findViewById(R.id.machine_status_spinner);
-
-        mSpinnerMap.put(HospitalContract.TABLE_BUILDING_NAME, buildingSpinner);
-        mSpinnerMap.put(HospitalContract.TABLE_BUILDING_FLOOR_NAME, floorSpinner);
-        mSpinnerMap.put(HospitalContract.TABLE_DEPARTMENT_NAME, departmentSpinner);
-        mSpinnerMap.put(HospitalContract.TABLE_ROOM_NAME, roomSpinner);
-        mSpinnerMap.put(HospitalContract.TABLE_MACHINE_STATUS_NAME, machineStatusSpinner);
-    }
-
-    private void initMachineTitle(){
-        TextView machineTitle = (TextView) findViewById(R.id.machine_name);
-        machineTitle.setText(mMachine.getMachineName().getValue());
-    }
-
-    private void applyDropdownValues(){
-        new RetrieveDatabaseTask(
-                this,
-                new IAsyncResponse<SQLiteDatabase>() {
-                    @Override
-                    public void processFinish(SQLiteDatabase result) {
-                        mDB = result;
-                        new CascadingBuildingDropDownTask(
-                                mMachine,
-                                mDB,
-                                new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
-                                    @Override
-                                    public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
-                                        ArrayAdapter<TextValue> buildingAdapter = new ArrayAdapter<>(
-                                                getApplicationContext(),
-                                                android.R.layout.simple_spinner_item,
-                                                result.get(HospitalContract.TABLE_BUILDING_NAME)
-                                        );
-
-                                        ArrayAdapter<TextValue> floorAdapter = new ArrayAdapter<>(
-                                                getApplicationContext(),
-                                                android.R.layout.simple_spinner_item,
-                                                result.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
-                                        );
-
-                                        ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
-                                                getApplicationContext(),
-                                                android.R.layout.simple_spinner_item,
-                                                result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
-                                        );
-
-                                        ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
-                                                getApplicationContext(),
-                                                android.R.layout.simple_spinner_item,
-                                                result.get(HospitalContract.TABLE_ROOM_NAME)
-                                        );
-
-                                        buildingAdapter.setDropDownViewResource(
-                                                android.R.layout.simple_spinner_dropdown_item
-                                        );
-                                        floorAdapter.setDropDownViewResource(
-                                                android.R.layout.simple_spinner_dropdown_item
-                                        );
-                                        departmentAdapter.setDropDownViewResource(
-                                                android.R.layout.simple_spinner_dropdown_item
-                                        );
-                                        roomAdapter.setDropDownViewResource(
-                                                android.R.layout.simple_spinner_dropdown_item
-                                        );
-
-                                        mBuildingSpinner.setAdapter(buildingAdapter);
-                                        mFloorSpinner.setAdapter(floorAdapter);
-                                        mDepartmentSpinner.setAdapter(departmentAdapter);
-                                        mRoomSpinner.setAdapter(roomAdapter);
-                                    }
-                                }
-                        ).execute();
-
-                        new ReadDatabaseTask(
-                                HospitalDbHelper.getAllMachineStatuses(),
-                                null,
-                                mDB,
-                                new IAsyncResponse<Cursor>() {
-                                    @Override
-                                    public void processFinish(Cursor result) {
-                                        ArrayList<TextValue> machineStatusArray = new ArrayList<>();
-
-                                        while(result.moveToNext()){
-                                            String text = result.getString(
-                                                    result.getColumnIndex("status_name")
-                                            );
-                                            String value = result.getString(
-                                                    result.getColumnIndex("_id")
-                                            );
-                                            machineStatusArray.add(new TextValue(text, value));
-                                        }
-
-                                        ArrayAdapter<TextValue> machineStatusAdapter = new ArrayAdapter<>(
-                                                getApplication(),
-                                                android.R.layout.simple_spinner_item,
-                                                machineStatusArray
-                                        );
-
-                                        mMachineStatusSpinner.setAdapter(machineStatusAdapter);
-                                    }
-                                }
-                        ).execute();
-                    }
-                }
         ).execute();
     }
 
-    // initDropdowns inits machine dropdown spinners along with adding
-    // event handlers on item select
-    private void initDropdowns(){
-        mBuildingSpinner = (Spinner) findViewById(R.id.building_spinner);
-        mFloorSpinner = (Spinner) findViewById(R.id.floor_spinner);
-        mDepartmentSpinner = (Spinner) findViewById(R.id.department_spinner);
-        mRoomSpinner = (Spinner) findViewById(R.id.room_spinner);
-        mMachineStatusSpinner = (Spinner) findViewById(R.id.machine_status_spinner);
+//    private void initSpinnerMap(){
+//        Spinner buildingSpinner = (Spinner) findViewById(R.id.building_spinner);
+//        Spinner floorSpinner = (Spinner) findViewById(R.id.floor_spinner);
+//        Spinner departmentSpinner = (Spinner) findViewById(R.id.department_spinner);
+//        Spinner roomSpinner = (Spinner) findViewById(R.id.room_spinner);
+//        Spinner machineStatusSpinner = (Spinner) findViewById(R.id.machine_status_spinner);
+//
+//        mSpinnerMap.put(HospitalContract.TABLE_BUILDING_NAME, buildingSpinner);
+//        mSpinnerMap.put(HospitalContract.TABLE_BUILDING_FLOOR_NAME, floorSpinner);
+//        mSpinnerMap.put(HospitalContract.TABLE_DEPARTMENT_NAME, departmentSpinner);
+//        mSpinnerMap.put(HospitalContract.TABLE_ROOM_NAME, roomSpinner);
+//        mSpinnerMap.put(HospitalContract.TABLE_MACHINE_STATUS_NAME, machineStatusSpinner);
+//    }
 
-        mBuildingSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextValue item = (TextValue) adapterView.getSelectedItem();
-                mMachine.setBuilding(item);
-
-                new CascadingBuildingDropDownTask(
-                        item.getValue(),
-                        mDB,
-                        new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
-                            @Override
-                            public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
-                                ArrayAdapter<TextValue> floorAdapter = new ArrayAdapter<>(
-                                        getApplicationContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        result.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
-                                );
-
-                                ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
-                                        getApplicationContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
-                                );
-
-                                ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
-                                        getApplicationContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        result.get(HospitalContract.TABLE_ROOM_NAME)
-                                );
-
-                                floorAdapter.setDropDownViewResource(
-                                        android.R.layout.simple_spinner_dropdown_item
-                                );
-                                departmentAdapter.setDropDownViewResource(
-                                        android.R.layout.simple_spinner_dropdown_item
-                                );
-                                roomAdapter.setDropDownViewResource(
-                                        android.R.layout.simple_spinner_dropdown_item
-                                );
-
-                                mFloorSpinner.setAdapter(floorAdapter);
-                                mDepartmentSpinner.setAdapter(departmentAdapter);
-                                mRoomSpinner.setAdapter(roomAdapter);
-                            }
-                        }
-                );
-            }
-        });
-
-        mFloorSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextValue item = (TextValue) adapterView.getSelectedItem();
-                mMachine.setFloor(item);
-
-                new CascadingBuildingDropDownTask(
-                        item.getValue(),
-                        mDB,
-                        new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
-                            @Override
-                            public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
-                                ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
-                                        getApplicationContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
-                                );
-
-                                ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
-                                        getApplicationContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        result.get(HospitalContract.TABLE_ROOM_NAME)
-                                );
-
-                                departmentAdapter.setDropDownViewResource(
-                                        android.R.layout.simple_spinner_dropdown_item
-                                );
-                                roomAdapter.setDropDownViewResource(
-                                        android.R.layout.simple_spinner_dropdown_item
-                                );
-
-                                mDepartmentSpinner.setAdapter(departmentAdapter);
-                                mRoomSpinner.setAdapter(roomAdapter);
-                            }
-                        }
-                );
-            }
-        });
-
-        mDepartmentSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextValue item = (TextValue) adapterView.getSelectedItem();
-                mMachine.setDepartment(item);
-
-                new CascadingBuildingDropDownTask(
-                        item.getValue(),
-                        mDB,
-                        new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
-                            @Override
-                            public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
-                                ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
-                                        getApplicationContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        result.get(HospitalContract.TABLE_ROOM_NAME)
-                                );
-
-                                roomAdapter.setDropDownViewResource(
-                                        android.R.layout.simple_spinner_dropdown_item
-                                );
-
-                                mRoomSpinner.setAdapter(roomAdapter);
-                            }
-                        }
-                );
-            }
-        });
-
-        mRoomSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextValue item = (TextValue) adapterView.getSelectedItem();
-                mMachine.setRoom(item);
-            }
-        });
-
-        mMachineStatusSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextValue item = (TextValue) adapterView.getSelectedItem();
-                mMachine.setMachineStatus(item);
-            }
-        });
+    private void initMachineTitle(){
+        TextView machineTitle = (TextView) findViewById(R.id.machine_title);
+        machineTitle.setText(mMachine.getMachineName().getValue());
     }
+
+//    private void applyDropdownValues(){
+//        new RetrieveDatabaseTask(
+//                this,
+//                new IAsyncResponse<SQLiteDatabase>() {
+//                    @Override
+//                    public void processFinish(SQLiteDatabase result) {
+//                        mDB = result;
+//                        new CascadingBuildingDropDownTask(
+//                                mMachine,
+//                                mDB,
+//                                new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+//                                    @Override
+//                                    public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+//                                        ArrayAdapter<TextValue> buildingAdapter = new ArrayAdapter<>(
+//                                                getApplicationContext(),
+//                                                android.R.layout.simple_spinner_item,
+//                                                result.get(HospitalContract.TABLE_BUILDING_NAME)
+//                                        );
+//
+//                                        ArrayAdapter<TextValue> floorAdapter = new ArrayAdapter<>(
+//                                                getApplicationContext(),
+//                                                android.R.layout.simple_spinner_item,
+//                                                result.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
+//                                        );
+//
+//                                        ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
+//                                                getApplicationContext(),
+//                                                android.R.layout.simple_spinner_item,
+//                                                result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+//                                        );
+//
+//                                        ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+//                                                getApplicationContext(),
+//                                                android.R.layout.simple_spinner_item,
+//                                                result.get(HospitalContract.TABLE_ROOM_NAME)
+//                                        );
+//
+//                                        buildingAdapter.setDropDownViewResource(
+//                                                android.R.layout.simple_spinner_dropdown_item
+//                                        );
+//                                        floorAdapter.setDropDownViewResource(
+//                                                android.R.layout.simple_spinner_dropdown_item
+//                                        );
+//                                        departmentAdapter.setDropDownViewResource(
+//                                                android.R.layout.simple_spinner_dropdown_item
+//                                        );
+//                                        roomAdapter.setDropDownViewResource(
+//                                                android.R.layout.simple_spinner_dropdown_item
+//                                        );
+//
+//                                        mBuildingSpinner.setAdapter(buildingAdapter);
+//                                        mFloorSpinner.setAdapter(floorAdapter);
+//                                        mDepartmentSpinner.setAdapter(departmentAdapter);
+//                                        mRoomSpinner.setAdapter(roomAdapter);
+//                                    }
+//                                }
+//                        ).execute();
+//
+//                        new ReadDatabaseTask(
+//                                HospitalDbHelper.getAllMachineStatuses(),
+//                                null,
+//                                mDB,
+//                                new IAsyncResponse<Cursor>() {
+//                                    @Override
+//                                    public void processFinish(Cursor result) {
+//                                        ArrayList<TextValue> machineStatusArray = new ArrayList<>();
+//
+//                                        while(result.moveToNext()){
+//                                            String text = result.getString(
+//                                                    result.getColumnIndex("status_name")
+//                                            );
+//                                            String value = result.getString(
+//                                                    result.getColumnIndex("_id")
+//                                            );
+//                                            machineStatusArray.add(new TextValue(text, value));
+//                                        }
+//
+//                                        ArrayAdapter<TextValue> machineStatusAdapter = new ArrayAdapter<>(
+//                                                getApplication(),
+//                                                android.R.layout.simple_spinner_item,
+//                                                machineStatusArray
+//                                        );
+//
+//                                        mMachineStatusSpinner.setAdapter(machineStatusAdapter);
+//                                    }
+//                                }
+//                        ).execute();
+//                    }
+//                }
+//        ).execute();
+//    }
+//
+//    // initDropdowns inits machine dropdown spinners along with adding
+//    // event handlers on item select
+//    private void initDropdowns(){
+//        mBuildingSpinner = (Spinner) findViewById(R.id.building_spinner);
+//        mFloorSpinner = (Spinner) findViewById(R.id.floor_spinner);
+//        mDepartmentSpinner = (Spinner) findViewById(R.id.department_spinner);
+//        mRoomSpinner = (Spinner) findViewById(R.id.room_spinner);
+//        mMachineStatusSpinner = (Spinner) findViewById(R.id.machine_status_spinner);
+//
+//        mBuildingSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                TextValue item = (TextValue) adapterView.getSelectedItem();
+//                mMachine.setBuilding(item);
+//
+//                new CascadingBuildingDropDownTask(
+//                        item.getValue(),
+//                        mDB,
+//                        new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+//                            @Override
+//                            public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+//                                ArrayAdapter<TextValue> floorAdapter = new ArrayAdapter<>(
+//                                        getApplicationContext(),
+//                                        android.R.layout.simple_spinner_item,
+//                                        result.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
+//                                );
+//
+//                                ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
+//                                        getApplicationContext(),
+//                                        android.R.layout.simple_spinner_item,
+//                                        result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+//                                );
+//
+//                                ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+//                                        getApplicationContext(),
+//                                        android.R.layout.simple_spinner_item,
+//                                        result.get(HospitalContract.TABLE_ROOM_NAME)
+//                                );
+//
+//                                floorAdapter.setDropDownViewResource(
+//                                        android.R.layout.simple_spinner_dropdown_item
+//                                );
+//                                departmentAdapter.setDropDownViewResource(
+//                                        android.R.layout.simple_spinner_dropdown_item
+//                                );
+//                                roomAdapter.setDropDownViewResource(
+//                                        android.R.layout.simple_spinner_dropdown_item
+//                                );
+//
+//                                mFloorSpinner.setAdapter(floorAdapter);
+//                                mDepartmentSpinner.setAdapter(departmentAdapter);
+//                                mRoomSpinner.setAdapter(roomAdapter);
+//                            }
+//                        }
+//                );
+//            }
+//        });
+//
+//        mFloorSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                TextValue item = (TextValue) adapterView.getSelectedItem();
+//                mMachine.setFloor(item);
+//
+//                new CascadingBuildingDropDownTask(
+//                        item.getValue(),
+//                        mDB,
+//                        new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+//                            @Override
+//                            public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+//                                ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
+//                                        getApplicationContext(),
+//                                        android.R.layout.simple_spinner_item,
+//                                        result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+//                                );
+//
+//                                ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+//                                        getApplicationContext(),
+//                                        android.R.layout.simple_spinner_item,
+//                                        result.get(HospitalContract.TABLE_ROOM_NAME)
+//                                );
+//
+//                                departmentAdapter.setDropDownViewResource(
+//                                        android.R.layout.simple_spinner_dropdown_item
+//                                );
+//                                roomAdapter.setDropDownViewResource(
+//                                        android.R.layout.simple_spinner_dropdown_item
+//                                );
+//
+//                                mDepartmentSpinner.setAdapter(departmentAdapter);
+//                                mRoomSpinner.setAdapter(roomAdapter);
+//                            }
+//                        }
+//                );
+//            }
+//        });
+//
+//        mDepartmentSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                TextValue item = (TextValue) adapterView.getSelectedItem();
+//                mMachine.setDepartment(item);
+//
+//                new CascadingBuildingDropDownTask(
+//                        item.getValue(),
+//                        mDB,
+//                        new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+//                            @Override
+//                            public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+//                                ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+//                                        getApplicationContext(),
+//                                        android.R.layout.simple_spinner_item,
+//                                        result.get(HospitalContract.TABLE_ROOM_NAME)
+//                                );
+//
+//                                roomAdapter.setDropDownViewResource(
+//                                        android.R.layout.simple_spinner_dropdown_item
+//                                );
+//
+//                                mRoomSpinner.setAdapter(roomAdapter);
+//                            }
+//                        }
+//                );
+//            }
+//        });
+//
+//        mRoomSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                TextValue item = (TextValue) adapterView.getSelectedItem();
+//                mMachine.setRoom(item);
+//            }
+//        });
+//
+//        mMachineStatusSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                TextValue item = (TextValue) adapterView.getSelectedItem();
+//                mMachine.setMachineStatus(item);
+//            }
+//        });
+//    }
 
     // initEditButton adds event handler to edit button to
     // edit machine properties
     private void initEditButton(){
-        Button button = (Button) findViewById(R.id.action_button);
+        Button button = (Button) findViewById(R.id.edit_button);
+        button.setText("Edit");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

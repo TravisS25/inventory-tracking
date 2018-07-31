@@ -1,5 +1,6 @@
 package expert.codinglevel.inventory_tracking.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,6 +18,8 @@ import expert.codinglevel.inventory_tracking.R;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.model.Machine;
+import expert.codinglevel.inventory_tracking.setting.MachineSettings;
+import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingBuildingDropDownTask;
 import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingFloorDropDownTask;
 import expert.codinglevel.inventory_tracking.view.TextValue;
@@ -28,11 +31,49 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
 public class CascadingDropDown {
     private CascadingDropDown(){}
 
-    public static void initSettingDropdowns(
+//    public static void initSettingDropdownsFromDB(
+//            final Context context,
+//            final Map<String, Spinner> spinnerMap,
+//            final Machine machine
+//    ){
+//        new RetrieveDatabaseTask(
+//                context,
+//                new IAsyncResponse<SQLiteDatabase>() {
+//                    @Override
+//                    public void processFinish(SQLiteDatabase result) {
+//                        CascadingDropDown.initSettingDropdowns(
+//                                context,
+//                                spinnerMap,
+//                                result,
+//                                machine
+//                        );
+//                    }
+//                }
+//        );
+
+//    }
+
+    public static Map<String, Spinner> initMachineSpinners(Activity activity){
+        Spinner buildingSpinner = (Spinner) activity.findViewById(R.id.building_spinner);
+        Spinner floorSpinner = (Spinner) activity.findViewById(R.id.floor_spinner);
+        Spinner departmentSpinner = (Spinner) activity.findViewById(R.id.department_spinner);
+        Spinner roomSpinner = (Spinner) activity.findViewById(R.id.room_spinner);
+        Spinner machineStatusSpinner = (Spinner) activity.findViewById(R.id.machine_status_spinner);
+
+        Map<String, Spinner> spinnerMap = new HashMap<>();
+        spinnerMap.put(HospitalContract.TABLE_BUILDING_NAME, buildingSpinner);
+        spinnerMap.put(HospitalContract.TABLE_BUILDING_FLOOR_NAME, floorSpinner);
+        spinnerMap.put(HospitalContract.TABLE_DEPARTMENT_NAME, departmentSpinner);
+        spinnerMap.put(HospitalContract.TABLE_ROOM_NAME, roomSpinner);
+        spinnerMap.put(HospitalContract.TABLE_MACHINE_STATUS_NAME, machineStatusSpinner);
+        return spinnerMap;
+    }
+
+    public static void initDropdownSettings(
             final Context context,
             final Map<String, Spinner> spinners,
             final SQLiteDatabase db,
-            final Machine machine
+            final MachineSettings machine
     ){
         for(Map.Entry<String, Spinner> entry : spinners.entrySet()){
             switch(entry.getKey()){

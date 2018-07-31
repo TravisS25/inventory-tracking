@@ -12,13 +12,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
-import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
+//import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
 import expert.codinglevel.inventory_tracking.model.HospitalDbHelper;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.Machine;
@@ -30,6 +33,7 @@ import expert.codinglevel.inventory_tracking.task.MultipleReadDBTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingBuildingDropDownTask;
 import expert.codinglevel.inventory_tracking.view.TextValue;
+import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
 
 /**
  *  DefaultMachineSettingsActivity is activity that allows user to set
@@ -40,6 +44,8 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
     private SQLiteDatabase mDB;
     private Bundle mBundle;
     private MachineSettings mMachineSettings;
+    private boolean mDBHasStopped = false;
+    private Map<String, Spinner> mSpinnerMap;
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -51,7 +57,16 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_machine);
-        mBundle = savedInstanceState;
+
+        if(savedInstanceState != null){
+            setSettingsFromBundle();
+        } else {
+            setSettingsFromPref();
+        }
+
+        initMachineTitle();
+        mSpinnerMap = CascadingDropDown.initMachineSpinners(this);
+        initCascadingSettings();
         initSettingsButton();
     }
 
@@ -60,26 +75,12 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         Log.i(TAG, "+++ onResume +++");
         super.onResume();
 
-        // Set database instance and set machine settings saved from
-        // preferences to dropdown
-        new RetrieveDatabaseTask(
-            this,
-            new IAsyncResponse<SQLiteDatabase>() {
-                @Override
-                public void processFinish(SQLiteDatabase result) {
-                mDB = result;
-                if(mBundle == null){
-                    Log.i(TAG, "+++ Within bundle +++");
-                    setSettingsFromPref();
-                }
-                else{
-                    Log.i(TAG, "+++ Else bundle +++");
-                    setSettingsFromBundle();
-                }
-                //initListAdapter();
-                }
-            }
-        ).execute();
+        if(mDBHasStopped){
+            Log.i(TAG, "+++ retrieve db +++");
+            retrieveDB();
+        }
+
+        mDBHasStopped = false;
     }
 
     @Override
@@ -87,6 +88,41 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         Log.i(TAG, "+++ onStop +++");
         super.onStop();
         mDB.close();
+        mDBHasStopped = true;
+    }
+
+    private void initMachineTitle(){
+        TextView machineTitle = (TextView) findViewById(R.id.machine_title);
+        machineTitle.setText("Machine Settings");
+    }
+
+    private void retrieveDB(){
+        if(!mDB.isOpen()){
+            new RetrieveDatabaseTask(getApplicationContext(), new IAsyncResponse<SQLiteDatabase>() {
+                @Override
+                public void processFinish(SQLiteDatabase result) {
+                    mDB = result;
+                }
+            }).execute();
+        }
+    }
+
+    private void initCascadingSettings(){
+        new RetrieveDatabaseTask(
+                getApplicationContext(),
+                new IAsyncResponse<SQLiteDatabase>() {
+                    @Override
+                    public void processFinish(SQLiteDatabase result) {
+                        mDB = result;
+                        CascadingDropDown.initDropdownSettings(
+                                getApplicationContext(),
+                                mSpinnerMap,
+                                result,
+                                mMachineSettings
+                        );
+                    }
+                }
+        );
     }
 
     // saveSettings converts mMachineSettings instance into json format
