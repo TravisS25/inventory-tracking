@@ -1,8 +1,11 @@
 package expert.codinglevel.inventory_tracking.widget;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -11,7 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import expert.codinglevel.inventory_tracking.R;
+import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
+import expert.codinglevel.inventory_tracking.model.Machine;
+import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingBuildingDropDownTask;
+import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingFloorDropDownTask;
 import expert.codinglevel.inventory_tracking.view.TextValue;
 
 /**
@@ -20,6 +27,152 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  */
 public class CascadingDropDown {
     private CascadingDropDown(){}
+
+    public static void initSettingDropdowns(
+            final Context context,
+            final Map<String, Spinner> spinners,
+            final SQLiteDatabase db,
+            final Machine machine
+    ){
+        for(Map.Entry<String, Spinner> entry : spinners.entrySet()){
+            switch(entry.getKey()){
+                case HospitalContract.TABLE_BUILDING_NAME:
+                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            TextValue item = (TextValue) adapterView.getSelectedItem();
+                            machine.setBuilding(item);
+
+                            new CascadingBuildingDropDownTask(
+                                    item.getValue(),
+                                    db,
+                                    new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+                                        @Override
+                                        public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+                                            ArrayAdapter<TextValue> floorAdapter = new ArrayAdapter<>(
+                                                    context,
+                                                    android.R.layout.simple_spinner_item,
+                                                    result.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
+                                            );
+
+                                            ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
+                                                    context,
+                                                    android.R.layout.simple_spinner_item,
+                                                    result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+                                            );
+
+                                            ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+                                                    context,
+                                                    android.R.layout.simple_spinner_item,
+                                                    result.get(HospitalContract.TABLE_ROOM_NAME)
+                                            );
+
+                                            floorAdapter.setDropDownViewResource(
+                                                    android.R.layout.simple_spinner_dropdown_item
+                                            );
+                                            departmentAdapter.setDropDownViewResource(
+                                                    android.R.layout.simple_spinner_dropdown_item
+                                            );
+                                            roomAdapter.setDropDownViewResource(
+                                                    android.R.layout.simple_spinner_dropdown_item
+                                            );
+
+                                            spinners.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
+                                                    .setAdapter(floorAdapter);
+                                            spinners.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+                                                    .setAdapter(departmentAdapter);
+                                            spinners.get(HospitalContract.TABLE_ROOM_NAME)
+                                                    .setAdapter(roomAdapter);
+                                        }
+                                    }
+                            );
+                        }
+                    });
+                    break;
+                case HospitalContract.TABLE_BUILDING_FLOOR_NAME:
+                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            TextValue item = (TextValue) adapterView.getSelectedItem();
+                            machine.setFloor(item);
+
+                            new CascadingFloorDropDownTask(
+                                    item.getValue(),
+                                    db,
+                                    new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+                                        @Override
+                                        public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+                                            ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
+                                                    context,
+                                                    android.R.layout.simple_spinner_item,
+                                                    result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+                                            );
+
+                                            ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+                                                    context,
+                                                    android.R.layout.simple_spinner_item,
+                                                    result.get(HospitalContract.TABLE_ROOM_NAME)
+                                            );
+
+                                            departmentAdapter.setDropDownViewResource(
+                                                    android.R.layout.simple_spinner_dropdown_item
+                                            );
+                                            roomAdapter.setDropDownViewResource(
+                                                    android.R.layout.simple_spinner_dropdown_item
+                                            );
+
+                                            spinners.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+                                                    .setAdapter(departmentAdapter);
+                                            spinners.get(HospitalContract.TABLE_ROOM_NAME)
+                                                    .setAdapter(roomAdapter);
+                                        }
+                                    }
+                            );
+                        }
+                    });
+                    break;
+                case HospitalContract.TABLE_DEPARTMENT_NAME:
+                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            TextValue item = (TextValue) adapterView.getSelectedItem();
+                            machine.setDepartment(item);
+
+                            new CascadingFloorDropDownTask(
+                                    item.getValue(),
+                                    db,
+                                    new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+                                        @Override
+                                        public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+                                            ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+                                                    context,
+                                                    android.R.layout.simple_spinner_item,
+                                                    result.get(HospitalContract.TABLE_ROOM_NAME)
+                                            );
+
+                                            roomAdapter.setDropDownViewResource(
+                                                    android.R.layout.simple_spinner_dropdown_item
+                                            );
+
+                                            spinners.get(HospitalContract.TABLE_ROOM_NAME)
+                                                    .setAdapter(roomAdapter);
+                                        }
+                                    }
+                            );
+                        }
+                    });
+                    break;
+                default:
+                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            TextValue item = (TextValue) adapterView.getSelectedItem();
+                            machine.setDepartment(item);
+                        }
+                    });
+            }
+        }
+    }
 
     /**
      * Takes passed {@param result} parameter and applies the results into the appropriate

@@ -56,12 +56,12 @@ import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
 
 public class MachineEditActivity extends AppCompatActivity {
     public static final String TAG = MachineEditActivity.class.getSimpleName();
-    private static final boolean DEBUG = true;
     private SQLiteDatabase mDB;
     private String mUserSession;
     private boolean mServerEdit;
     private Machine mMachine;
-    private boolean mHasStopped = false;
+    private boolean mDBHasStopped = false;
+    private Map<String, Spinner> mSpinnerMap = new HashMap<>();
     private Spinner mBuildingSpinner, mFloorSpinner, mDepartmentSpinner, mRoomSpinner,
             mMachineStatusSpinner;
 
@@ -87,10 +87,15 @@ public class MachineEditActivity extends AppCompatActivity {
         }
 
         if(mServerEdit){
-            mUserSession = Preferences.getDefaults(getApplicationContext(), getString(R.string.user_session));
+            mUserSession = Preferences.getDefaults(
+                    getApplicationContext(),
+                    getString(R.string.user_session)
+            );
         }
 
         initMachineTitle();
+        initSpinnerMap();
+        initDB();
         initDropdowns();
         applyDropdownValues();
         initEditButton();
@@ -101,11 +106,12 @@ public class MachineEditActivity extends AppCompatActivity {
         Log.i(TAG, "+++ onResume +++");
         super.onResume();
 
-        if(mHasStopped){
+        if(mDBHasStopped){
+            Log.i(TAG, "+++ retrieve db +++");
             retrieveDB();
         }
 
-        mHasStopped = false;
+        mDBHasStopped = false;
     }
 
     @Override
@@ -113,7 +119,7 @@ public class MachineEditActivity extends AppCompatActivity {
         Log.i(TAG, "+++ onStop +++");
         super.onStop();
         mDB.close();
-        mHasStopped = true;
+        mDBHasStopped = true;
     }
 
     private void retrieveDB(){
@@ -125,6 +131,37 @@ public class MachineEditActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void initDB(){
+        new RetrieveDatabaseTask(
+            getApplicationContext(),
+            new IAsyncResponse<SQLiteDatabase>() {
+                @Override
+                public void processFinish(SQLiteDatabase result) {
+                    CascadingDropDown.initSettingDropdowns(
+                        getApplicationContext(),
+                        mSpinnerMap,
+                        result,
+                        mMachine
+                    );
+                }
+            }
+        );
+    }
+
+    private void initSpinnerMap(){
+        Spinner buildingSpinner = (Spinner) findViewById(R.id.building_spinner);
+        Spinner floorSpinner = (Spinner) findViewById(R.id.floor_spinner);
+        Spinner departmentSpinner = (Spinner) findViewById(R.id.department_spinner);
+        Spinner roomSpinner = (Spinner) findViewById(R.id.room_spinner);
+        Spinner machineStatusSpinner = (Spinner) findViewById(R.id.machine_status_spinner);
+
+        mSpinnerMap.put(HospitalContract.TABLE_BUILDING_NAME, buildingSpinner);
+        mSpinnerMap.put(HospitalContract.TABLE_BUILDING_FLOOR_NAME, floorSpinner);
+        mSpinnerMap.put(HospitalContract.TABLE_DEPARTMENT_NAME, departmentSpinner);
+        mSpinnerMap.put(HospitalContract.TABLE_ROOM_NAME, roomSpinner);
+        mSpinnerMap.put(HospitalContract.TABLE_MACHINE_STATUS_NAME, machineStatusSpinner);
     }
 
     private void initMachineTitle(){
@@ -197,9 +234,6 @@ public class MachineEditActivity extends AppCompatActivity {
                                 new IAsyncResponse<Cursor>() {
                                     @Override
                                     public void processFinish(Cursor result) {
-                                        Spinner machineStatusSpinner = (Spinner) findViewById(
-                                                R.id.machine_status_spinner
-                                        );
                                         ArrayList<TextValue> machineStatusArray = new ArrayList<>();
 
                                         while(result.moveToNext()){
@@ -218,7 +252,7 @@ public class MachineEditActivity extends AppCompatActivity {
                                                 machineStatusArray
                                         );
 
-                                        machineStatusSpinner.setAdapter(machineStatusAdapter);
+                                        mMachineStatusSpinner.setAdapter(machineStatusAdapter);
                                     }
                                 }
                         ).execute();
@@ -386,15 +420,8 @@ public class MachineEditActivity extends AppCompatActivity {
     // the current machine properties are local or from server
     public void editButton(final View view){
         final JSONObject jsonObject;
-        //final Activity activity = this;
         Log.i(TAG, "+++ Server edit" + mServerEdit +" +++");
-//        String id = mMachine.getMachineName().getValue();
-//        final String machineName = mMachine.getMachineName().getText();
-//        String buildingID = mMachine.getBuilding().getValue();
-//        String floorID = mMachine.getFloor().getValue();
-//        String departmentID = mMachine.getDepartment().getValue();
-//        String roomID = mMachine.getRoom().getValue();
-//        String machineStatusID = mMachine.getMachineStatus().getValue();
+        final String id = mMachine.getMachineName().getValue();
 
         // If we got to this activity edit from a scan look up, that means the current
         // machine we are editing is from the server so convert current machine properties
@@ -417,14 +444,14 @@ public class MachineEditActivity extends AppCompatActivity {
             headers.put(getString(R.string.user_session), mUserSession);
             CustomJsonObjectRequest getRequest = new CustomJsonObjectRequest(
                     Request.Method.GET,
-                    getString(R.string.host_url) + "/api/machine/edit/" + machineName + "/",
+                    getString(R.string.host_url) + "/api/machine/edit/" + id + "/",
                     null,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             CustomJsonObjectRequest request = new CustomJsonObjectRequest(
                                     Request.Method.POST,
-                                    getString(R.string.host_url) + "/api/machine/edit/" + machineName + "/",
+                                    getString(R.string.host_url) + "/api/machine/edit/" + id + "/",
                                     jsonObject,
                                     new Response.Listener<JSONObject>() {
                                         @Override
@@ -433,7 +460,10 @@ public class MachineEditActivity extends AppCompatActivity {
                                                     getApplicationContext(),
                                                     "Machine edited",
                                                     Toast.LENGTH_SHORT).show();
-                                            Intent intent = new Intent(activity, LookUpActivity.class);
+                                            Intent intent = new Intent(
+                                                    getApplicationContext(),
+                                                    LookUpActivity.class
+                                            );
                                             intent.putExtra("machineJson", response.toString());
                                             startActivity(intent);
                                         }
@@ -521,8 +551,8 @@ public class MachineEditActivity extends AppCompatActivity {
         }
         else{
             ContentValues contentValues = new ContentValues();
-            contentValues.put("room_id", roomID);
-            contentValues.put("machine_status_id", machineStatusID);
+            contentValues.put("room_id", mMachine.getRoom().getValue());
+            contentValues.put("machine_status_id", mMachine.getMachineStatus().getValue());
 
             new UpdateDatabaseTask(
                     HospitalContract.TABLE_MACHINE_NAME,
@@ -542,25 +572,4 @@ public class MachineEditActivity extends AppCompatActivity {
             ).execute();
         }
     }
-
-//    private void initListAdapter(){
-//        if(mBundle != null){
-//            Log.i(TAG, "+++ Bundle NOT null +++");
-//            Machine savedMachine = mBundle.getParcelable("machine");
-//            mMachine.setBuilding(savedMachine.getBuilding());
-//            mMachine.setFloor(savedMachine.getFloor());
-//            mMachine.setDepartment(savedMachine.getDepartment());
-//            mMachine.setRoom(savedMachine.getRoom());
-//            mMachine.setMachineStatus(savedMachine.getMachineStatus());
-//        }
-//
-//        ListView listView = (ListView) findViewById(R.id.list_view);
-//        MachineEditAdapter adapter = new MachineEditAdapter(
-//                this,
-//                mMachine,
-//                mDB,
-//                mPropertyList
-//        );
-//        listView.setAdapter(adapter);
-//    }
 }

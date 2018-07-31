@@ -19,8 +19,8 @@ public class MachineSettings implements Parcelable, IMachine {
     private static MachineSettings instance = null;
     private TextValue mBuilding;
     private TextValue mFloor;
-    private TextValue mRoom;
     private TextValue mDepartment;
+    private TextValue mRoom;
     private TextValue mMachineStatus;
 
     private MachineSettings(){}
@@ -30,6 +30,15 @@ public class MachineSettings implements Parcelable, IMachine {
         mDepartment = in.readParcelable(TextValue.class.getClassLoader());
         mRoom = in.readParcelable(TextValue.class.getClassLoader());
         mMachineStatus = in.readParcelable(TextValue.class.getClassLoader());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(getBuilding(), 0);
+        dest.writeParcelable(getFloor(), 0);
+        dest.writeParcelable(getDepartment(), 0);
+        dest.writeParcelable(getRoom(), 0);
+        dest.writeParcelable(getMachineStatus(), 0);
     }
 
     public static MachineSettings getInstance(){
@@ -57,14 +66,6 @@ public class MachineSettings implements Parcelable, IMachine {
         return 0;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(getBuilding(), 0);
-        dest.writeParcelable(getFloor(), 0);
-        dest.writeParcelable(getDepartment(), 0);
-        dest.writeParcelable(getRoom(), 0);
-        dest.writeParcelable(getMachineStatus(), 0);
-    }
 
     @Override
     public String toString(){

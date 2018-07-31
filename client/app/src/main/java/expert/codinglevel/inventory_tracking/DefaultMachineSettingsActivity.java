@@ -40,7 +40,6 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
     private SQLiteDatabase mDB;
     private Bundle mBundle;
     private MachineSettings mMachineSettings;
-    private ArrayList<Machine.MachineProperty> mPropertyList = new ArrayList<>();
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -51,7 +50,7 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_default_machine_settings);
+        setContentView(R.layout.activity_machine);
         mBundle = savedInstanceState;
         initSettingsButton();
     }
@@ -77,7 +76,7 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
                     Log.i(TAG, "+++ Else bundle +++");
                     setSettingsFromBundle();
                 }
-                initListAdapter();
+                //initListAdapter();
                 }
             }
         ).execute();
@@ -109,8 +108,6 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
     private void initSettingsButton(){
         Button button = (Button) findViewById(R.id.save_settings);
         button.setText(getText(R.string.save_settings));
-        button.setBackgroundColor(Color.BLUE);
-        button.setTextColor(Color.WHITE);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,37 +135,37 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
 
     // initListAdapter queries db for cascading drop downs used in view and then
     // inits list adapter
-    private void initListAdapter(){
-        final Activity activity = this;
-
-        new CascadingBuildingDropDownTask(
-                mMachineSettings,
-                mDB,
-                new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
-                    @Override
-                    public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
-                        Log.i(TAG, result.toString());
-                        MachineProperties.addCascadingProperties(activity, result, mPropertyList);
-                        new MultipleReadDBTask(
-                                HospitalDbHelper.getMachineDatabaseReadList(mMachineSettings),
-                                mDB,
-                                new IAsyncResponse<HashMap<String, Cursor>>() {
-                                    @Override
-                                    public void processFinish(HashMap<String, Cursor> result) {
-                                        MachineProperties.addProperties(activity, result, mPropertyList);
-                                        ListView listView = (ListView) findViewById(R.id.list_view);
-                                        MachineEditAdapter adapter = new MachineEditAdapter(
-                                                activity,
-                                                mMachineSettings,
-                                                mDB,
-                                                mPropertyList
-                                        );
-                                        listView.setAdapter(adapter);
-                                    }
-                                }
-                        ).execute();
-                    }
-                }
-        ).execute();
-    }
+//    private void initListAdapter(){
+//        final Activity activity = this;
+//
+//        new CascadingBuildingDropDownTask(
+//                mMachineSettings,
+//                mDB,
+//                new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+//                    @Override
+//                    public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+//                        Log.i(TAG, result.toString());
+//                        MachineProperties.addCascadingProperties(activity, result, mPropertyList);
+//                        new MultipleReadDBTask(
+//                                HospitalDbHelper.getMachineDatabaseReadList(mMachineSettings),
+//                                mDB,
+//                                new IAsyncResponse<HashMap<String, Cursor>>() {
+//                                    @Override
+//                                    public void processFinish(HashMap<String, Cursor> result) {
+//                                        MachineProperties.addProperties(activity, result, mPropertyList);
+//                                        ListView listView = (ListView) findViewById(R.id.list_view);
+//                                        MachineEditAdapter adapter = new MachineEditAdapter(
+//                                                activity,
+//                                                mMachineSettings,
+//                                                mDB,
+//                                                mPropertyList
+//                                        );
+//                                        listView.setAdapter(adapter);
+//                                    }
+//                                }
+//                        ).execute();
+//                    }
+//                }
+//        ).execute();
+//    }
 }
