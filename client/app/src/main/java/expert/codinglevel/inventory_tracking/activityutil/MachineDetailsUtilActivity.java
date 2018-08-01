@@ -7,17 +7,15 @@ import android.widget.TextView;
 import expert.codinglevel.inventory_tracking.R;
 import expert.codinglevel.inventory_tracking.model.Machine;
 
-public class MachineDetailsUtilActivity extends AppCompatActivity {
+public class MachineDetailsUtilActivity extends DBActivity {
     protected Machine mMachine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_machine_details);
-        initViewValues(mMachine);
-        //setContentView(R.layout.activity_machine_details);
         mMachine = getIntent().getParcelableExtra("machine");
-        //initViewValues(machine);
+        initViewValues(mMachine);
     }
 
     protected void initViewValues(Machine machine){

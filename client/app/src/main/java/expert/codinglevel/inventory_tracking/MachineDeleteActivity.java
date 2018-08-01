@@ -26,13 +26,14 @@ import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 public class MachineDeleteActivity extends MachineDetailsUtilActivity {
     public static final String TAG = MachineDeleteActivity.class.getSimpleName();
     private AlertDialog mDialog;
-    private SQLiteDatabase mDB;
+    //private SQLiteDatabase mDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "+++ onCreate +++");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_machine_details);
+        initDB();
         initViewValues(mMachine);
         initAlertDialog();
         initDeleteButton();
@@ -42,17 +43,7 @@ public class MachineDeleteActivity extends MachineDetailsUtilActivity {
     protected void onResume(){
         Log.i(TAG, "+++ onResume +++");
         super.onResume();
-
-        // Init mDB instance
-        new RetrieveDatabaseTask(
-                this,
-                new IAsyncResponse<SQLiteDatabase>() {
-                    @Override
-                    public void processFinish(SQLiteDatabase result) {
-                        mDB = result;
-                    }
-                }
-        ).execute();
+        retrieveDB();
     }
 
     @Override
@@ -60,6 +51,18 @@ public class MachineDeleteActivity extends MachineDetailsUtilActivity {
         Log.i(TAG, "+++ onStop +++");
         super.onStop();
         mDB.close();
+    }
+
+    private void initDB(){
+        new RetrieveDatabaseTask(
+                getApplicationContext(),
+                new IAsyncResponse<SQLiteDatabase>() {
+                    @Override
+                    public void processFinish(SQLiteDatabase result) {
+                        mDB = result;
+                    }
+                }
+        );
     }
 
     // initDeleteButton sets listener on delete button that activate dialog

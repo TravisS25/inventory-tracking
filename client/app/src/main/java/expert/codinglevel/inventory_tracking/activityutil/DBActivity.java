@@ -8,6 +8,7 @@ import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 
 public class DBActivity extends AppCompatActivity {
     protected SQLiteDatabase mDB;
+    protected boolean mHasDBStopped = false;
 
     protected void retrieveDB(){
         if(mDB != null){
