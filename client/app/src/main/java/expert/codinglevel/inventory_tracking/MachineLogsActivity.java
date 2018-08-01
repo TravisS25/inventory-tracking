@@ -35,6 +35,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import expert.codinglevel.inventory_tracking.activityutil.UserUtilActivity;
 import expert.codinglevel.inventory_tracking.adapter.MachineUploadAdapter;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.json.CustomJsonObjectRequest;
@@ -43,7 +44,7 @@ import expert.codinglevel.inventory_tracking.setting.Preferences;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 import expert.codinglevel.inventory_tracking.view.TextValue;
 
-public class MachineLogsActivity extends UserActivity {
+public class MachineLogsActivity extends UserUtilActivity {
     private final static String TAG = MachineLogsActivity.class.getSimpleName();
     private final static String QUERY = "?skip=0&take=20";
     private final static String USER_FIELD = "entered_by.full_name";

@@ -5,21 +5,17 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
-
-import java.util.ArrayList;
 
 //import expert.codinglevel.inventory_tracking.adapter.MachineDetailsAdapter;
+import expert.codinglevel.inventory_tracking.activityutil.MachineDetailsUtilActivity;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.Machine;
-import expert.codinglevel.inventory_tracking.setting.UserActivity;
 import expert.codinglevel.inventory_tracking.task.DeleteDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 
@@ -27,23 +23,19 @@ import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
  *  MachineDeleteActivity is activity that allows user to delete
  *  machine scanned on their device
  */
-public class MachineDeleteActivity extends AppCompatActivity {
+public class MachineDeleteActivity extends MachineDetailsUtilActivity {
     public static final String TAG = MachineDeleteActivity.class.getSimpleName();
     private AlertDialog mDialog;
     private SQLiteDatabase mDB;
-    private Machine mMachine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "+++ onCreate +++");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_machine);
-        mMachine = getIntent().getParcelableExtra("machine");
-        // init delete button
-        initDeleteButton();
-
-        // init delete dialog alert
+        setContentView(R.layout.activity_machine_details);
+        initViewValues(mMachine);
         initAlertDialog();
+        initDeleteButton();
     }
 
     @Override
@@ -51,14 +43,13 @@ public class MachineDeleteActivity extends AppCompatActivity {
         Log.i(TAG, "+++ onResume +++");
         super.onResume();
 
-        // Init mDB instance and init list adapter
+        // Init mDB instance
         new RetrieveDatabaseTask(
                 this,
                 new IAsyncResponse<SQLiteDatabase>() {
                     @Override
                     public void processFinish(SQLiteDatabase result) {
                         mDB = result;
-                        initListAdapter();
                     }
                 }
         ).execute();

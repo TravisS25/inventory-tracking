@@ -1,19 +1,13 @@
 package expert.codinglevel.inventory_tracking;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,27 +24,19 @@ import org.json.JSONObject;
 
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 //import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
 import expert.codinglevel.inventory_tracking.json.CustomJsonObjectRequest;
-import expert.codinglevel.inventory_tracking.model.HospitalDbHelper;
 import expert.codinglevel.inventory_tracking.model.MachineJson;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.Machine;
-import expert.codinglevel.inventory_tracking.model.MachineProperties;
+//import expert.codinglevel.inventory_tracking.model.MachineProperties;
 import expert.codinglevel.inventory_tracking.setting.Preferences;
-import expert.codinglevel.inventory_tracking.setting.UserActivity;
-import expert.codinglevel.inventory_tracking.task.MultipleReadDBTask;
-import expert.codinglevel.inventory_tracking.task.ReadDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.UpdateDatabaseTask;
-import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingBuildingDropDownTask;
-import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingFloorDropDownTask;
-import expert.codinglevel.inventory_tracking.view.TextValue;
 import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
 
 

@@ -36,7 +36,6 @@ import expert.codinglevel.inventory_tracking.model.HospitalDbHelper;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.Machine;
 import expert.codinglevel.inventory_tracking.model.MachineJson;
-import expert.codinglevel.inventory_tracking.setting.UserActivity;
 import expert.codinglevel.inventory_tracking.task.DeleteDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.ReadDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
@@ -48,12 +47,11 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  */
 public class MachineListActivity extends AppCompatActivity {
     public static final String TAG = MachineListActivity.class.getSimpleName();
-    private static final boolean DEBUG = true;
-    private static final int LOADER_ID = 1;
     private boolean mIsSavedInstance = false;
+    private boolean mDBHasStopped = false;
     private SQLiteDatabase mDB;
     private RequestQueue mQueue;
-    private ArrayList<MachineJson> mMachineJsonList;
+   // private ArrayList<MachineJson> mMachineJsonList;
     private MachineListAdapter mAdapter = null;
     private ArrayList<Machine> mMachineList = null;
 
@@ -62,16 +60,15 @@ public class MachineListActivity extends AppCompatActivity {
         // This is set to true so every time screen rotates, we know its already
         // been activated
         savedInstanceState.putBoolean("toastActivated", true);
-
         savedInstanceState.putParcelableArrayList("machineList", mMachineList);
-        savedInstanceState.putParcelableArrayList("machineJsonList", mMachineJsonList);
+        //savedInstanceState.putParcelableArrayList("machineJsonList", mMachineJsonList);
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_machine);
+        setContentView(R.layout.activity_list);
         mQueue = Volley.newRequestQueue(this);
         boolean toastActivated = false;
         String toastMessage = getIntent().getStringExtra("toast");
@@ -80,7 +77,7 @@ public class MachineListActivity extends AppCompatActivity {
             toastActivated = savedInstanceState.getBoolean("toastActivated");
             mIsSavedInstance = true;
             mMachineList = savedInstanceState.getParcelableArrayList("machineList");
-            mMachineJsonList = savedInstanceState.getParcelableArrayList("machineJsonList");
+            //mMachineJsonList = savedInstanceState.getParcelableArrayList("machineJsonList");
         }
 
         // This is to check if toastr has already been activated previously (due to changing
@@ -108,8 +105,31 @@ public class MachineListActivity extends AppCompatActivity {
             initButtonListener();
             initListView();
         }
+    }
 
-//        getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
+    @Override
+    protected void onResume(){
+        Log.i(TAG, "+++ onResume +++");
+        super.onResume();
+
+        if(mDBHasStopped){
+            Log.i(TAG, "+++ retrieve db +++");
+            retrieveDB();
+        }
+
+        mDBHasStopped = false;
+    }
+
+    private void retrieveDB(){
+        new RetrieveDatabaseTask(
+                getApplicationContext(),
+                new IAsyncResponse<SQLiteDatabase>() {
+                    @Override
+                    public void processFinish(SQLiteDatabase result) {
+                        mDB = result;
+                    }
+                }
+        );
     }
 
     private void initAlertDialog(){
@@ -121,11 +141,11 @@ public class MachineListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 Gson gson = new Gson();
                 JSONArray jsonArray;
-                String jsonMachineList = gson.toJson(mMachineJsonList);
-                Log.i(TAG, jsonMachineList);
+                String machineList = gson.toJson(mMachineList);
+                //Log.i(TAG, jsonMachineList);
 
                 try{
-                    jsonArray = new JSONArray(jsonMachineList);
+                    jsonArray = new JSONArray(machineList);
                 }
                 catch (JSONException e){
                     e.printStackTrace();
@@ -285,7 +305,7 @@ public class MachineListActivity extends AppCompatActivity {
                     @Override
                     public void processFinish(Cursor result) {
                         mMachineList = new ArrayList<>(result.getCount());
-                        mMachineJsonList = new ArrayList<>(result.getCount());
+//                        mMachineJsonList = new ArrayList<>(result.getCount());
                         while(result.moveToNext()){
                             String machineID = result.getString(
                                     result.getColumnIndex(HospitalContract.Machine.ID)
@@ -337,16 +357,16 @@ public class MachineListActivity extends AppCompatActivity {
                             machine.setScannedTime(scannedTime);
                             mMachineList.add(machine);
 
-                            MachineJson machineJson = new MachineJson(
-                                    assetTag,
-                                    scannedTime,
-                                    buildingID,
-                                    floorID,
-                                    departmentID,
-                                    roomID,
-                                    machineStatusID
-                            );
-                            mMachineJsonList.add(machineJson);
+//                            MachineJson machineJson = new MachineJson(
+//                                    assetTag,
+//                                    scannedTime,
+//                                    buildingID,
+//                                    floorID,
+//                                    departmentID,
+//                                    roomID,
+//                                    machineStatusID
+//                            );
+//                            mMachineJsonList.add(machineJson);
                         }
                         result.close();
 

@@ -348,7 +348,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         // Put extracted values in machine settings and convert to json to put
                         // into preferences file
-                        MachineSettings machineSettings = MachineSettings.getInstance();
+                        MachineSettings machineSettings = new MachineSettings();
                         machineSettings.setBuilding(new TextValue(buildingName, buildingID));
                         machineSettings.setFloor(new TextValue(floor, floorID));
                         machineSettings.setDepartment(new TextValue(departmentName, departmentID));

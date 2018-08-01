@@ -38,7 +38,6 @@ import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 import expert.codinglevel.inventory_tracking.model.Machine;
 import expert.codinglevel.inventory_tracking.model.MachineExclusionStrategy;
 import expert.codinglevel.inventory_tracking.setting.Preferences;
-import expert.codinglevel.inventory_tracking.setting.UserActivity;
 import expert.codinglevel.inventory_tracking.task.ReadDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
 import expert.codinglevel.inventory_tracking.view.TextValue;

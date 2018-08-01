@@ -48,7 +48,6 @@ import expert.codinglevel.inventory_tracking.setting.MachineSettings;
 import expert.codinglevel.inventory_tracking.setting.Preferences;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
-import expert.codinglevel.inventory_tracking.setting.UserActivity;
 import expert.codinglevel.inventory_tracking.task.InsertDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.ReadDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;

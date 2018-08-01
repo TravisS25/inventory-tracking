@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import expert.codinglevel.inventory_tracking.activityutil.UserUtilActivity;
 import expert.codinglevel.inventory_tracking.interfaces.IJsonRequestCallback;
 import expert.codinglevel.inventory_tracking.json.CustomJsonArrayRequest;
 import expert.codinglevel.inventory_tracking.json.CustomJsonObjectRequest;
@@ -46,7 +47,7 @@ import expert.codinglevel.inventory_tracking.model.Filter;
 import expert.codinglevel.inventory_tracking.setting.Preferences;
 import expert.codinglevel.inventory_tracking.view.TextValue;
 
-public class MachineLogFilterActivity extends UserActivity implements DatePickerDialog.OnDateSetListener {
+public class MachineLogFilterActivity extends UserUtilActivity implements DatePickerDialog.OnDateSetListener {
     private final static String TAG = MachineLogsActivity.class.getSimpleName();
     private final static String USER_FIELD = "entered_by.full_name";
     private final String mURL = getString(R.string.host_url) + "/api/log/index/";
