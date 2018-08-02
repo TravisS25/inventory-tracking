@@ -14,8 +14,8 @@ public class MachineDetailsActivity extends MachineDetailsUtilActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_machine_details);
-        initViewValues(mMachine);
+//        setContentView(R.layout.activity_machine_details);
+//        initViewValues(mMachine);
         hideActionButton();
     }
 

@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import java.util.Map;
 
 //import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
+import expert.codinglevel.inventory_tracking.activityutil.DBActivity;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 //import expert.codinglevel.inventory_tracking.model.MachineProperties;
 import expert.codinglevel.inventory_tracking.setting.MachineSettings;
@@ -27,12 +28,12 @@ import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
  *  DefaultMachineSettingsActivity is activity that allows user to set
  *  defaults for when they scan bar codes such as default room, machine status etc.
  */
-public class DefaultMachineSettingsActivity extends AppCompatActivity {
+public class DefaultMachineSettingsActivity extends DBActivity {
     public static final String TAG = DefaultMachineSettingsActivity.class.getSimpleName();
-    private SQLiteDatabase mDB;
+    //private SQLiteDatabase mDB;
     private Bundle mBundle;
     private MachineSettings mMachineSettings;
-    private boolean mDBHasStopped = false;
+    //private boolean mDBHasStopped = false;
     private Map<String, Spinner> mSpinnerMap;
 
     @Override
@@ -58,42 +59,42 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
         initSettingsButton();
     }
 
-    @Override
-    protected void onResume(){
-        Log.i(TAG, "+++ onResume +++");
-        super.onResume();
-
-        if(mDBHasStopped){
-            Log.i(TAG, "+++ retrieve db +++");
-            retrieveDB();
-        }
-
-        mDBHasStopped = false;
-    }
-
-    @Override
-    protected void onStop(){
-        Log.i(TAG, "+++ onStop +++");
-        super.onStop();
-        mDB.close();
-        mDBHasStopped = true;
-    }
+//    @Override
+//    protected void onResume(){
+//        Log.i(TAG, "+++ onResume +++");
+//        super.onResume();
+//
+//        if(mDBHasStopped){
+//            Log.i(TAG, "+++ retrieve db +++");
+//            retrieveDB();
+//        }
+//
+//        mDBHasStopped = false;
+//    }
+//
+//    @Override
+//    protected void onStop(){
+//        Log.i(TAG, "+++ onStop +++");
+//        super.onStop();
+//        mDB.close();
+//        mDBHasStopped = true;
+//    }
 
     private void initMachineTitle(){
         TextView machineTitle = (TextView) findViewById(R.id.machine_title);
         machineTitle.setText("Machine Settings");
     }
 
-    private void retrieveDB(){
-        if(!mDB.isOpen()){
-            new RetrieveDatabaseTask(getApplicationContext(), new IAsyncResponse<SQLiteDatabase>() {
-                @Override
-                public void processFinish(SQLiteDatabase result) {
-                    mDB = result;
-                }
-            }).execute();
-        }
-    }
+//    private void retrieveDB(){
+//        if(!mDB.isOpen()){
+//            new RetrieveDatabaseTask(getApplicationContext(), new IAsyncResponse<SQLiteDatabase>() {
+//                @Override
+//                public void processFinish(SQLiteDatabase result) {
+//                    mDB = result;
+//                }
+//            }).execute();
+//        }
+//    }
 
     private void initCascadingSettings(){
         new RetrieveDatabaseTask(
@@ -130,7 +131,7 @@ public class DefaultMachineSettingsActivity extends AppCompatActivity {
     // background color etc along with attaching event handler to save
     // settings
     private void initSettingsButton(){
-        Button button = (Button) findViewById(R.id.save_settings);
+        Button button = (Button) findViewById(R.id.edit_button);
         button.setText(getText(R.string.save_settings));
         button.setOnClickListener(new View.OnClickListener() {
             @Override

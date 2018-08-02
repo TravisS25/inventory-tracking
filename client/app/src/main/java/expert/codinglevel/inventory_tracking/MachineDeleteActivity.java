@@ -32,26 +32,26 @@ public class MachineDeleteActivity extends MachineDetailsUtilActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "+++ onCreate +++");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_machine_details);
-        initDB();
-        initViewValues(mMachine);
+        //setContentView(R.layout.activity_machine_details);
+        //initDB();
+        //initViewValues(mMachine);
         initAlertDialog();
         initDeleteButton();
     }
 
-    @Override
-    protected void onResume(){
-        Log.i(TAG, "+++ onResume +++");
-        super.onResume();
-        retrieveDB();
-    }
-
-    @Override
-    protected void onStop(){
-        Log.i(TAG, "+++ onStop +++");
-        super.onStop();
-        mDB.close();
-    }
+//    @Override
+//    protected void onResume(){
+//        Log.i(TAG, "+++ onResume +++");
+//        super.onResume();
+//        retrieveDB();
+//    }
+//
+//    @Override
+//    protected void onStop(){
+//        Log.i(TAG, "+++ onStop +++");
+//        super.onStop();
+//        mDB.close();
+//    }
 
     private void initDB(){
         new RetrieveDatabaseTask(

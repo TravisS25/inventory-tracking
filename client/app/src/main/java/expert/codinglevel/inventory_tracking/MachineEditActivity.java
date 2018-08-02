@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 //import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
+import expert.codinglevel.inventory_tracking.activityutil.DBActivity;
 import expert.codinglevel.inventory_tracking.json.CustomJsonObjectRequest;
 import expert.codinglevel.inventory_tracking.model.MachineJson;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
@@ -40,13 +41,13 @@ import expert.codinglevel.inventory_tracking.task.UpdateDatabaseTask;
 import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
 
 
-public class MachineEditActivity extends AppCompatActivity {
+public class MachineEditActivity extends DBActivity {
     public static final String TAG = MachineEditActivity.class.getSimpleName();
     private SQLiteDatabase mDB;
     private String mUserSession;
     private boolean mServerEdit;
     private Machine mMachine;
-    private boolean mDBHasStopped = false;
+    //private boolean mDBHasStopped = false;
     private Map<String, Spinner> mSpinnerMap;
 
     @Override
@@ -83,37 +84,37 @@ public class MachineEditActivity extends AppCompatActivity {
         initEditButton();
     }
 
-    @Override
-    protected void onResume(){
-        Log.i(TAG, "+++ onResume +++");
-        super.onResume();
-
-        if(mDBHasStopped){
-            Log.i(TAG, "+++ retrieve db +++");
-            retrieveDB();
-        }
-
-        mDBHasStopped = false;
-    }
-
-    @Override
-    protected void onStop(){
-        Log.i(TAG, "+++ onStop +++");
-        super.onStop();
-        mDB.close();
-        mDBHasStopped = true;
-    }
-
-    private void retrieveDB(){
-        if(!mDB.isOpen()){
-            new RetrieveDatabaseTask(getApplicationContext(), new IAsyncResponse<SQLiteDatabase>() {
-                @Override
-                public void processFinish(SQLiteDatabase result) {
-                    mDB = result;
-                }
-            }).execute();
-        }
-    }
+//    @Override
+//    protected void onResume(){
+//        Log.i(TAG, "+++ onResume +++");
+//        super.onResume();
+//
+//        if(mDBHasStopped){
+//            Log.i(TAG, "+++ retrieve db +++");
+//            retrieveDB();
+//        }
+//
+//        mDBHasStopped = false;
+//    }
+//
+//    @Override
+//    protected void onStop(){
+//        Log.i(TAG, "+++ onStop +++");
+//        super.onStop();
+//        mDB.close();
+//        mDBHasStopped = true;
+//    }
+//
+//    private void retrieveDB(){
+//        if(!mDB.isOpen()){
+//            new RetrieveDatabaseTask(getApplicationContext(), new IAsyncResponse<SQLiteDatabase>() {
+//                @Override
+//                public void processFinish(SQLiteDatabase result) {
+//                    mDB = result;
+//                }
+//            }).execute();
+//        }
+//    }
 
     private void initCascadingSettings(){
         new RetrieveDatabaseTask(
