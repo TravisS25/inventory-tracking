@@ -19,7 +19,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/machine_log_filter_table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -37,7 +37,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/machine_log_filter_table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -60,7 +60,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/machine_log_filter_table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -83,7 +83,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/machine_log_filter_table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -106,7 +106,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/machine_log_filter_table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -129,7 +129,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/machine_log_filter_table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -152,7 +152,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/machine_log_filter_table_row_height"
                 android:orientation="horizontal">
 
                 <TextView

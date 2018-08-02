@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="table_row_height">50dp</dimen>
+    <!-- Machine Log Filter -->
+    <dimen name="machine_log_filter_table_row_height">50dp</dimen>
+    <dimen name="machine_log_filter_label">18sp</dimen>
+
+    <!-- Dashboard -->
+    <dimen name="dashboard_button_margin">20dp</dimen>
+    <dimen name="dashboard_button_width">240dp</dimen>
+    <dimen name="dashboard_button_height">45dp</dimen>
+
+    <!-- Machine List Item -->
+    <dimen name="machine_list_item_left_margin">15dp</dimen>
+    <dimen name="machine_list_item_right_margin">15dp</dimen>
+    <dimen name="machine_list_item_top_icon_margin">40dp</dimen>
+    <dimen name="machine_list_item_top_text_margin">32dp</dimen>
+    <dimen name="machine_list_item_top_subtext_margin">8dp</dimen>
 </resources>

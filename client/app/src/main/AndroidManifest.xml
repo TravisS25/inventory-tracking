@@ -27,6 +27,7 @@
         </activity>
         <activity
             android:name="expert.codinglevel.inventory_tracking.DashboardActivity"
+            android:label="Dashboard"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -76,7 +77,7 @@
         <activity
             android:parentActivityName="expert.codinglevel.inventory_tracking.MachineListActivity"
             android:name="expert.codinglevel.inventory_tracking.MachineDeleteActivity"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="sensorPortrait"
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden">
 

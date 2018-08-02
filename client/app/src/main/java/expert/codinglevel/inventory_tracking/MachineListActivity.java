@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.button.MaterialButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +31,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.net.ConnectException;
 
+import expert.codinglevel.inventory_tracking.activityutil.DBActivity;
 import expert.codinglevel.inventory_tracking.adapter.MachineListAdapter;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.model.HospitalDbHelper;
@@ -45,95 +47,85 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  *  MachineListActivity is list activity that displays all the machine bar codes
  *  that have been scanned along with ability to upload all of them to server
  */
-public class MachineListActivity extends AppCompatActivity {
+public class MachineListActivity extends DBActivity {
     public static final String TAG = MachineListActivity.class.getSimpleName();
     private boolean mIsSavedInstance = false;
     private boolean mDBHasStopped = false;
-    private SQLiteDatabase mDB;
+    private AlertDialog mDialog;
+    //private SQLiteDatabase mDB;
     private RequestQueue mQueue;
    // private ArrayList<MachineJson> mMachineJsonList;
     private MachineListAdapter mAdapter = null;
     private ArrayList<Machine> mMachineList = null;
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        // This is set to true so every time screen rotates, we know its already
-        // been activated
-        savedInstanceState.putBoolean("toastActivated", true);
-        savedInstanceState.putParcelableArrayList("machineList", mMachineList);
-        //savedInstanceState.putParcelableArrayList("machineJsonList", mMachineJsonList);
-        super.onSaveInstanceState(savedInstanceState);
-    }
+//    @Override
+//    public void onSaveInstanceState(Bundle savedInstanceState) {
+//        // This is set to true so every time screen rotates, we know its already
+//        // been activated
+//        savedInstanceState.putBoolean("toastActivated", true);
+//        savedInstanceState.putParcelableArrayList("machineList", mMachineList);
+//        //savedInstanceState.putParcelableArrayList("machineJsonList", mMachineJsonList);
+//        super.onSaveInstanceState(savedInstanceState);
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         mQueue = Volley.newRequestQueue(this);
-        boolean toastActivated = false;
-        String toastMessage = getIntent().getStringExtra("toast");
-
-        if(savedInstanceState != null){
-            toastActivated = savedInstanceState.getBoolean("toastActivated");
-            mIsSavedInstance = true;
-            mMachineList = savedInstanceState.getParcelableArrayList("machineList");
-            //mMachineJsonList = savedInstanceState.getParcelableArrayList("machineJsonList");
-        }
-
-        // This is to check if toastr has already been activated previously (due to changing
-        // screen rotation).  Have to check this or every time user changes screen rotation
-        // after initial toastr, message will pop up
-        if(toastMessage != null && !toastActivated){
-            Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
-        }
-
-        if(mMachineList == null){
-            new RetrieveDatabaseTask(
+        initAlertDialog();
+        initButtonListener();
+        new RetrieveDatabaseTask(
                 this,
                 new IAsyncResponse<SQLiteDatabase>() {
                     @Override
                     public void processFinish(SQLiteDatabase result) {
                         mDB = result;
                         queryMachineList();
-                        initButtonListener();
+//                        initButtonListener();
                     }
                 }
-            ).execute();
-        }
-        else{
-            mAdapter = new MachineListAdapter(this, mMachineList);
-            initButtonListener();
-            initListView();
-        }
-    }
+        ).execute();
+        //boolean toastActivated = false;
+        //String toastMessage = getIntent().getStringExtra("toast");
 
-    @Override
-    protected void onResume(){
-        Log.i(TAG, "+++ onResume +++");
-        super.onResume();
+//        if(savedInstanceState != null){
+//            toastActivated = savedInstanceState.getBoolean("toastActivated");
+//            mIsSavedInstance = true;
+//            mMachineList = savedInstanceState.getParcelableArrayList("machineList");
+//            //mMachineJsonList = savedInstanceState.getParcelableArrayList("machineJsonList");
+//        }
 
-        if(mDBHasStopped){
-            Log.i(TAG, "+++ retrieve db +++");
-            retrieveDB();
-        }
+        // This is to check if toastr has already been activated previously (due to changing
+        // screen rotation).  Have to check this or every time user changes screen rotation
+        // after initial toastr, message will pop up
+//        if(toastMessage != null && !toastActivated){
+//            Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
+//        }
 
-        mDBHasStopped = false;
-    }
-
-    private void retrieveDB(){
-        new RetrieveDatabaseTask(
-                getApplicationContext(),
-                new IAsyncResponse<SQLiteDatabase>() {
-                    @Override
-                    public void processFinish(SQLiteDatabase result) {
-                        mDB = result;
-                    }
-                }
-        );
+        // If mMachineList is null, that means we are on initial create so retrieve
+        // database
+//        if(mMachineList == null){
+//            new RetrieveDatabaseTask(
+//                this,
+//                new IAsyncResponse<SQLiteDatabase>() {
+//                    @Override
+//                    public void processFinish(SQLiteDatabase result) {
+//                        mDB = result;
+//                        queryMachineList();
+////                        initButtonListener();
+//                    }
+//                }
+//            ).execute();
+//        }
+//        else{
+//            mAdapter = new MachineListAdapter(this, mMachineList);
+//            //initButtonListener();
+//            initListView();
+//        }
     }
 
     private void initAlertDialog(){
-        final Activity activity = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.upload_message)
                 .setTitle(R.string.upload);
@@ -179,7 +171,7 @@ public class MachineListActivity extends AppCompatActivity {
                                 }
                                 else{
                                     new RetrieveDatabaseTask(
-                                            activity,
+                                            getApplicationContext(),
                                             new IAsyncResponse<SQLiteDatabase>() {
                                                 @Override
                                                 public void processFinish(SQLiteDatabase result) {
@@ -229,20 +221,19 @@ public class MachineListActivity extends AppCompatActivity {
             }
         });
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        mDialog = builder.create();
     }
 
     // initButtonListener inits button listener
     private void initButtonListener() {
-        Button button = (Button) findViewById(R.id.action_button);
-        button.setText(getString(R.string.upload));
-        button.setBackgroundColor(Color.GREEN);
-        button.setTextColor(Color.WHITE);
+        MaterialButton button = (MaterialButton) findViewById(R.id.action_button);
+//        button.setText(getString(R.string.upload));
+//        button.setBackgroundColor(Color.GREEN);
+//        button.setTextColor(Color.WHITE);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            initAlertDialog();
+            mDialog.show();
             }
         });
     }
@@ -250,7 +241,6 @@ public class MachineListActivity extends AppCompatActivity {
     // execDeleteDatabaseTask executes deleting all scanned bar code
     // machines from db
     private void execDeleteDatabaseTask(){
-        final Activity activity = this;
         new DeleteDatabaseTask(
                 HospitalContract.TABLE_MACHINE_NAME,
                 null,
@@ -261,7 +251,7 @@ public class MachineListActivity extends AppCompatActivity {
                     public void processFinish(Integer result) {
                         mDB.close();
                         Intent intent = new Intent(
-                                activity,
+                                getApplicationContext(),
                                 DashboardActivity.class
                         );
                         startActivity(intent);
@@ -295,8 +285,6 @@ public class MachineListActivity extends AppCompatActivity {
     // queryMachineList queries all machines from device's db
     // for list view
     private void queryMachineList(){
-        final Activity activity = this;
-
         new ReadDatabaseTask(
                 HospitalDbHelper.getMachineListQuery(),
                 null,
@@ -370,7 +358,7 @@ public class MachineListActivity extends AppCompatActivity {
                         }
                         result.close();
 
-                        mAdapter = new MachineListAdapter(activity, mMachineList);
+                        mAdapter = new MachineListAdapter(getApplicationContext(), mMachineList);
                         initListView();
                     }
                 }

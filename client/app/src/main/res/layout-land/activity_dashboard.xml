@@ -31,7 +31,7 @@
         android:layout_marginRight="40dp"
         android:layout_marginTop="25dp"
         android:onClick="viewScannedInventory"
-        android:text="@string/view_scanned_inventory"
+        android:text="@string/local_inventory"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

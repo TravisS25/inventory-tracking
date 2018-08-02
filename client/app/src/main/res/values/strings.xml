@@ -5,7 +5,8 @@
     <string name="turn_off_flashlight">Turn Off Flashlight</string>
     <string name="scan_inventory">Scan Inventory</string>
     <string name="look_up_inventory">Look Up Inventory</string>
-    <string name="view_scanned_inventory">View Inventory</string>
+    <string name="local_inventory">Local Inventory</string>
+    <string name="remote_inventory">Remote Inventory</string>
     <string name="upload_scanned_inventory">Upload Inventory</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -53,4 +54,5 @@
     <string name="filter">Filter</string>
     <string name="operation">Operation</string>
     <string name="sort_date">Sort Date</string>
+    <string name="entered_by_text">Entered By</string>
 </resources>

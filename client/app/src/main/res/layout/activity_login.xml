@@ -69,7 +69,6 @@
             android:hint="@string/email" />
     </android.support.design.widget.TextInputLayout>
 
-
     <android.support.design.button.MaterialButton
         android:id="@+id/login_button"
         style="@style/Widget.AppCompat.Button.Colored"
