@@ -9,6 +9,11 @@
     <dimen name="dashboard_button_width">240dp</dimen>
     <dimen name="dashboard_button_height">45dp</dimen>
 
+    <!-- Dashboard Land -->
+    <dimen name="dashboard_land_margin">40dp</dimen>
+    <!--<dimen name="dashboard_land_button_width">240dp</dimen>-->
+    <!--<dimen name="dashboard_land_button_height">45dp</dimen>-->
+
     <!-- Machine List Item -->
     <dimen name="machine_list_item_left_margin">15dp</dimen>
     <dimen name="machine_list_item_right_margin">15dp</dimen>

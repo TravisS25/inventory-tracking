@@ -33,6 +33,7 @@ import java.net.ConnectException;
 
 import expert.codinglevel.inventory_tracking.activityutil.DBActivity;
 import expert.codinglevel.inventory_tracking.adapter.MachineListAdapter;
+import expert.codinglevel.inventory_tracking.interfaces.IDatabaseCallback;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.model.HospitalDbHelper;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
@@ -49,8 +50,8 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  */
 public class MachineListActivity extends DBActivity {
     public static final String TAG = MachineListActivity.class.getSimpleName();
-    private boolean mIsSavedInstance = false;
-    private boolean mDBHasStopped = false;
+    //private boolean mIsSavedInstance = false;
+    //private boolean mDBHasStopped = false;
     private AlertDialog mDialog;
     //private SQLiteDatabase mDB;
     private RequestQueue mQueue;
@@ -73,19 +74,24 @@ public class MachineListActivity extends DBActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         mQueue = Volley.newRequestQueue(this);
-        initAlertDialog();
-        initButtonListener();
-        new RetrieveDatabaseTask(
-                this,
-                new IAsyncResponse<SQLiteDatabase>() {
-                    @Override
-                    public void processFinish(SQLiteDatabase result) {
-                        mDB = result;
-                        queryMachineList();
-//                        initButtonListener();
-                    }
-                }
-        ).execute();
+        initDB(new IDatabaseCallback() {
+            @Override
+            public void finished() {
+                initAlertDialog();
+                initButtonListener();
+            }
+        });
+//        new RetrieveDatabaseTask(
+//                this,
+//                new IAsyncResponse<SQLiteDatabase>() {
+//                    @Override
+//                    public void processFinish(SQLiteDatabase result) {
+//                        mDB = result;
+//                        queryMachineList();
+////                        initButtonListener();
+//                    }
+//                }
+//        ).execute();
         //boolean toastActivated = false;
         //String toastMessage = getIntent().getStringExtra("toast");
 
@@ -124,6 +130,8 @@ public class MachineListActivity extends DBActivity {
 //            initListView();
 //        }
     }
+
+
 
     private void initAlertDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -165,22 +173,23 @@ public class MachineListActivity extends DBActivity {
                                         Toast.LENGTH_SHORT).show();
 
                                 Log.i(TAG, "+++ on response +++");
+                                execDeleteDatabaseTask();
 
-                                if(!mIsSavedInstance){
-                                    execDeleteDatabaseTask();
-                                }
-                                else{
-                                    new RetrieveDatabaseTask(
-                                            getApplicationContext(),
-                                            new IAsyncResponse<SQLiteDatabase>() {
-                                                @Override
-                                                public void processFinish(SQLiteDatabase result) {
-                                                    mDB = result;
-                                                    execDeleteDatabaseTask();
-                                                }
-                                            }
-                                    ).execute();
-                                }
+//                                if(!mIsSavedInstance){
+//                                    execDeleteDatabaseTask();
+//                                }
+//                                else{
+//                                    new RetrieveDatabaseTask(
+//                                            getApplicationContext(),
+//                                            new IAsyncResponse<SQLiteDatabase>() {
+//                                                @Override
+//                                                public void processFinish(SQLiteDatabase result) {
+//                                                    mDB = result;
+//                                                    execDeleteDatabaseTask();
+//                                                }
+//                                            }
+//                                    ).execute();
+//                                }
                             }
                         },
                         new Response.ErrorListener() {

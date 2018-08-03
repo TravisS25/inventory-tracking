@@ -36,7 +36,7 @@
             android:parentActivityName="expert.codinglevel.inventory_tracking.DashboardActivity"
             android:name="expert.codinglevel.inventory_tracking.ScanActivity"
             android:keepScreenOn="true"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             android:theme="@style/Theme.AppCompat"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -77,7 +77,7 @@
         <activity
             android:parentActivityName="expert.codinglevel.inventory_tracking.MachineListActivity"
             android:name="expert.codinglevel.inventory_tracking.MachineDeleteActivity"
-            android:screenOrientation="sensorPortrait"
+            android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden">
 

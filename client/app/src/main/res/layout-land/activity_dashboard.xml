@@ -15,8 +15,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,24 +24,24 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.button.MaterialButton
-        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/view_inventory_button"
-        android:layout_width="235dp"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="@dimen/dashboard_button_width"
         android:layout_height="45dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginStart="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
         android:onClick="viewScannedInventory"
         android:text="@string/local_inventory"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/look_up_inventory_button" />
 
     <android.support.design.button.MaterialButton
         android:id="@+id/look_up_inventory_button"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="235dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="25dp"
+        android:layout_width="@dimen/dashboard_button_width"
+        android:layout_height="@dimen/dashboard_button_height"
+        android:layout_marginStart="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
         android:onClick="lookUpInventory"
         android:text="@string/look_up_inventory"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,50 +50,61 @@
     <android.support.design.button.MaterialButton
         android:id="@+id/machine_settings_button"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="235dp"
+        android:layout_width="@dimen/dashboard_button_width"
         android:layout_height="45dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
         android:onClick="defaultMachineSettings"
         android:text="@string/default_machine_settings"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_inventory_button" />
 
     <android.support.design.button.MaterialButton
         android:id="@+id/scan_inventory_button"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="235dp"
+        android:layout_width="@dimen/dashboard_button_width"
         android:layout_height="45dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginEnd="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
         android:onClick="scanInventory"
         android:text="@string/scan_inventory"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/look_up_inventory_button" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.button.MaterialButton
         android:id="@+id/login_logout_button"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="235dp"
+        android:layout_width="@dimen/dashboard_button_width"
         android:layout_height="45dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginEnd="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
         android:onClick="login"
         android:text="@string/login"
         android:visibility="visible"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scan_inventory_button" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button2" />
 
     <android.support.design.button.MaterialButton
-        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/logs_button"
-        android:layout_width="235dp"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="@dimen/dashboard_button_width"
         android:layout_height="45dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
         android:text="Button"
         android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/machine_settings_button" />
+
+    <android.support.design.button.MaterialButton
+        android:id="@+id/button2"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="@dimen/dashboard_button_width"
+        android:layout_height="45dp"
+        android:layout_marginEnd="@dimen/dashboard_land_margin"
+        android:layout_marginTop="@dimen/dashboard_button_margin"
+        android:text="@string/remote_inventory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scan_inventory_button" />
 
 </android.support.constraint.ConstraintLayout>

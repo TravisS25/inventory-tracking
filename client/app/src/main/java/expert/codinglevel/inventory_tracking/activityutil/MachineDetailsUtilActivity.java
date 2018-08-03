@@ -26,7 +26,7 @@ public class MachineDetailsUtilActivity extends DBActivity {
         TextView machineStatusValue = (TextView) findViewById(R.id.machine_status_value);
         TextView scanValue = (TextView) findViewById(R.id.scan_value);
 
-        buildingValue.setText(machine.getMachineName().getText());
+        buildingValue.setText(machine.getBuilding().getText());
         floorValue.setText(machine.getFloor().getText());
         departmentValue.setText(machine.getDepartment().getText());
         roomValue.setText(machine.getRoom().getText());
