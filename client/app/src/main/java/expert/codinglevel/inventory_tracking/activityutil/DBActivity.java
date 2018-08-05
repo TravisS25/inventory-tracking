@@ -29,24 +29,22 @@ public class DBActivity extends AppCompatActivity {
     }
 
     protected void initDB(final @Nullable IDatabaseCallback callback){
+        Log.i(TAG, "+++ called parent initdb +++");
         new RetrieveDatabaseTask(
                 getApplicationContext(),
                 new IAsyncResponse<SQLiteDatabase>() {
                     @Override
                     public void processFinish(SQLiteDatabase result) {
+                        Log.i(TAG, "+++ retrieved db +++");
                         mDB = result;
 
                         if(callback != null){
+                            Log.i(TAG, "+++ callback not null +++");
                             callback.finished();
                         }
                     }
                 }
-        );
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        ).execute();
     }
 
     @Override

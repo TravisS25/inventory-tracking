@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import expert.codinglevel.inventory_tracking.R;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
+import expert.codinglevel.inventory_tracking.interfaces.IMachine;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
 import expert.codinglevel.inventory_tracking.model.Machine;
 import expert.codinglevel.inventory_tracking.setting.MachineSettings;
@@ -29,29 +31,71 @@ import expert.codinglevel.inventory_tracking.view.TextValue;
  *  to an appropriate position in a list view
  */
 public class CascadingDropDown {
+    public final static String TAG = CascadingDropDown.class.getSimpleName();
     private CascadingDropDown(){}
 
-//    public static void initSettingDropdownsFromDB(
-//            final Context context,
-//            final Map<String, Spinner> spinnerMap,
-//            final Machine machine
-//    ){
-//        new RetrieveDatabaseTask(
-//                context,
-//                new IAsyncResponse<SQLiteDatabase>() {
-//                    @Override
-//                    public void processFinish(SQLiteDatabase result) {
-//                        CascadingDropDown.initSettingDropdowns(
-//                                context,
-//                                spinnerMap,
-//                                result,
-//                                machine
-//                        );
-//                    }
-//                }
-//        );
+    public static void execBuildingCascade(
+        final Context context,
+        final Map<String, Spinner> spinners,
+        final SQLiteDatabase db,
+        final MachineSettings machine
+    ){
+        new CascadingBuildingDropDownTask(
+                machine.getBuilding().getValue(),
+                db,
+                new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
+                    @Override
+                    public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
+                        Log.i(TAG, "+++ Exec building cascade +++");
+                        ArrayAdapter<TextValue> buildingAdapter = new ArrayAdapter<>(
+                                context,
+                                android.R.layout.simple_spinner_item,
+                                result.get(HospitalContract.TABLE_BUILDING_NAME)
+                        );
 
-//    }
+                        ArrayAdapter<TextValue> floorAdapter = new ArrayAdapter<>(
+                                context,
+                                android.R.layout.simple_spinner_item,
+                                result.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
+                        );
+
+                        ArrayAdapter<TextValue> departmentAdapter = new ArrayAdapter<>(
+                                context,
+                                android.R.layout.simple_spinner_item,
+                                result.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+                        );
+
+                        ArrayAdapter<TextValue> roomAdapter = new ArrayAdapter<>(
+                                context,
+                                android.R.layout.simple_spinner_item,
+                                result.get(HospitalContract.TABLE_ROOM_NAME)
+                        );
+
+                        buildingAdapter.setDropDownViewResource(
+                                android.R.layout.simple_spinner_dropdown_item
+                        );
+                        floorAdapter.setDropDownViewResource(
+                                android.R.layout.simple_spinner_dropdown_item
+                        );
+                        departmentAdapter.setDropDownViewResource(
+                                android.R.layout.simple_spinner_dropdown_item
+                        );
+                        roomAdapter.setDropDownViewResource(
+                                android.R.layout.simple_spinner_dropdown_item
+                        );
+
+                        spinners.get(HospitalContract.TABLE_BUILDING_NAME)
+                                .setAdapter(buildingAdapter);
+                        spinners.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
+                                .setAdapter(floorAdapter);
+                        spinners.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+                                .setAdapter(departmentAdapter);
+                        spinners.get(HospitalContract.TABLE_ROOM_NAME)
+                                .setAdapter(roomAdapter);
+                    }
+                }
+        ).execute();
+    }
 
     public static Map<String, Spinner> initMachineSpinners(Activity activity){
         Spinner buildingSpinner = (Spinner) activity.findViewById(R.id.building_spinner);
@@ -69,18 +113,19 @@ public class CascadingDropDown {
         return spinnerMap;
     }
 
-    public static void initDropdownSettings(
+    public static void initDropdownListeners(
             final Context context,
             final Map<String, Spinner> spinners,
             final SQLiteDatabase db,
-            final MachineSettings machine
+            final IMachine machine
     ){
         for(Map.Entry<String, Spinner> entry : spinners.entrySet()){
             switch(entry.getKey()){
                 case HospitalContract.TABLE_BUILDING_NAME:
-                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    entry.getValue().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            Log.i(TAG, "+++ building selected +++");
                             TextValue item = (TextValue) adapterView.getSelectedItem();
                             machine.setBuilding(item);
 
@@ -126,14 +171,19 @@ public class CascadingDropDown {
                                                     .setAdapter(roomAdapter);
                                         }
                                     }
-                            );
+                            ).execute();
+                        }
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parentView) {
+                            // your code here
                         }
                     });
                     break;
                 case HospitalContract.TABLE_BUILDING_FLOOR_NAME:
-                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    entry.getValue().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            Log.i(TAG, "+++ floor selected +++");
                             TextValue item = (TextValue) adapterView.getSelectedItem();
                             machine.setFloor(item);
 
@@ -168,14 +218,20 @@ public class CascadingDropDown {
                                                     .setAdapter(roomAdapter);
                                         }
                                     }
-                            );
+                            ).execute();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parentView) {
+                            // your code here
                         }
                     });
                     break;
                 case HospitalContract.TABLE_DEPARTMENT_NAME:
-                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    entry.getValue().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            Log.i(TAG, "+++ department selected +++");
                             TextValue item = (TextValue) adapterView.getSelectedItem();
                             machine.setDepartment(item);
 
@@ -199,18 +255,45 @@ public class CascadingDropDown {
                                                     .setAdapter(roomAdapter);
                                         }
                                     }
-                            );
+                            ).execute();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parentView) {
+                            // your code here
                         }
                     });
                     break;
-                default:
-                    entry.getValue().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                case HospitalContract.TABLE_ROOM_NAME:
+                    entry.getValue().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            Log.i(TAG, "+++ room selected +++");
                             TextValue item = (TextValue) adapterView.getSelectedItem();
-                            machine.setDepartment(item);
+                            machine.setRoom(item);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parentView) {
+                            // your code here
                         }
                     });
+                    break;
+                case HospitalContract.TABLE_MACHINE_STATUS_NAME:
+                    entry.getValue().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            Log.i(TAG, "+++ machine status selected +++");
+                            TextValue item = (TextValue) adapterView.getSelectedItem();
+                            machine.setMachineStatus(item);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parentView) {
+                            // your code here
+                        }
+                    });
+                    break;
             }
         }
     }

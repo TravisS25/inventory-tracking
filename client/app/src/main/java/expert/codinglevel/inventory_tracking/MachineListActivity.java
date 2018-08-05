@@ -77,8 +77,10 @@ public class MachineListActivity extends DBActivity {
         initDB(new IDatabaseCallback() {
             @Override
             public void finished() {
+                Log.i(TAG, "+++ finished callback +++");
                 initAlertDialog();
                 initButtonListener();
+                queryMachineList();
             }
         });
 //        new RetrieveDatabaseTask(
@@ -279,6 +281,7 @@ public class MachineListActivity extends DBActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Machine machine = (Machine) parent.getAdapter().getItem(position);
+                Log.i(TAG, "+++ scanned time " + machine.getScannedTime() + " +++");
 
                 Intent detailIntent = new Intent(
                     getApplicationContext(),
@@ -344,6 +347,8 @@ public class MachineListActivity extends DBActivity {
                                     result.getColumnIndex(HospitalContract.Machine.SCANNED_TIME)
                             );
 
+                            Log.i(TAG, "+++ scanned time " + scannedTime + " +++");
+
                             Machine machine = new Machine();
                             machine.setMachineName(new TextValue(assetTag, machineID));
                             machine.setBuilding(new TextValue(buildingName, buildingID));
@@ -353,17 +358,6 @@ public class MachineListActivity extends DBActivity {
                             machine.setMachineStatus(new TextValue(machineStatusName, machineStatusID));
                             machine.setScannedTime(scannedTime);
                             mMachineList.add(machine);
-
-//                            MachineJson machineJson = new MachineJson(
-//                                    assetTag,
-//                                    scannedTime,
-//                                    buildingID,
-//                                    floorID,
-//                                    departmentID,
-//                                    roomID,
-//                                    machineStatusID
-//                            );
-//                            mMachineJsonList.add(machineJson);
                         }
                         result.close();
 

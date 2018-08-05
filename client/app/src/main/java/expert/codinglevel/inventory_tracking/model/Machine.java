@@ -110,7 +110,7 @@ public class Machine extends MachineSettings implements Parcelable, IMachine {
 //    public void setDepartment(TextValue department){ mDepartment = department; }
 //    public void setRoom(TextValue room){ mRoom = room; }
 //    public void setMachineStatus(TextValue machineStatus){ mMachineStatus = machineStatus; }
-    public void setScannedTime(String scannedTime){ scannedTime = scannedTime; }
+    public void setScannedTime(String time){ scannedTime = time; }
 
 //    //public void setAssetTag(TextValue machine){ mAssetTag = machine; }
 //    public void setBuildingID(String buildingID){ this.buildingID = buildingID; }

@@ -29,6 +29,7 @@ import java.util.Map;
 
 //import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
 import expert.codinglevel.inventory_tracking.activityutil.DBActivity;
+import expert.codinglevel.inventory_tracking.interfaces.IDatabaseCallback;
 import expert.codinglevel.inventory_tracking.json.CustomJsonObjectRequest;
 import expert.codinglevel.inventory_tracking.model.MachineJson;
 import expert.codinglevel.inventory_tracking.model.HospitalContract;
@@ -43,7 +44,7 @@ import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
 
 public class MachineEditActivity extends DBActivity {
     public static final String TAG = MachineEditActivity.class.getSimpleName();
-    private SQLiteDatabase mDB;
+    //private SQLiteDatabase mDB;
     private String mUserSession;
     private boolean mServerEdit;
     private Machine mMachine;
@@ -65,10 +66,10 @@ public class MachineEditActivity extends DBActivity {
 
         if(savedInstanceState != null){
             mMachine = savedInstanceState.getParcelable("machine");
-            mServerEdit = savedInstanceState.getParcelable("serverEdit");
+            mServerEdit = savedInstanceState.getBoolean("serverEdit");
         } else{
             mMachine = getIntent().getParcelableExtra("machine");
-            mServerEdit = getIntent().getParcelableExtra("serverEdit");
+            mServerEdit = getIntent().getBooleanExtra("serverEdit", false);
         }
 
         if(mServerEdit){
@@ -80,8 +81,18 @@ public class MachineEditActivity extends DBActivity {
 
         initMachineTitle();
         mSpinnerMap = CascadingDropDown.initMachineSpinners(this);
-        initCascadingSettings();
         initEditButton();
+        initDB(new IDatabaseCallback() {
+            @Override
+            public void finished() {
+                CascadingDropDown.initDropdownListeners(
+                        getApplicationContext(),
+                        mSpinnerMap,
+                        mDB,
+                        mMachine
+                );
+            }
+        });
     }
 
 //    @Override
@@ -116,23 +127,23 @@ public class MachineEditActivity extends DBActivity {
 //        }
 //    }
 
-    private void initCascadingSettings(){
-        new RetrieveDatabaseTask(
-            getApplicationContext(),
-            new IAsyncResponse<SQLiteDatabase>() {
-                @Override
-                public void processFinish(SQLiteDatabase result) {
-                    mDB = result;
-                    CascadingDropDown.initDropdownSettings(
-                        getApplicationContext(),
-                        mSpinnerMap,
-                        result,
-                        mMachine
-                    );
-                }
-            }
-        ).execute();
-    }
+//    private void initCascadingSettings(){
+//        new RetrieveDatabaseTask(
+//            getApplicationContext(),
+//            new IAsyncResponse<SQLiteDatabase>() {
+//                @Override
+//                public void processFinish(SQLiteDatabase result) {
+//                    mDB = result;
+//                    CascadingDropDown.initDropdownSettings(
+//                        getApplicationContext(),
+//                        mSpinnerMap,
+//                        result,
+//                        mMachine
+//                    );
+//                }
+//            }
+//        ).execute();
+//    }
 
 //    private void initSpinnerMap(){
 //        Spinner buildingSpinner = (Spinner) findViewById(R.id.building_spinner);

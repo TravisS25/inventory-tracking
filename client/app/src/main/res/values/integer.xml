@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- (Portrait) -->
+    <item type="integer" name="single_button_layout_weight">.1</item>
+
+    <!-- (Land) -->
+    <item type="integer" name="single_button_land_layout_weight">.15</item>
+
+
+    <item type="integer" name="row_table_label_weight">1</item>
+    <item type="integer" format="float" name="row_table_form_weight">.75</item>
+</resources>

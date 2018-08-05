@@ -2,27 +2,41 @@ package expert.codinglevel.inventory_tracking;
 
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 //import expert.codinglevel.inventory_tracking.adapter.MachineEditAdapter;
 import expert.codinglevel.inventory_tracking.activityutil.DBActivity;
 import expert.codinglevel.inventory_tracking.interfaces.IAsyncResponse;
 //import expert.codinglevel.inventory_tracking.model.MachineProperties;
+import expert.codinglevel.inventory_tracking.interfaces.IDatabaseCallback;
+import expert.codinglevel.inventory_tracking.model.HospitalContract;
+import expert.codinglevel.inventory_tracking.model.HospitalDbHelper;
 import expert.codinglevel.inventory_tracking.setting.MachineSettings;
 import expert.codinglevel.inventory_tracking.setting.Preferences;
+import expert.codinglevel.inventory_tracking.task.DatabaseTask;
+import expert.codinglevel.inventory_tracking.task.MachineFormTask;
+import expert.codinglevel.inventory_tracking.task.ReadDatabaseTask;
 import expert.codinglevel.inventory_tracking.task.RetrieveDatabaseTask;
+import expert.codinglevel.inventory_tracking.task.cascadingdropdown.CascadingBuildingDropDownTask;
+import expert.codinglevel.inventory_tracking.view.TextValue;
 import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
+import expert.codinglevel.inventory_tracking.widget.MachineForm;
 
 /**
  *  DefaultMachineSettingsActivity is activity that allows user to set
@@ -30,10 +44,7 @@ import expert.codinglevel.inventory_tracking.widget.CascadingDropDown;
  */
 public class DefaultMachineSettingsActivity extends DBActivity {
     public static final String TAG = DefaultMachineSettingsActivity.class.getSimpleName();
-    //private SQLiteDatabase mDB;
-    private Bundle mBundle;
     private MachineSettings mMachineSettings;
-    //private boolean mDBHasStopped = false;
     private Map<String, Spinner> mSpinnerMap;
 
     @Override
@@ -48,70 +59,56 @@ public class DefaultMachineSettingsActivity extends DBActivity {
         setContentView(R.layout.activity_machine);
 
         if(savedInstanceState != null){
-            setSettingsFromBundle();
+            setSettingsFromBundle(savedInstanceState);
         } else {
             setSettingsFromPref();
         }
 
         initMachineTitle();
-        mSpinnerMap = CascadingDropDown.initMachineSpinners(this);
-        initCascadingSettings();
+        mSpinnerMap = MachineForm.initSpinners(this);
         initSettingsButton();
-    }
+        initDB(new IDatabaseCallback() {
+            @Override
+            public void finished() {
+                new MachineFormTask(
+                        getBaseContext(),
+                        mMachineSettings,
+                        mDB,
+                        new IAsyncResponse<Map<String, ArrayAdapter<TextValue>>>() {
+                            @Override
+                            public void processFinish(Map<String, ArrayAdapter<TextValue>> result) {
+                                mSpinnerMap.get(HospitalContract.TABLE_BUILDING_NAME)
+                                    .setAdapter(result.get(HospitalContract.TABLE_BUILDING_NAME));
+                                mSpinnerMap.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME)
+                                    .setAdapter(result.get(HospitalContract.TABLE_BUILDING_FLOOR_NAME));
+                                mSpinnerMap.get(HospitalContract.TABLE_DEPARTMENT_NAME)
+                                    .setAdapter(result.get(HospitalContract.TABLE_DEPARTMENT_NAME));
+                                mSpinnerMap.get(HospitalContract.TABLE_ROOM_NAME)
+                                    .setAdapter(result.get(HospitalContract.TABLE_ROOM_NAME));
+                                mSpinnerMap.get(HospitalContract.TABLE_MACHINE_STATUS_NAME)
+                                    .setAdapter(result.get(HospitalContract.TABLE_MACHINE_STATUS_NAME));
 
-//    @Override
-//    protected void onResume(){
-//        Log.i(TAG, "+++ onResume +++");
-//        super.onResume();
-//
-//        if(mDBHasStopped){
-//            Log.i(TAG, "+++ retrieve db +++");
-//            retrieveDB();
-//        }
-//
-//        mDBHasStopped = false;
-//    }
-//
-//    @Override
-//    protected void onStop(){
-//        Log.i(TAG, "+++ onStop +++");
-//        super.onStop();
-//        mDB.close();
-//        mDBHasStopped = true;
-//    }
+                                MachineForm machineForm = new MachineForm();
+                                machineForm.initDropdownListeners(
+                                        getBaseContext(),
+                                        mSpinnerMap,
+                                        mDB,
+                                        mMachineSettings
+                                );
+                                MachineForm.initDefaultValues(
+                                        mMachineSettings,
+                                        mSpinnerMap
+                                );
+                            }
+                        }
+                ).execute();
+            }
+        });
+    }
 
     private void initMachineTitle(){
-        TextView machineTitle = (TextView) findViewById(R.id.machine_title);
-        machineTitle.setText("Machine Settings");
-    }
-
-//    private void retrieveDB(){
-//        if(!mDB.isOpen()){
-//            new RetrieveDatabaseTask(getApplicationContext(), new IAsyncResponse<SQLiteDatabase>() {
-//                @Override
-//                public void processFinish(SQLiteDatabase result) {
-//                    mDB = result;
-//                }
-//            }).execute();
-//        }
-//    }
-
-    private void initCascadingSettings(){
-        new RetrieveDatabaseTask(
-                getApplicationContext(),
-                new IAsyncResponse<SQLiteDatabase>() {
-                    @Override
-                    public void processFinish(SQLiteDatabase result) {
-                        mDB = result;
-                        CascadingDropDown.initDropdownSettings(
-                                getApplicationContext(),
-                                mSpinnerMap,
-                                result,
-                                mMachineSettings
-                        );
-                    }
-                }
-        );
+        LinearLayout layout = (LinearLayout) findViewById(R.id.title_layout);
+        layout.setVisibility(View.GONE);
     }
 
     // saveSettings converts mMachineSettings instance into json format
@@ -143,8 +140,8 @@ public class DefaultMachineSettingsActivity extends DBActivity {
 
     // setSettingsFromBundle grabs machine settings from bundle state
     // and applies to instance settings
-    private void setSettingsFromBundle(){
-        mMachineSettings = mBundle.getParcelable(getString(R.string.machine_settings));
+    private void setSettingsFromBundle(Bundle bundle){
+        mMachineSettings = bundle.getParcelable(getString(R.string.machine_settings));
         Log.i(TAG, "Room value from bundle " + mMachineSettings.getRoom().getValue());
     }
 
@@ -157,40 +154,4 @@ public class DefaultMachineSettingsActivity extends DBActivity {
         mMachineSettings = gson.fromJson(json, MachineSettings.class);
         Log.i(TAG, "Room value from pref " + mMachineSettings.getRoom().getValue());
     }
-
-    // initListAdapter queries db for cascading drop downs used in view and then
-    // inits list adapter
-//    private void initListAdapter(){
-//        final Activity activity = this;
-//
-//        new CascadingBuildingDropDownTask(
-//                mMachineSettings,
-//                mDB,
-//                new IAsyncResponse<HashMap<String, ArrayList<TextValue>>>() {
-//                    @Override
-//                    public void processFinish(HashMap<String, ArrayList<TextValue>> result) {
-//                        Log.i(TAG, result.toString());
-//                        MachineProperties.addCascadingProperties(activity, result, mPropertyList);
-//                        new MultipleReadDBTask(
-//                                HospitalDbHelper.getMachineDatabaseReadList(mMachineSettings),
-//                                mDB,
-//                                new IAsyncResponse<HashMap<String, Cursor>>() {
-//                                    @Override
-//                                    public void processFinish(HashMap<String, Cursor> result) {
-//                                        MachineProperties.addProperties(activity, result, mPropertyList);
-//                                        ListView listView = (ListView) findViewById(R.id.list_view);
-//                                        MachineEditAdapter adapter = new MachineEditAdapter(
-//                                                activity,
-//                                                mMachineSettings,
-//                                                mDB,
-//                                                mPropertyList
-//                                        );
-//                                        listView.setAdapter(adapter);
-//                                    }
-//                                }
-//                        ).execute();
-//                    }
-//                }
-//        ).execute();
-//    }
 }

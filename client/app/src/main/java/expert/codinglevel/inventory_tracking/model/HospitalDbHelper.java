@@ -259,7 +259,7 @@ public class HospitalDbHelper extends SQLiteOpenHelper {
     }
 
     public static String getAllMachineStatuses(){
-        return "select * from machine_status";
+        return "select _id as machine_status_id, status_name from machine_status";
     }
 
     public static String getBuildingJoinQuery(){

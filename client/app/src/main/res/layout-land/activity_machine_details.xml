@@ -18,9 +18,8 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/title_layout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/table_row_height_land"
                 android:orientation="horizontal">
 
                 <TextView
@@ -28,8 +27,8 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:textColor="@color/rowLabel"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/machine_name_text"
                     android:textSize="@dimen/machine_details_header"
                     tools:text="@string/machine_name_text" />
@@ -39,116 +38,145 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/table_row_height_land"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_label_weight"
-                    android:textColor="@color/rowLabel"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/building_text"
                     android:textSize="@dimen/machine_details_label" />
 
-                <Spinner
-                    android:id="@+id/building_spinner"
+                <TextView
+                    android:id="@+id/building_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_form_weight"
-                    android:inputType="text" />
+                    android:gravity="center"
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/table_row_height_land"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_label_weight"
-                    android:textColor="@color/rowLabel"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/floor_text"
                     android:textSize="@dimen/machine_details_label" />
 
-                <Spinner
-                    android:id="@+id/floor_spinner"
+                <TextView
+                    android:id="@+id/floor_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_form_weight"
-                    android:inputType="text" />
+                    android:gravity="center"
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/table_row_height_land"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_label_weight"
-                    android:textColor="@color/rowLabel"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/department_text"
                     android:textSize="@dimen/machine_details_label" />
 
-                <Spinner
-                    android:id="@+id/department_spinner"
+                <TextView
+                    android:id="@+id/department_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_form_weight"
-                    android:inputType="text" />
+                    android:gravity="center"
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/table_row_height_land"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_label_weight"
-                    android:textColor="@color/rowLabel"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/room_text"
                     android:textSize="@dimen/machine_details_label" />
 
-                <Spinner
-                    android:id="@+id/room_spinner"
+                <TextView
+                    android:id="@+id/room_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_form_weight"
-                    android:inputType="text" />
+                    android:gravity="center"
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/table_row_height"
+                android:layout_height="@dimen/table_row_height_land"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_label_weight"
-                    android:textColor="@color/rowLabel"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/machine_status_text"
                     android:textSize="@dimen/machine_details_label" />
 
-                <Spinner
-                    android:id="@+id/machine_status_spinner"
+                <TextView
+                    android:id="@+id/machine_status_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="@integer/row_table_form_weight"
-                    android:inputType="text" />
+                    android:gravity="center"
+                    android:textSize="@dimen/machine_details_label" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/table_row_height_land"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="@integer/row_table_label_weight"
+                    android:gravity="center"
+                    android:textColor="@color/rowLabel"
+                    android:text="@string/scan_time"
+                    android:textSize="@dimen/machine_details_label" />
+
+                <TextView
+                    android:id="@+id/scan_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="@integer/row_table_form_weight"
+                    android:gravity="center"
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
@@ -158,15 +186,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="@integer/single_button_layout_weight"
+        android:layout_weight="@integer/single_button_land_layout_weight"
         android:orientation="horizontal">
 
         <android.support.design.button.MaterialButton
-            android:id="@+id/edit_button"
+            android:id="@+id/action_button"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/edit" />
+            android:text="@string/delete" />
 
     </LinearLayout>
 </LinearLayout>
@@ -174,24 +202,24 @@
 
 
 
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
     <!--xmlns:tools="http://schemas.android.com/tools"-->
     <!--android:orientation="vertical" android:layout_width="match_parent"-->
     <!--android:layout_height="match_parent">-->
 
     <!--<ListView-->
-        <!--android:id="@+id/list_view"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="0dip"-->
-        <!--android:layout_weight="1"></ListView>-->
+    <!--android:id="@+id/list_view"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="0dip"-->
+    <!--android:layout_weight="1"></ListView>-->
 
     <!--<android.support.design.button.MaterialButton-->
-        <!--style="@style/Widget.AppCompat.Button.Colored"-->
-        <!--android:id="@+id/action_button"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_weight="0"-->
-        <!--android:textSize="18sp"-->
-        <!--tools:text="@string/edit" />-->
-<!--</LinearLayout>-->
+    <!--style="@style/Widget.AppCompat.Button.Colored"-->
+    <!--android:id="@+id/action_button"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_weight="0"-->
+    <!--android:textSize="18sp"-->
+    <!--tools:text="@string/edit" />-->
+    <!--</LinearLayout>-->

@@ -19,7 +19,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/machine_log_filter_table_row_height"
+                android:layout_height="@dimen/table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -28,8 +28,9 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/machine_name_text"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/machine_details_header"
                     tools:text="@string/machine_name_text" />
 
 
@@ -37,139 +38,145 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/machine_log_filter_table_row_height"
+                android:layout_height="@dimen/table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_label_weight"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/building_text"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
                 <TextView
                     android:id="@+id/building_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_form_weight"
                     android:gravity="center"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/machine_log_filter_table_row_height"
+                android:layout_height="@dimen/table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_label_weight"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/floor_text"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
                 <TextView
                     android:id="@+id/floor_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_form_weight"
                     android:gravity="center"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/machine_log_filter_table_row_height"
+                android:layout_height="@dimen/table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_label_weight"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/department_text"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
                 <TextView
                     android:id="@+id/department_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_form_weight"
                     android:gravity="center"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/machine_log_filter_table_row_height"
+                android:layout_height="@dimen/table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_label_weight"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/room_text"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
                 <TextView
                     android:id="@+id/room_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_form_weight"
                     android:gravity="center"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/machine_log_filter_table_row_height"
+                android:layout_height="@dimen/table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_label_weight"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/machine_status_text"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
                 <TextView
                     android:id="@+id/machine_status_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_form_weight"
                     android:gravity="center"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/machine_log_filter_table_row_height"
+                android:layout_height="@dimen/table_row_height"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_label_weight"
                     android:gravity="center"
+                    android:textColor="@color/rowLabel"
                     android:text="@string/scan_time"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
                 <TextView
                     android:id="@+id/scan_value"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="@integer/row_table_form_weight"
                     android:gravity="center"
-                    android:textSize="18sp" />
+                    android:textSize="@dimen/machine_details_label" />
 
             </LinearLayout>
 
@@ -179,7 +186,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight=".1"
+        android:layout_weight="@integer/single_button_layout_weight"
         android:orientation="horizontal">
 
         <android.support.design.button.MaterialButton

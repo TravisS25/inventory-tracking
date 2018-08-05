@@ -48,6 +48,7 @@ public class MachineListAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, final ViewGroup parent) {
         ViewHolder holder;
         Machine machine = (Machine) getItem(position);
+        Log.i(TAG, "+++ Within view scan time" + machine.getScannedTime() + " +++");
 
         // check if the view already exists if so, no need to inflate and findViewById again!
         if (convertView == null) {
@@ -65,7 +66,7 @@ public class MachineListAdapter extends BaseAdapter {
                     Intent intent = new Intent(mContext, MachineEditActivity.class);
                     Log.i(TAG, "+++ onclick edit  +++" + machine);
                     intent.putExtra("machine", machine);
-//                    intent.putExtra("activityType", ActivityType.EDIT);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(intent);
                 }
             });
@@ -76,6 +77,7 @@ public class MachineListAdapter extends BaseAdapter {
                     Machine machine = mDataSource.get(position);
                     Intent intent = new Intent(mContext, MachineDeleteActivity.class);
                     intent.putExtra("machine", machine);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(intent);
                 }
             });
@@ -90,7 +92,6 @@ public class MachineListAdapter extends BaseAdapter {
 
         // Update row view's textviews to display machine information
         holder.mMachineNameTextView.setText(machine.getMachineName().getText());
-
         return convertView;
     }
 

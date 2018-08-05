@@ -14,7 +14,7 @@
     <string name="logout">Logout</string>
     <string name="skip">Skip</string>
     <string name="logs">Logs</string>
-    <string name="date_format">yyyy-MM-dd HH:mm:ss</string>
+    <string name="date_format">yyyy-MM-dd hh:mm:ss a</string>
     <string name="scan_time">Scanned</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>

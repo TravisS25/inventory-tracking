@@ -53,6 +53,7 @@
         <activity
             android:parentActivityName="expert.codinglevel.inventory_tracking.MachineListActivity"
             android:name="expert.codinglevel.inventory_tracking.MachineDetailsActivity"
+            android:label="Machine Details"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -61,6 +62,7 @@
         <activity
             android:parentActivityName="expert.codinglevel.inventory_tracking.MachineListActivity"
             android:name="expert.codinglevel.inventory_tracking.MachineEditActivity"
+            android:label="Machine Edit"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -69,6 +71,7 @@
         <activity
             android:parentActivityName="expert.codinglevel.inventory_tracking.DashboardActivity"
             android:name="expert.codinglevel.inventory_tracking.DefaultMachineSettingsActivity"
+            android:label="Machine Settings"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             android:windowSoftInputMode="stateAlwaysHidden">
